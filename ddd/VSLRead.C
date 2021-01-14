@@ -69,6 +69,15 @@ char VSLRead_rcsid[] =
 #include "VSEFlags.h"
 #include "config.h"
 
+#define YY_NO_UNPUT
+#define vslfilename yyfilename
+#define vlserror yyerror
+#define vslstream yystream
+#define vsllinenumber yylinenumber
+#define vslnameSet yynameSet
+
+void vslerror(const char *s);
+    
 
 static VSLLib *vsllib = 0;	// The VSL library to read
 

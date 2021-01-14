@@ -1480,8 +1480,9 @@ string replicate(const string& y, int n)
     return w;
 }
 
-string common_prefix(const string& x, const string& y, int startpos)
+string common_prefix(const string& x, const string& y)
 {
+    int startpos = 0;
     string r;
     if ((int)x.length() + startpos < 0 || (int)y.length() + startpos < 0)
 	return r;
@@ -1500,8 +1501,9 @@ string common_prefix(const string& x, const string& y, int startpos)
     return r;
 }
 
-string common_suffix(const string& x, const string& y, int startpos) 
+string common_suffix(const string& x, const string& y) 
 {
+    int startpos = -1;
     string r;
     if ((int)x.length() + startpos < 0 || (int)y.length() + startpos < 0)
 	return r;
@@ -1562,10 +1564,11 @@ std::istream& operator>>(std::istream& s, string& x)
     return s;
 }
 
-int readline(std::istream& s, string& x, char terminator, int discard)
+int readline(std::istream& s, string& x)
 {
     assert(!x.consuming());
-
+    char terminator = '\n';
+    int discard = 1;
     // Read whitespace
     if (!s.good()) 
     {

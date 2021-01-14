@@ -816,10 +816,10 @@ $(srcdir)/vsl-lex.C: $(srcdir)/vsl-lex.L
 $(srcdir)/vsl-gramma.h $(srcdir)/vsl-gramma.C: $(srcdir)/vsl-gramma.Y \
 	$(YACCTOCXX) $(YACCTOCXX).bison $(YACCTOCXX).h $(YACCTOCXX).sun
 	$(YACC) $(YFLAGS) -d $(srcdir)/vsl-gramma.Y
-	$(SHELL) $(YACCTOCXX) -prefix vsl
-	$(MV) y.tab.hh $(srcdir)/vsl-gramma.h
-	$(MV) y.tab.cc $(srcdir)/vsl-gramma.C
-	$(RM) y.tab.c y.tab.h
+#	$(SHELL) $(YACCTOCXX) -prefix vsl
+	$(MV) vsl-gramma.H $(srcdir)/vsl-gramma.h
+#	$(MV) y.tab.cc $(srcdir)/vsl-gramma.C
+#	$(RM) y.tab.c y.tab.h
 
 VSLRead.$(OBJEXT): \
 	$(srcdir)/vsl-lex.C \
@@ -829,9 +829,9 @@ VSLRead.$(OBJEXT): \
 # DDD regexp parsers.
 rxscan.C: $(srcdir)/rxscan.L
 	$(LEX) $(LFLAGS) $(srcdir)/rxscan.L
-	$(SHELL) $(LEXTOCXX) -prefix "ddd"
-	$(MV) $(LEX_OUTPUT_ROOT).cc $@
-	$(RM) $(LEX_OUTPUT_ROOT).c
+#	$(SHELL) $(LEXTOCXX) -prefix "ddd"
+#	$(MV) $(LEX_OUTPUT_ROOT).cc $@
+#	$(RM) $(LEX_OUTPUT_ROOT).c
 
 regexps.$(OBJEXT): rxscan.C
 
@@ -1031,8 +1031,8 @@ bug.$(OBJEXT):	$(srcdir)/bug.C
 
 # This jewel makes an `emboss' effect in two steps:
 # 1. Create a displaced mask in FILE-mask.pbm, using `pnmcut' and `pnmpaste'
-# 2. Add the mask to FILE.xbm, using `pamarith'.
-.xbm.xpmxx:
+# 2. Add the mask to FILE.xbm, using `pnmarith'.
+#.xbm.xpmxx:
 	@$(ECHO) "Creating $@"
 	@-base=`$(ECHO) $@ | $(SED) 's,.*/,,' | $(SED) 's/[.]x[bp]m.*//'`; \
 	$(SED) 's/unsigned //' $< | \
@@ -1045,7 +1045,7 @@ bug.$(OBJEXT):	$(srcdir)/bug.C
 	$(SED) -e 's/#00*/grey50/' -e 's/#FF*/grey/' \
 	-e 's/\<black\>/grey50/' -e 's/\<white\>/grey/' | \
 	$(XPMTOPPM) > $${base}-button.ppm; \
-	$(PAMARITH) -add $${base}-button.ppm $${base}-mask.pbm | \
+	$(PNMARITH) -add $${base}-button.ppm $${base}-mask.pbm | \
 	$(PPMTOXPM) | \
 	$(SED) 's/c #BE[BE]*/c none   g none   m none  s Background/' | \
 	$(SED) 's/c #7F[7F]*/c grey50 g grey50 m black/' | \
@@ -1392,7 +1392,7 @@ IMAGE_WIDTH = 800
 PBMTOXBM   = pbmtoxbm
 PGMENHANCE = pgmenhance
 PGMTOPBM   = pgmtopbm -threshold
-PAMARITH   = pamarith
+PNMARITH   = pnmarith
 PNMCUT     = pnmcut
 PNMDEPTH   = pnmdepth
 PNMGAMMA   = pnmgamma

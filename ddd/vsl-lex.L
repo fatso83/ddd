@@ -1,5 +1,10 @@
 /* $Id$ -*- C++ -*- */
 /* VSL lexical analysis */
+%option outfile="vsl-lex.C"
+%option prefix="vsl"
+%option 8bit
+%option noyywrap
+
 
 %{
 // Copyright (C) 1995 Technische Universitaet Braunschweig, Germany.

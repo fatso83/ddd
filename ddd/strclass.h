@@ -810,10 +810,8 @@ public:
     friend int split(const string& x, string *res, int maxn, 
 		     const regex& sep);
 
-    friend string common_prefix(const string& x, const string& y, 
-				int startpos = 0);
-    friend string common_suffix(const string& x, const string& y, 
-				int startpos = -1);
+    friend string common_prefix(const string& x, const string& y);
+    friend string common_suffix(const string& x, const string& y);
     friend string replicate(char c, int n);
     friend string replicate(const string& y, int n);
     friend string join(const string *src, int n, const string& sep);
@@ -863,9 +861,7 @@ public:
     friend inline std::ostream& operator<<(std::ostream& s, const subString& x);
     friend std::istream& operator>>(std::istream& s, string& x);
 
-    friend int readline(std::istream& s, string& x, 
-			char terminator = '\n',
-			int discard_terminator = 1);
+    friend int readline(std::istream& s, string& x);
 
     // Status
     unsigned int length() const;

@@ -1,5 +1,7 @@
 /* $Id$ -*- C++ -*- */
 /* VSL grammar */
+%name-prefix "vsl"
+%output "vsl-gramma.C"
 
 %{
 
@@ -87,11 +89,11 @@ VSLNode *VSLLib::call(const string& name,
 }
 
 // Some settings
-#define YYERROR_VERBOSE
-
-#ifdef YYERROR_VERBOSE
-#define YYDEBUG 1
-#endif
+// #define YYERROR_VERBOSE
+// 
+// #ifdef YYERROR_VERBOSE
+// #define YYDEBUG 1
+// #endif
 %}
 
 /*** Tokens ***/
