@@ -1618,6 +1618,14 @@ static void add_button(Widget form, int& row, Dimension& max_width,
 		// equivalent `show extension-language'.
 		if (base == "extension-language")
 		    return;
+                
+		// Resolve the DDD hang reported at
+		// https://stackoverflow.com/questions/2914003/ddd-hangs-on-start.
+		// GDB's default value is the string "not set" which hangs
+		// DDD when sourcing the gdbSettings on initialization.
+                // extended-prompt will break the communication with DDD
+                if (base == "extended-prompt")
+                    return;
 
 		if (doc.contains("deprecated"))
 		    return;	// Won't support this
