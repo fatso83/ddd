@@ -154,7 +154,7 @@ static MMDesc file_menu[] =
     { "export",  MMPush, { ExportPlotCB, 0 }, 0, 0, 0, 0 },
     MMSep,
     { "close",   MMPush, { CancelPlotCB, 0 }, 0, 0, 0, 0 },
-    { "exit",    MMPush, { DDDExitCB, XtPointer(EXIT_SUCCESS) }, 0, 0, 0, 0},
+//    { "exit",    MMPush, { DDDExitCB, XtPointer(EXIT_SUCCESS) }, 0, 0, 0, 0},  // disable exit in plotter window, since it exits dddd
     MMEnd
 };
 
@@ -823,6 +823,7 @@ static PlotWindowInfo *new_decoration(const string& name)
 	XtManageChild(scroll);
 
 	// Create work window
+        app_data.plot_term_type = "x11";  // always use x11 unless bug in xlib display is found
 	Widget work;
 	string plot_term_type = downcase(app_data.plot_term_type);
 	if (plot_term_type.contains("xlib", 0))
@@ -1322,7 +1323,7 @@ static void ToggleOptionCB(Widget w, XtPointer client_data,
     if (cbs->set)
 	cmd = string("set ") + XtName(w);
     else
-	cmd = string("set no") + XtName(w);
+	cmd = string("unset") + XtName(w);
 
     send_and_replot(plot, cmd);
 }
@@ -1338,7 +1339,7 @@ static void ToggleLogscaleCB(Widget, XtPointer client_data,
     if (cbs->set)
 	cmd = "set logscale ";
     else
-	cmd = "set nologscale ";
+	cmd = "unset logscale ";
 
     if (plot->plotter->dimensions() >= 3)
 	cmd += "z";
@@ -1365,12 +1366,12 @@ static void SetStyleCB(Widget w, XtPointer client_data, XtPointer call_data)
 	}
 	else
 	{
-	    cmd = "set nohidden3d\n";
+	    cmd = "unset hidden3d\n";
 	}
 	if (style.contains("2d", -1))
 	    style = style.before("2d");
 	
-	cmd += "set data style " + style;
+	cmd += "set style data " + style;
 
 	send_and_replot(plot, cmd);
     }
