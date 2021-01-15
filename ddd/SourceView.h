@@ -395,6 +395,8 @@ class SourceView {
     static XmTextPosition last_pos;
     static XmTextPosition last_start_highlight;
     static XmTextPosition last_end_highlight;
+    static Position last_x;
+    static Position last_y;
 
     // Some positions in assembler code.
     static XmTextPosition last_top_pc;

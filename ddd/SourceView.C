@@ -390,6 +390,8 @@ XmTextPosition SourceView::last_top                = 0;
 XmTextPosition SourceView::last_pos                = 0;
 XmTextPosition SourceView::last_start_highlight    = 0;
 XmTextPosition SourceView::last_end_highlight      = 0;
+Position SourceView::last_x                        = 0;
+Position SourceView::last_y                        = 0;
 
 XmTextPosition SourceView::last_top_pc             = 0;
 XmTextPosition SourceView::last_pos_pc             = 0;
@@ -8342,6 +8344,10 @@ void SourceView::CheckScrollCB(Widget, XtPointer, XtPointer)
 {
     static XtIntervalId check_scroll_id = 0;
 
+    // store old xy position of insert cursor
+    XmTextPosition pos = XmTextGetInsertionPosition(source_text_w);
+    XmTextPosToXY(source_text_w, pos, &last_x, &last_y);
+
     if (check_scroll_id != 0)
     {
 	XtRemoveTimeOut(check_scroll_id);
@@ -8363,6 +8369,26 @@ void SourceView::CheckScrollWorkProc(XtPointer client_data, XtIntervalId *id)
     {
 	assert(*timer == *id);
 	*timer = 0;
+    }
+
+    // place the cursor inside the scrolled area
+    XmTextPosition toppos = XmTextGetTopCharacter(source_text_w);
+    XmTextPosition pos = XmTextGetInsertionPosition(source_text_w);
+    if (toppos>pos)
+    {
+        XmTextPosition newcursorpos = XmTextXYToPos(source_text_w, last_x, 0);
+        XmTextSetInsertionPosition(source_text_w, newcursorpos);
+    }
+
+    Dimension width, height;
+    XtVaGetValues(source_text_w, XmNwidth, &width, XmNheight, &height, XtPointer(0));
+    
+    XmTextPosition bottompos = XmTextXYToPos(source_text_w, width, height-line_height(source_text_w));
+
+    if (bottompos<pos)
+    {
+        XmTextPosition newcursorpos = XmTextXYToPos(source_text_w, last_x, height-line_height(source_text_w));
+        XmTextSetInsertionPosition(source_text_w, newcursorpos);
     }
 
     XmTextPosition old_top = last_top;
