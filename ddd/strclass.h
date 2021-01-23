@@ -661,7 +661,7 @@ public:
     bool contains(const regex& r) const;
 
     // Return 1 if target appears anywhere after position pos 
-    // (or before, if pos is negative) in string; else 0
+    // (if pos is negative, pos is counted from the end of the string) in string; else 0
     bool contains(char c, int pos) const;
     bool contains(const string& y, int pos) const;
     bool contains(const subString& y, int pos) const;

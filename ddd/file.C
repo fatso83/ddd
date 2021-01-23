@@ -1954,6 +1954,7 @@ void gdbLookupSourceCB(Widget w, XtPointer client_data, XtPointer call_data)
 #endif
 
 	source_list = XmSelectionBoxGetChild(dialog, XmDIALOG_LIST);
+        XtVaSetValues(source_list, XmNheight, 600, NULL);
 
 	XtAddCallback(source_list, XmNsingleSelectionCallback,
 		      SelectSourceCB, XtPointer(source_list));
