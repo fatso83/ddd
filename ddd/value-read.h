@@ -41,6 +41,9 @@
 // Determine type of next element in VALUE
 DispValueType determine_type (string& value);
 
+// Check for STL types and set type
+bool checkSTL(string& value, DispValueType &type);
+
 // Read single token from VALUE
 string read_token (string& value);
 

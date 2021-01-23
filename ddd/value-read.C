@@ -311,6 +311,46 @@ DispValueType determine_type(string& value)
     return type;
 }
 
+bool checkSTL(string& value, DispValueType &type)
+{
+    strip_leading_space(value);
+    
+    int sep1 = value.index(' ');
+    int sep2 = value.index('<');
+    if (sep2>0 && sep2<sep1)
+        sep1 = sep2;
+    
+    subString keyword = value.before(sep1);
+    
+    if (keyword.contains("std::")==false)
+        return false;
+        
+    if (keyword.contains("::vector"))
+    {
+        type =  STLVector;
+        return true;
+    }
+    
+    if (keyword.contains("::list"))
+    {
+        type =  STLList;
+        return true;
+    }
+    
+    if (keyword.contains("::map") || keyword.contains("::multimap") || keyword.contains("::unordered_map") || keyword.contains("::unordered_multimap"))
+    {
+        type =  STLList;
+        return true;
+    }
+
+    if (keyword.contains("::set") || keyword.contains("::multiset") || keyword.contains("::unordered_set") || keyword.contains("::unordered_multiset"))
+    {
+        type =  STLList;
+        return true;
+    }
+
+    return false;
+}
 
 // Read tokens up to character DELIM
 static bool read_up_to(const char *value, int& pos, char delim)
@@ -1062,6 +1102,7 @@ static void read_leading_comment (string& value)
 		value = value.from(i + 1);
 		return;
 	    }
+        // FALL THROUGH
 
 	default: 
 	    sf = false; 
