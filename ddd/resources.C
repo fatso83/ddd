@@ -790,7 +790,7 @@ XtResource ddd_resources[] = {
 	sizeof(String),
 	XtOffsetOf(AppData, plot_term_type),
 	XtRString,
-	XtPointer("xlib")
+	XtPointer("x11")
     },
 
     {

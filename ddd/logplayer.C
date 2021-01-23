@@ -87,12 +87,12 @@ typedef void (*SignalProc)(SIGHANDLERARGS);
 static jmp_buf main_loop_env;
 
 // Handle interrupts
-static int intr(int sig)
+static void intr(int sig)
 {
     signal(SIGINT, (SignalProc)intr);
     longjmp(main_loop_env, sig);
 
-    return 0;			// Never reached
+    return;			// Never reached
 }
 
 static const char *usage = 
