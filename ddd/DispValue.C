@@ -808,13 +808,33 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 	myexpanded = true;
 
 	int sep = value.index('=');
-
-	string para = value.before(sep);
-	value = value.after(sep);
-
-
-	_children += parse_child(depth, para, myfull_name, Text);
-	_children += parse_child(depth, value, myfull_name, Array);
+        if (sep>0)
+        {
+            string para = value.before(sep);
+            if (para.contains("length 0,"))
+            {
+                int sep =  value.index(',');
+                sep = value.index(',', sep+1);
+                para = value.before(sep);
+                value = value.after(sep);
+                string emptyvalue = "";
+                _children += parse_child(depth, para, myfull_name, Text);
+                _children += parse_child(depth, emptyvalue, myfull_name, Text);
+            }
+            else
+            {
+                value = value.after(sep);
+                _children += parse_child(depth, para, myfull_name, Text);
+                _children += parse_child(depth, value, myfull_name, Array);
+            }
+        }
+        else
+        {
+            string emptyvalue = "";
+            _children += parse_child(depth, value, myfull_name, Text);
+            _children += parse_child(depth, emptyvalue, myfull_name, Text);
+            
+        }
 
 	if (background(value.length()))
 	{
