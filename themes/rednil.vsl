@@ -9,12 +9,13 @@ old_dereferenced_pointer_value(...) -> dereferenced_pointer_value(...);
 #pragma override pointer_value
 #pragma override dereferenced_pointer_value
 
-// True if S1 ends in S2
-ends_in(s1, s2) = 
-    let s1c = chars(s1), s2c = chars(s2) in suffix(s2c, s1c);
+// True if S1 starts in S2
+starts_with(s1, s2) = 
+    let s1c = chars(s1), s2c = chars(s2) in prefix(s2c, s1c);
 
+// replacement for the old version based on suffixes, since suffix is very slow and causes VSL stack overflows for long strings
 // True if null value
-is_null(value) = (ends_in(value, "0x0") or ends_in(value, "nil"));
+is_null(value) = (starts_with(value, "0x0 ") or value="0x0" or starts_with(value, "nil ") or value="nil");
 
 // Rendering of null values
 null_pointer(value) = color(value, "red");
