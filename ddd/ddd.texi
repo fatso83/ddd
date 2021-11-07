@@ -5750,20 +5750,20 @@ The following fonts can be set using the preferences panel:
 @table @code
 @item Default Font
 The default @DDD{} font to use for labels, menus, and buttons.
-Default is @samp{helvetica-bold}.
+Default is @samp{liberation sans-bold} (similar to Helvetica Bold).
 
 @item Variable Width
 The variable width @DDD{} font to use for help texts and messages.
-Default is @samp{helvetica-medium}.
+Default is @samp{liberation sans-medium} (similar to Helvetica Medium).
 
 @item Fixed Width
 The fixed width @DDD{} font to use for source code, the debugger
 console, text fields, and the execution window.  Default
-is @samp{lucidatypewriter-medium}.
+is @samp{liberation mono-bold} (similar to Courier Bold).
 
 @item Data
 The @DDD{} font to use for data displays.  Default
-is @samp{lucidatypewriter-medium}.
+is @samp{liberation mono-bold}. (similar to Courier Bold).
 @end table
 
 Changes in this panel will take effect only in the next @DDD{} session.
@@ -5784,13 +5784,13 @@ The font is specified as an X font spec, where the initial @var{Foundry}
 specification may be omitted, as well as any specification after
 @var{Family}.  
 
-Default value is @samp{helvetica-bold}.
+Default value is @samp{liberation sans-bold} (similar to Helvetica Bold).
 
-To set the default @DDD{} font to, say, @samp{helvetica medium},
-insert a line
+To set the default @DDD{} font to, say, @samp{liberation sans medium} 
+(similar to Helvetica Medium), insert a line
 
 @example
-@value{Ddd}*defaultFont: helvetica-medium
+@value{Ddd}*defaultFont: liberation sans-medium
 @end example
 
 @noindent
@@ -5809,13 +5809,13 @@ The font is specified as an X font spec, where the initial @var{Foundry}
 specification may be omitted, as well as any specification after
 @var{Family}.
 
-Default value is @samp{helvetica-medium-r}.
+Default value is @samp{liberation sans-medium-r}.
 
 To set the variable width @DDD{} font family to, say,
-@samp{times}, insert a line
+@samp{liberation serif} (similar to Times Roman), insert a line
 
 @example
-@value{Ddd}*fixedWidthFont: times-medium
+@value{Ddd}*fixedWidthFont: liberation serif-medium
 @end example
 
 @noindent
@@ -5836,13 +5836,14 @@ is specified as an X font spec, where the initial @var{Foundry}
 specification may be omitted, as well as any specification after
 @var{Family}.
 
-Default value is @samp{lucidatypewriter-medium}.
+Default value is @samp{liberation mono-bold} (similar to Courier
+Bold)..
 
-To set the fixed width @DDD{} font family to, say, @samp{courier},
-insert a line
+To set the fixed width @DDD{} font family to, say, @samp{liberation mono medium}
+(similar to Courier Medium) insert a line
 
 @example
-@value{Ddd}*fixedWidthFont: courier-medium
+@value{Ddd}*fixedWidthFont: liberation mono-medium
 @end example
 
 @noindent
@@ -5862,13 +5863,13 @@ is specified as an X font spec, where the initial @var{Foundry}
 specification may be omitted, as well as any specification after
 @var{Family}.
 
-Default value is @samp{lucidatypewriter-medium}.
+Default value is @samp{liberation mono-bold} (similar to Courier Bold).
 
-To set the @DDD{} data font family to, say, @samp{courier},
-insert a line
+To set the @DDD{} data font family to, say, @samp{liberation mono medium}
+(similar to Courier Medium), insert a line
 
 @example
-@value{Ddd}*dataFont: courier-medium
+@value{Ddd}*dataFont: liberation mono-medium
 @end example
 
 @noindent

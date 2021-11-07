@@ -159,6 +159,18 @@ static FONTMAP const map[] = {
 {"-*-new century schoolbook-medium-*-*", "/NewCenturySchlbk-Italic",     25},
 {"-*-new century schoolbook-medium-r-*", "/NewCenturySchlbk-Roman",      24},
 {"-*-symbol-medium-",                    "/Symbol",                      32},
+{"-*-liberation serif-medium-r-*-",	 "/Times-Roman",                  0},
+{"-*-liberation serif-medium-*-*-",      "/Times-Italic",                 1},
+{"-*-liberation serif-bold-r-*-",	 "/Times-Bold",                   2},
+{"-*-liberation serif-bold-*-*-",	 "/Times-BoldItalic",             3},
+{"-*-liberation mono-medium-r-*-",	 "/Courier",                     12},
+{"-*-liberation mono-medium-*-*-",	 "/Courier-Oblique",             13},
+{"-*-liberation mono-bold-r-*-",	 "/Courier-Bold",                14},
+{"-*-liberation mono-bold-*-*-",	 "/Courier-BoldOblique",         15},
+{"-*-liberation sans-medium-r-*-",	 "/Helvetica-Narrow",            16},
+{"-*-liberation sans-medium-*-*-",	 "/Helvetica-NarrowOblique",     17},
+{"-*-liberation sans-bold-r-*-",	 "/Helvetica",                   18},
+{"-*-liberation sans-bold-*-*-",	 "/Helvetica-Oblique",           19},
 };
 
 static int mappings = sizeof (map) / sizeof (FONTMAP) ;

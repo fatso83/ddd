@@ -1645,12 +1645,21 @@ static MMDesc variable_width_font_menu [] = FONT_MENU(VariableWidthDDDFont);
 static MMDesc fixed_width_font_menu    [] = FONT_MENU(FixedWidthDDDFont);
 static MMDesc data_font_menu           [] = FONT_MENU(DataDDDFont);
 
+const char * font_menu_notes = 
+    " \n"
+    "Selecting fonts with xfontsel:\n"
+    "Only scalable fonts should be selected (ptSz=0).\n"
+    "Default and Variable fonts must be proportional (spc=p),\n"
+    "Fixed and Dafa fonts must be monospaced (spc=m).\n"
+    DDD_NAME " only supports ISO8859-1 encoding.\n" ;
+
 static MMDesc font_preferences_menu [] =
 {
     { "default",         MMPanel,  MMNoCB, default_font_menu, 0, 0, 0 },
     { "variableWidth",   MMPanel,  MMNoCB, variable_width_font_menu, 0, 0, 0 },
     { "fixedWidth",      MMPanel,  MMNoCB, fixed_width_font_menu, 0, 0, 0 },
     { "data",            MMPanel,  MMNoCB, data_font_menu, 0, 0, 0 },
+    { font_menu_notes, 	 MMLabel,  MMNoCB, 0, 0, 0, 0 },
     MMEnd
 };
 

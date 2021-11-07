@@ -162,12 +162,12 @@ static string fallbackfont(DDDFont font)
     switch (font) 
     {
     case DefaultDDDFont:
- 	return "-*-helvetica-bold-r-*-*-*-120-*-*-*-*-iso8859-*";
+	return "-misc-liberation sans-bold-r-normal--0-0-0-0-p-0-iso8859-1";
     case VariableWidthDDDFont:
- 	return "-*-helvetica-medium-r-*-*-*-120-*-*-*-*-iso8859-*";
+	return "-misc-liberation sans-medium-r-normal--0-0-0-0-p-0-iso8859-1";
     case FixedWidthDDDFont:
     case DataDDDFont:
- 	return "-*-lucidatypewriter-medium-r-*-*-*-120-*-*-*-*-iso8859-*";
+	return "-misc-liberation mono-bold-r-normal--0-0-0-0-m-0-iso8859-1";
     case SymbolDDDFont:
  	return "-*-symbol-*-*-*-*-*-120-*-*-*-*-adobe-*";
     }
@@ -723,7 +723,7 @@ static void DeleteAgentHP(Agent *agent, void *client_data, void *)
 static void process_font(DDDFont font, string fontspec)
 {
     string sz = component(fontspec, PointSize);
-    if (sz != "*")
+    if (sz != "*" && sz != "0")
 	set_font_size(font, atoi(sz.chars()));
 
     fontspec.gsub('*', ' ');

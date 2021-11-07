@@ -343,7 +343,7 @@ XtResource ddd_resources[] = {
 	sizeof(String),
 	XtOffsetOf(AppData, default_font),
 	XtRString, 
-	XtPointer("-*-helvetica-bold-r-*")
+	XtPointer("-*-liberation sans-bold-r-*")
     },
 
     { 
@@ -353,7 +353,7 @@ XtResource ddd_resources[] = {
 	sizeof(String),
 	XtOffsetOf(AppData, variable_width_font),
 	XtRString,
-	XtPointer("-*-helvetica-medium-r-*")
+	XtPointer("-*-liberation sans-medium-r-*")
     },
 
     { 
@@ -363,7 +363,7 @@ XtResource ddd_resources[] = {
 	sizeof(String),
 	XtOffsetOf(AppData, fixed_width_font),
 	XtRString,
-	XtPointer("-*-courier-medium-r-*")
+	XtPointer("-*-liberation mono-medium-r-*")
     },
 
     { 
@@ -373,7 +373,7 @@ XtResource ddd_resources[] = {
 	sizeof(String),
 	XtOffsetOf(AppData, data_font),
 	XtRString,
-	XtPointer("-*-courier-medium-r-*")
+	XtPointer("-*-liberation mono-medium-r-*")
     },
 
     {
