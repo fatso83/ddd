@@ -719,6 +719,7 @@ ddd_LDADD = $(RPATH) $(ALL_X_LIBS) $(ALL_LIBS)
 vsl_LDADD = $(RPATH) $(ALL_X_LIBS) $(ALL_LIBS)
 X_INCLUDE = @X_CFLAGS@
 AM_CPPFLAGS = -I$(srcdir)/.. $(X_INCLUDE)
+m4dir=$(srcdir)/../m4
 
 # -----------------------------------------------------------------------------
 # DDD Application Defaults.
@@ -730,27 +731,26 @@ Ddd.ad.h: Ddd $(srcdir)/ad2c.sed
 	$(CAT) Ddd | $(DELETE_CR) | \
 	$(SED) -n -f $(srcdir)/ad2c.sed > $@~ && $(MV) $@~ $@
 
-$(srcdir)/Ddd.in: $(srcdir)/Ddd.in.m4 $(srcdir)/tips.m4 \
-	$(srcdir)/macros.m4 $(srcdir)/colors.m4 
+$(srcdir)/Ddd.in: $(m4dir)/Ddd.in.m4 $(m4dir)/tips.m4 \
+	$(m4dir)/macros.m4 $(m4dir)/colors.m4 
 	( \
 	( \
-		echo "define(srcdir, \`$(srcdir)')dnl"; \
-		echo "include(srcdir()/Ddd.in.m4)dnl" \
+		echo "define(m4dir, \`$(m4dir)')dnl"; \
+		echo "include(m4dir()/Ddd.in.m4)dnl" \
 	) | $(M4); \
         ( \
-		echo "define(srcdir, \`$(srcdir)')dnl"; \
-		echo "include(srcdir()/tips.m4)dnl" \
+		echo "define(m4dir, \`$(m4dir)')dnl"; \
+		echo "include(m4dir()/tips.m4)dnl" \
 	) | $(M4); \
 	) | $(DELETE_CR) > $@~ && $(MV) $@~ $@
 
-$(srcdir)/tips.m4: $(srcdir)/../TIPS $(srcdir)/tips2m4.awk
-	$(AWK) -f $(srcdir)/tips2m4.awk $(srcdir)/../TIPS | $(DELETE_CR) \
-	    > $@~ && $(MV) $@~ $@
+$(m4dir)/tips.m4: $(srcdir)/../TIPS $(srcdir)/tips2m4.awk
+	$(AWK) -f $(srcdir)/tips2m4.awk $(srcdir)/../TIPS > $(m4dir)/tips.m4
 
 $(srcdir)/tips.html: $(srcdir)/../TIPS
 	( \
 		echo "define(srcdir, \`$(srcdir)')dnl"; \
-		echo "define(macros, \`$(srcdir)/html.m4')dnl"; \
+		echo "define(macros, \`$(m4dir)/html.m4')dnl"; \
 		echo "include(srcdir()/../TIPS)dnl" \
 	) | $(M4) | $(AWK) -f $(srcdir)/tips2html.awk | \
 	$(SED) 's/\\133/\[/g' | $(SED) 's/\\135/\]/g' | \
@@ -769,10 +769,10 @@ vsldir  = $(srcdir)/../vsllib
 
 VSL_CPP = $(CPP) -I$(vsldir) -I$(prefix)/lib/vsl-include
 
-$(vsldir)/ddd.vsl: $(srcdir)/ddd.vsl.m4 $(srcdir)/colors.m4
+$(vsldir)/ddd.vsl: $(m4dir)/ddd.vsl.m4 $(m4dir)/colors.m4
 	( \
-		echo "define(srcdir, \`$(srcdir)')dnl"; \
-		echo "include(srcdir()/ddd.vsl.m4)dnl" \
+		echo "define(m4dir, \`$(m4dir)')dnl"; \
+		echo "include(m4dir()/ddd.vsl.m4)dnl" \
 	) | $(M4) | $(DELETE_CR) > $@~ && $(MV) $@~ $@
 
 VSLSRC = \
@@ -816,10 +816,6 @@ $(srcdir)/vsl-lex.C: $(srcdir)/vsl-lex.L
 $(srcdir)/vsl-gramma.h $(srcdir)/vsl-gramma.C: $(srcdir)/vsl-gramma.Y \
 	$(YACCTOCXX) $(YACCTOCXX).bison $(YACCTOCXX).h $(YACCTOCXX).sun
 	$(YACC) $(YFLAGS) -d $(srcdir)/vsl-gramma.Y
-#	$(SHELL) $(YACCTOCXX) -prefix vsl
-	$(MV) vsl-gramma.H $(srcdir)/vsl-gramma.h
-#	$(MV) y.tab.cc $(srcdir)/vsl-gramma.C
-#	$(RM) y.tab.c y.tab.h
 
 VSLRead.$(OBJEXT): \
 	$(srcdir)/vsl-lex.C \
@@ -2056,12 +2052,12 @@ PROG_STUFF = $(LEXTOCXX).flex $(LEXTOCXX).sun \
 	     $(YACCTOCXX).bison $(YACCTOCXX).sun \
 	     vsl-gramma.Y $(YACCTOCXX) yacctoC.h vsl-gramma.h vsl-gramma.C \
 	     rxscan.L rxscan.C \
-             $(srcdir)/../TIPS $(srcdir)/tips.m4 \
+             $(srcdir)/../TIPS $(m4dir)/tips.m4 \
 	     $(srcdir)/tips2m4.awk $(srcdir)/tips.html \
-	     $(srcdir)/macros.m4 $(srcdir)/colors.m4 \
-             $(srcdir)/Ddd.in.m4 $(srcdir)/Ddd.in \
+	     $(m4dir)/macros.m4 $(m4dir)/colors.m4 \
+             $(m4dir)/Ddd.in.m4 $(srcdir)/Ddd.in \
 	     host.h.in $(srcdir)/vsl2c.sed \
-             $(srcdir)/ddd.vsl.m4 $(vsldir)/ddd.vsl $(srcdir)/ddd.vsl.h \
+             $(m4dir)/ddd.vsl.m4 $(vsldir)/ddd.vsl $(srcdir)/ddd.vsl.h \
              root.h.in $(srcdir)/COPYING.gz $(srcdir)/NEWS.gz \
              $(srcdir)/COPYING.gz.C $(srcdir)/NEWS.gz.C \
 	     $(srcdir)/ddd.info.txt.gz.C $(srcdir)/ddd.info \
@@ -2098,7 +2094,7 @@ MOSTLYCLEANFILES = ddd.au ddd.cm ddd.cms ddd.en ddd.fl ddd.fls ddd.lb ddd.lbs \
 # Have `make maintainer-clean' remove _all_ derived files.
 MAINTAINERCLEANFILES = Ddd.in ddd.vsl.h ddd.info.txt.gz gfdl.texinfo \
 	NEWS.gz.C ddd.info.txt.gz.C ddd.info \
-	NEWS.gz ddd.info.txt tips.m4 gpl.texinfo vsl-lex.C \
+	NEWS.gz ddd.info.txt $(m4dir)/tips.m4 gpl.texinfo vsl-lex.C \
 	COPYING.gz config.h.in config.texi vsl-gramma.C \
 	vsl-gramma.h xlibdir.C trailer.str tips.html \
 	COPYING.gz.C header.str version.h rxscan.C \

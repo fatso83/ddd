@@ -30,6 +30,8 @@
 # `http://www.gnu.org/software/ddd/',
 # or send a mail to the DDD developers <ddd@gnu.org>.
 
+ACLOCAL_AMFLAGS = -I m4
+
 TEXINFO_DISTFILES = \
 	texinfo/epsf.tex texinfo/gfdl.texinfo texinfo/gpl.texinfo \
 	texinfo/lgpl.texinfo texinfo/texinfo.tex ddd/PICS

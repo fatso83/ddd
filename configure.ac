@@ -1083,10 +1083,13 @@ case "$CXX" in
   ;;
 esac
 dnl
+dnl Look for M4 macros in subdirectory
+dnl
+AC_CONFIG_MACRO_DIRS([m4])
 dnl
 dnl That's all, folks!
 dnl
-AC_CONFIG_FILES([Makefile ddd/Makefile ddd/OldMakefile ddd/vr.h ddd/bld.h
+AC_CONFIG_FILES([Makefile ddd/Makefile ddd/vr.h ddd/bld.h
 		 ddd/Ddd ddd/ddd.man ddd/cfg.texi ddd/.gdbinit ddd.spec
 		 themes/Makefile vsllib/Makefile])
 AC_CONFIG_COMMANDS([ddd/stamp-h], [date > ddd/stamp-h])
