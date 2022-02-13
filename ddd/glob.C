@@ -78,8 +78,8 @@ static int glob_match_after_star (const char *pattern, const char *text);
 int
 glob_pattern_p (const char *pattern)
 {
-  register const char *p = pattern;
-  register char c;
+  const char *p = pattern;
+  char c;
   int	open = 0;
 
   while ((c = *p++) != '\0')
@@ -127,8 +127,8 @@ glob_pattern_p (const char *pattern)
 int
 glob_match (const char *pattern, const char *text, int dot_special)
 {
-  register char const *p = pattern, *t = text;
-  register char c;
+  char const *p = pattern, *t = text;
+  char c;
 
   while ((c = *p++) != '\0')
     switch (c)
@@ -152,7 +152,7 @@ glob_match (const char *pattern, const char *text, int dot_special)
 
       case '[':
 	{
-	  register char c1 = *t++;
+	  char c1 = *t++;
 	  int invert;
 
 	  if (!c1)
@@ -165,7 +165,7 @@ glob_match (const char *pattern, const char *text, int dot_special)
 	  c = *p++;
 	  while (1)
 	    {
-	      register char cstart = c, cend = c;
+	      char cstart = c, cend = c;
 
 	      if (c == '\\')
 		{
@@ -225,8 +225,8 @@ glob_match (const char *pattern, const char *text, int dot_special)
 static int
 glob_match_after_star (const char *pattern, const char *text)
 {
-  register const char *p = pattern, *t = text;
-  register char c, c1;
+  const char *p = pattern, *t = text;
+  char c, c1;
 
   while ((c = *p++) == '?' || c == '*')
     if (c == '?' && *t++ == '\0')
@@ -275,14 +275,14 @@ glob_vector (const char *pat, const char *dir)
     };
 
   DIR *d;
-  register struct dirent *dp;
+  struct dirent *dp;
   struct globval *lastlink;
-  register struct globval *nextlink;
-  register char *nextname;
+  struct globval *nextlink;
+  char *nextname;
   unsigned int count;
   int lose;
-  register char **name_vector = 0;
-  register unsigned int i;
+  char **name_vector = 0;
+  unsigned int i;
 #if defined (OPENDIR_NOT_ROBUST)
   struct stat finfo;
 
@@ -374,7 +374,7 @@ glob_vector (const char *pat, const char *dir)
 static char **
 glob_dir_to_array (char *dir, char **array)
 {
-  register unsigned int i, l;
+  unsigned int i, l;
   int add_slash;
   char **result;
 
@@ -454,7 +454,7 @@ glob_filename (const char *pathname)
   if (glob_pattern_p (directory_name))
     {
       char **directories;
-      register unsigned int i;
+      unsigned int i;
 
       if (directory_name[directory_len - 1] == '/')
 	directory_name[directory_len - 1] = '\0';
@@ -493,7 +493,7 @@ glob_filename (const char *pathname)
 	  else
 	    {
 	      char **array = glob_dir_to_array (directories[i], temp_results);
-	      register unsigned int l;
+	      unsigned int l;
 
 	      l = 0;
 	      while (array[l] != 0)
@@ -558,7 +558,7 @@ glob_filename (const char *pathname)
  memory_error:
   if (result != 0)
     {
-      register unsigned int i;
+      unsigned int i;
       for (i = 0; result[i] != 0; ++i)
 	free (result[i]);
       free ((char *) result);

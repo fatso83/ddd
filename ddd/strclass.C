@@ -1545,7 +1545,7 @@ std::istream& operator>>(std::istream& s, string& x)
     int ch;
     unsigned i = 0;
     x.rep = string_Sresize(x.rep, 20);
-    register std::streambuf *sb = s.rdbuf();
+    std::streambuf *sb = s.rdbuf();
     while ((ch = sb->sbumpc()) != EOF)
     {
 	if (isspace(ch))
@@ -1589,7 +1589,7 @@ int readline(std::istream& s, string& x)
     int ch;
     unsigned i = 0;
     x.rep = string_Sresize(x.rep, 80);
-    register std::streambuf *sb = s.rdbuf();
+    std::streambuf *sb = s.rdbuf();
     while ((ch = sb->sbumpc()) != EOF)
     {
 	if (ch != terminator || !discard)
