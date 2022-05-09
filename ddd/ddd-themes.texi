@@ -1,4 +1,4 @@
-\def\postscript\input texinfo @c -*- texinfo -*-
+\input texinfo
 @c $Id$
 @c Writing DDD Themes
 
@@ -101,8 +101,8 @@ debuggers.
 This is the @value{EDITION} Edition, @value{DATE}, of @cite{Writing
 @DDD{} themes} for @DDD{} Version @value{VERSION}.
 
-@noindent
 @group
+@noindent
 Copyright @copyright{} 2001 Universität Passau @*
 Lehrstuhl für Software-Systeme @*
 Innstraße 33 @*
@@ -135,9 +135,9 @@ Send bug reports to @email{bug-ddd@@gnu.org}. @*
 
 @c The title page.
 @ifnothtml
-@titlepage
 @sp 0
 @ifnottex
+@titlepage
 @title Writing @value{DDD} Themes
 @subtitle User's Guide and Reference Manual
 @subtitle @value{EDITION} Edition, for @value{DDD} Version @value{VERSION}
@@ -145,14 +145,16 @@ Send bug reports to @email{bug-ddd@@gnu.org}. @*
 @author Andreas Zeller
 @end ifnottex
 @tex
-\setfont\bigtitlesf\sfbshape{10}{\magstep4}
+@titlepage
+\setfont\bigtitlesf\sfbshape{10}{\magstep4}{OT1}
 \title \bigtitlesf{Writing \value{DDD} Themes}
 \subtitle \textsf{User's Guide and Reference Manual}
 \subtitle \textsf{\value{EDITION} Edition, for \value{DDD} Version \value{VERSION}}
 \subtitle \textsf{Last updated \value{DATE}}
-\sp 2
+\vskip 2\baselineskip
 \center \image{PICS/dddlogo, 15cm}
 \author \titlesf{Andreas Zeller}
+@end titlepage
 @end tex
 @page
 @tex
@@ -163,6 +165,7 @@ Send bug reports to @email{bug-ddd@@gnu.org}. @*
 @end tex
 
 @vskip 0pt plus 1filll
+@noindent
 Copyright @copyright{} 2001 Universität Passau @*
 Lehrstuhl für Software-Systeme @*
 Innstraße 33 @*
@@ -170,6 +173,7 @@ D-94032 Passau @*
 GERMANY
 @sp 1
 
+@noindent
 Distributed by @*
 Free Software Foundation, Inc. @*
 59 Temple Place -- Suite 330 @*
@@ -177,9 +181,11 @@ Boston, MA 02111-1307 @*
 USA
 @sp 1
 
+@noindent
 @DDD{} and this manual are available via @*
 @uref{http://www.gnu.org/software/ddd/, the @DDD{} @WWW{} page}.
 
+@noindent
 Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.1 or
 any later version published by the Free Software Foundation; with no
@@ -187,6 +193,7 @@ Invariant Sections, no Front-Cover Texts and no Back-Cover Texts.  A
 copy of the license is included in the section entitled ``GNU Free
 Documentation License''; @xref{Documentation License}, for details.
 
+@noindent
 Send questions, comments, suggestions, etc. to
 @email{ddd@@gnu.org}. @*
 Send bug reports to @email{bug-ddd@@gnu.org}. @*

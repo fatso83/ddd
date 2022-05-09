@@ -1,4 +1,4 @@
-\def\postscript\input texinfo @c -*- texinfo -*-
+\input texinfo
 @c $Id$
 @c DDD Manual
 
@@ -80,7 +80,6 @@
 @c Combine programs and files
 @syncodeindex pg fl
 
-
 @c PDF settings
 @iftex
 @pdfcompresslevel=9
@@ -98,7 +97,7 @@
 @finalout
 
 @c Info Dir settings
-@dircategory Programming & development tools.
+@dircategory Programming \& development tools.
 @direntry
 * DDD: (ddd).                     The Data Display Debugger.
 @end direntry
@@ -153,9 +152,9 @@ to the developers' mailing list @email{bug-ddd@@gnu.org}. @*
 
 @c The title page.
 @ifnothtml
-@titlepage
 @sp 0
 @ifnottex
+@titlepage
 @title Debugging with @value{DDD}
 @subtitle User's Guide and Reference Manual
 @subtitle @value{EDITION} Edition, for @value{DDD} Version @value{VERSION}
@@ -163,13 +162,15 @@ to the developers' mailing list @email{bug-ddd@@gnu.org}. @*
 @author Andreas Zeller
 @end ifnottex
 @tex
-\setfont\bigtitlesf\sfbshape{10}{\magstep4}
+@titlepage
+\setfont\bigtitlesf\sfbshape{10}{\magstep4}{OT1}
 \title \bigtitlesf{Debugging with \value{DDD}}
 \subtitle \textsf{User's Guide and Reference Manual}
 \subtitle \textsf{\value{EDITION} Edition, for \value{DDD} Version \value{VERSION}}
 \subtitle \textsf{Last updated \value{DATE}}
-\sp 2
+\vskip 2\baselineskip
 \author \titlesf{Andreas Zeller}
+@end titlepage
 @end tex
 @page
 @tex
@@ -180,10 +181,10 @@ to the developers' mailing list @email{bug-ddd@@gnu.org}. @*
 @end tex
 
 @vskip 0pt plus 1filll
-Copyright @copyright{} 2004 Universität des Saarlandes @*
+Copyright @copyright{} 2004 Universit@"at des Saarlandes @*
 Lehrstuhl Softwaretechnik @*
 Postfach 15 11 50 @*
-66041 Saarbrücken @*
+66041 Saarbr@"ucken @*
 GERMANY
 @sp 1
 
@@ -231,6 +232,7 @@ document, including the label and command indices.  The rest of the menu
 lists all the lower level nodes in the document.
 @end ifinfo
 
+@ifnottex
 @menu
 * Summary::                     Summary of @DDD{}.
 
@@ -688,6 +690,7 @@ Using @value{DDD} with GDB
 @end detailmenu
 @end ifinfo
 @end menu
+@end ifnottex
 
 @ifnothtml
 @shortcontents
