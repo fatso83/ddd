@@ -143,6 +143,7 @@ Send bug reports to @email{bug-ddd@@gnu.org}. @*
 @subtitle @value{EDITION} Edition, for @value{DDD} Version @value{VERSION}
 @subtitle Last updated @value{DATE}
 @author Andreas Zeller
+@end titlepage
 @end ifnottex
 @tex
 @titlepage
@@ -198,7 +199,6 @@ Send questions, comments, suggestions, etc. to
 @email{ddd@@gnu.org}. @*
 Send bug reports to @email{bug-ddd@@gnu.org}. @*
 
-@end titlepage
 @end ifnothtml
 
 @ifnottex

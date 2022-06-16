@@ -160,6 +160,7 @@ to the developers' mailing list @email{bug-ddd@@gnu.org}. @*
 @subtitle @value{EDITION} Edition, for @value{DDD} Version @value{VERSION}
 @subtitle Last updated @value{DATE}
 @author Andreas Zeller
+@end titlepage
 @end ifnottex
 @tex
 @titlepage
@@ -210,7 +211,6 @@ Submit bug reports at @uref{http://savannah.gnu.org/bugs/?group=ddd},
 the @DDD{} bug tracker. Incoming bug reports are automatically copied
 to the developers' mailing list @email{bug-ddd@@gnu.org}. @*
 
-@end titlepage
 @end ifnothtml
 
 @ifnottex
