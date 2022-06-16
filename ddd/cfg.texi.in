@@ -36,3 +36,6 @@
 
 @c The DDD nickname.
 @set NICKNAME @NICKNAME@
+
+@c Generate A4 pagesize
+@afourpaper
