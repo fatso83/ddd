@@ -36,6 +36,8 @@ dnl
 AC_INIT([ddd],[3.3.12],[ddd@gnu.org])
 NICKNAME="Dale Head"
 AC_SUBST(NICKNAME)
+EXPIRES=
+AC_SUBST(EXPIRES)
 DDD_NAMES
 dnl
 dnl Revision Control.
