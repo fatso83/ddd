@@ -1397,7 +1397,7 @@ GSOPT = -q -sDEVICE=pdfwrite -dCompatibilityLevel=1.4
 	@-test -d $(buildpicdir) || mkdir $(buildpicdir)
 	$(CONVERT) -geometry $(IMAGE_WIDTH) $< $@
 
-.eps.jpg:
+.pdf.jpg:
 	@-test -d $(buildpicdir) || mkdir $(buildpicdir)
 	$(CONVERT) -geometry $(IMAGE_WIDTH) -quality 100 $< $@
 
