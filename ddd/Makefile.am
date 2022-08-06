@@ -994,10 +994,10 @@ bug.$(OBJEXT):	$(srcdir)/bug.C
 	$(SED) "s/static char/static unsigned char/g" | $(DELETE_CR) > $@~
 	@test -s $@~ && $(MV) $@~ $@ || ($(RM) $@~; test -s $@)
 
-.xbm.xface:
-	@$(ECHO) "Creating $@"
-	@$(ECHO) "X-Face:`$(XBM2XFACE) $<`" | $(DELETE_CR) > $@~
-	@test -s $@~ && $(MV) $@~ $@ || ($(RM) $@~; test -s $@)
+#.xbm.xface:
+#	@$(ECHO) "Creating $@"
+#	@$(ECHO) "X-Face:`$(XBM2XFACE) $<`" | $(DELETE_CR) > $@~
+#	@test -s $@~ && $(MV) $@~ $@ || ($(RM) $@~; test -s $@)
 
 
 # This jewel makes an `emboss' effect in two steps:
@@ -1062,7 +1062,7 @@ $(buildicondir)/dddmask.xpm: $(icondir)/ddd.xpm
 
 $(buildicondir)/ddd.xbm: $(icondir)/ddd.xpm
 
-$(buildicondir)/ddd.xface: $(buildicondir)/ddd.xbm
+#$(buildicondir)/ddd.xface: $(buildicondir)/ddd.xbm
 
 $(buildicondir)/dddmask.xbm: $(icondir)/dddmask.xpm
 
@@ -1240,7 +1240,6 @@ ICONS = \
 	$(icondir)/dddmask.xbm \
 	$(icondir)/dddsplash.xpm \
 	$(buildicondir)/dddsplash.xbm \
-	$(buildicondir)/ddd.xface \
 	$(XPM_ICONS) \
 	$(XBM_CURSORS_ICONS) \
 	$(XBM_GLYPH_ICONS) \
