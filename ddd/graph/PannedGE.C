@@ -37,17 +37,13 @@ char PannedGraphEdit_rcsid[] =
 #include "base/strclass.h"
 #include "Graph.h"
 
-#if HAVE_ATHENA && \
-    HAVE_X11_XAW_FORM_H && \
-    HAVE_X11_XAW_PANNER_H && \
-    HAVE_X11_XAW_PORTHOLE_H
 
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
-#include <X11/Xaw/XawInit.h>
-#include <X11/Xaw/Form.h>
-#include <X11/Xaw/Panner.h>
-#include <X11/Xaw/Porthole.h>
+#include "athena/XawInit.h"
+#include "athena/Form.h"
+#include "athena/Panner.h"
+#include "athena/Porthole.h"
 #include "PannedGEP.h"
 
 static void PortholeCB(Widget w, XtPointer client_data, XtPointer call_data);
@@ -380,31 +376,4 @@ Widget pannerOfGraphEdit(Widget w)
     return parent;
 }
 
-#else // No Athena 
 
-#include "ScrolledGE.h"
-
-Widget createPannedGraphEdit(Widget parent, const _XtString name, 
-			     ArgList graph_edit_args,
-			     Cardinal graph_edit_arg)
-{
-    static bool warned = false;
-    if (!warned)
-    {
-	std::cerr << "Warning: panned graph editors are not supported "
-	  "in this configuration.\n";
-	std::cerr << "Using scrolled graph editors instead.\n";
-	warned = true;
-    }
-
-    return createScrolledGraphEdit(parent, name,
-				   graph_edit_args, graph_edit_arg);
-}
-
-// For a given graph editor W, return its panner
-Widget pannerOfGraphEdit(Widget w)
-{
-    return scrollerOfGraphEdit(w);
-}
-
-#endif
