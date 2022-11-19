@@ -1659,7 +1659,7 @@ void unmanage_paned_child(Widget w)
     {
 	// Resize the other child, but keep the command window intact
 	Dimension height = 0;
-	Dimension max = 1000;
+	Dimension max = 5000;
 	XtVaGetValues(command, 
 		      XmNheight, &height,
 		      XmNpaneMaximum, &max,

@@ -175,6 +175,7 @@ Widget createPannedGraphEdit(Widget parent, const _XtString name,
     arg = 0;
     XtSetArg(args[arg], ARGSTR(XtNborderWidth),     0); arg++;
     XtSetArg(args[arg], ARGSTR(XtNdefaultDistance), 0); arg++;
+    XtSetArg(args[arg], ARGSTR(XmNpaneMaximum), 5000); arg++;
     Widget form =
 	verify(XtCreateManagedWidget(form_name.chars(), 
 				     formWidgetClass, parent, args, arg));

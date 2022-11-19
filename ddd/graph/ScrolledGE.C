@@ -57,6 +57,7 @@ Widget createScrolledGraphEdit(Widget parent, const _XtString name,
     XtSetArg(args[arg], XmNborderWidth,     0); arg++;
     XtSetArg(args[arg], XmNspacing,         0); arg++;
     XtSetArg(args[arg], XmNshadowThickness, 0); arg++;
+    XtSetArg(args[arg], XmNpaneMaximum,  5000); arg++;
 
     Widget scrolledWindow = 
 	verify(XtCreateManagedWidget(swindow_name.chars(), 

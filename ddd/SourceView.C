@@ -3897,6 +3897,7 @@ void SourceView::create_text(Widget parent, const char *base, bool editable,
     arg = 0;
     XtSetArg(args[arg], XmNmarginHeight, 0);    arg++;
     XtSetArg(args[arg], XmNmarginWidth,  0);    arg++;
+    XtSetArg(args[arg], XmNpaneMaximum, 5000);              arg++;
     const string form_name = string(base) + "_form_w";
     form = verify(XmCreateForm(parent, XMST(form_name.chars()), args, arg));
 
@@ -3909,7 +3910,6 @@ void SourceView::create_text(Widget parent, const char *base, bool editable,
     XtSetArg(args[arg], XmNallowResize,       True);              arg++;
     XtSetArg(args[arg], XmNeditMode,          XmMULTI_LINE_EDIT); arg++;
     XtSetArg(args[arg], XmNcursorPositionVisible, True);          arg++;
-    XtSetArg(args[arg], XmNpaneMaximum,       5000);              arg++;
 
     if (lesstif_version <= 82)
     {

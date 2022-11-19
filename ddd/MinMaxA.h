@@ -37,7 +37,7 @@ struct MinMax {
     bool changed;
 
     MinMax()
-	: min(1), max(1000), changed(false)
+	: min(1), max(5000), changed(false)
     {}
 };
 
