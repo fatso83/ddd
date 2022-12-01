@@ -43,6 +43,7 @@ char GraphEdit_rcsid[] =
 #include <X11/IntrinsicP.h>
 #include <X11/StringDefs.h>
 
+#include "config.h"
 #include "x11/events.h"
 #include "Graph.h"
 #include "GraphEditP.h"
@@ -2964,7 +2965,7 @@ static void CallPannerPage(Widget w, XEvent *event, String *params,
         // redirect to panner
         Widget panner = pannerOfGraphEdit(w);
 
-        CallActionPage(panner, event, params, num_params);
+        CallActionPagem(panner, event, params, num_params);
     }
 #endif
 }

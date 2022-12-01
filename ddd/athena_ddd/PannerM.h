@@ -108,7 +108,7 @@ typedef struct _PannerRec      *PannermWidget;
 extern "C" {
 #endif
 
-void CallActionPage(Widget gw, XEvent *event, String *params, Cardinal *num_params);
+void CallActionPagem(Widget gw, XEvent *event, String *params, Cardinal *num_params);
 
 #ifdef __cplusplus
 }

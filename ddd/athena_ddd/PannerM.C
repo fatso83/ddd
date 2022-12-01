@@ -27,11 +27,10 @@ in this Software without prior written authorization from The Open Group.
  */
 
 /* $XFree86: xc/lib/Xaw/Panner.c,v 3.8 2001/07/25 15:04:49 dawes Exp $ */
-#if HAVE_ATHENA
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+#include "config.h"
+
+#if HAVE_ATHENA
 #include <ctype.h>
 #include <math.h>
 #include <X11/IntrinsicP.h>
@@ -79,10 +78,8 @@ static void XawPannerSetValuesAlmost(Widget, Widget, XtWidgetGeometry*,
 static void check_knob(PannermWidget, Bool);
 static void get_default_size(PannermWidget, Dimension*, Dimension*);
 static Bool get_event_xy(PannermWidget, XEvent*, int*, int*);
-static void move_shadow(PannermWidget);
 static int parse_page_string(char*, int, int, Bool*);
 static void rescale(PannermWidget);
-static void reset_shadow_gc(PannermWidget);
 static void reset_slider_gc(PannermWidget);
 static void scale_knob(PannermWidget, Bool, Bool);
 
@@ -125,19 +122,19 @@ static char defaultTranslations[] =
 ;
 
 static XtActionsRec actions[] = {
-  {"start",	ActionStart},		/* start tmp graphics */
-  {"stop",	ActionStop},		/* stop tmp graphics */
-  {"abort",	ActionAbort},		/* punt */
-  {"move",	ActionMove},		/* move tmp graphics on Motion event */
-  {"page",	ActionPage},		/* page around usually from keyboard */
-  {"notify",	ActionNotify},		/* callback new position */
+  {(char*)"start",	ActionStart},		/* start tmp graphics */
+  {(char*)"stop",	ActionStop},		/* stop tmp graphics */
+  {(char*)"abort",	ActionAbort},		/* punt */
+  {(char*)"move",	ActionMove},		/* move tmp graphics on Motion event */
+  {(char*)"page",	ActionPage},		/* page around usually from keyboard */
+  {(char*)"notify",	ActionNotify},		/* callback new position */
 };
 
 #define offset(field)	XtOffsetOf(PannerRec, panner.field)
 static XtResource resources[] = {
     {
-      XtNallowOff,
-      XtCAllowOff,
+      (char*)XtNallowOff,
+      (char*)XtCAllowOff,
       XtRBoolean,
       sizeof(Boolean),
       offset(allow_off),
@@ -145,8 +142,8 @@ static XtResource resources[] = {
       (XtPointer)False
     },
     {
-      XtNresize,
-      XtCResize,
+      (char*)XtNresize,
+      (char*)XtCResize,
       XtRBoolean,
       sizeof(Boolean),
       offset(resize_to_pref),
@@ -154,8 +151,8 @@ static XtResource resources[] = {
       (XtPointer)True
     },
     {
-      XtNreportCallback,
-      XtCReportCallback,
+      (char*)XtNreportCallback,
+      (char*)XtCReportCallback,
       XtRCallback,
       sizeof(XtPointer),
       offset(report_callbacks),
@@ -163,8 +160,8 @@ static XtResource resources[] = {
       NULL
     },
     {
-      XtNdefaultScale,
-      XtCDefaultScale,
+      (char*)XtNdefaultScale,
+      (char*)XtCDefaultScale,
       XtRDimension,
       sizeof(Dimension),
       offset(default_scale),
@@ -172,8 +169,8 @@ static XtResource resources[] = {
       (XtPointer)PANNER_DEFAULT_SCALE
     },
     {
-      XtNforeground,
-      XtCForeground,
+      (char*)XtNforeground,
+      (char*)XtCForeground,
       XtRPixel,
       sizeof(Pixel),
       offset(foreground),
@@ -181,8 +178,8 @@ static XtResource resources[] = {
       (XtPointer)XtDefaultBackground
     },
     {
-      XtNinternalSpace,
-      XtCInternalSpace,
+      (char*)XtNinternalSpace,
+      (char*)XtCInternalSpace,
       XtRDimension,
       sizeof(Dimension),
       offset(internal_border),
@@ -190,8 +187,8 @@ static XtResource resources[] = {
       (XtPointer)2
     },
     {
-      XtNlineWidth,
-      XtCLineWidth,
+      (char*)XtNlineWidth,
+      (char*)XtCLineWidth,
       XtRDimension,
       sizeof(Dimension),
       offset(line_width),
@@ -199,8 +196,8 @@ static XtResource resources[] = {
       (XtPointer)0
     },
     {
-      XtNcanvasWidth,
-      XtCCanvasWidth,
+      (char*)XtNcanvasWidth,
+      (char*)XtCCanvasWidth,
       XtRDimension,
       sizeof(Dimension),
       offset(canvas_width),
@@ -208,8 +205,8 @@ static XtResource resources[] = {
       (XtPointer)0
     },
     {
-      XtNcanvasHeight,
-      XtCCanvasHeight,
+      (char*)XtNcanvasHeight,
+      (char*)XtCCanvasHeight,
       XtRDimension,
       sizeof(Dimension),
       offset(canvas_height),
@@ -217,8 +214,8 @@ static XtResource resources[] = {
       (XtPointer)0
     },
     {
-      XtNsliderX,
-      XtCSliderX,
+      (char*)XtNsliderX,
+      (char*)XtCSliderX,
       XtRPosition,
       sizeof(Position),
       offset(slider_x),
@@ -226,8 +223,8 @@ static XtResource resources[] = {
       (XtPointer)0
     },
     {
-      XtNsliderY,
-      XtCSliderY,
+      (char*)XtNsliderY,
+      (char*)XtCSliderY,
       XtRPosition,
       sizeof(Position),
       offset(slider_y),
@@ -235,8 +232,8 @@ static XtResource resources[] = {
       (XtPointer)0
     },
     {
-      XtNsliderWidth,
-      XtCSliderWidth,
+      (char*)XtNsliderWidth,
+      (char*)XtCSliderWidth,
       XtRDimension,
       sizeof(Dimension),
       offset(slider_width),
@@ -244,8 +241,8 @@ static XtResource resources[] = {
       (XtPointer)0
     },
     {
-      XtNsliderHeight,
-      XtCSliderHeight,
+      (char*)XtNsliderHeight,
+      (char*)XtCSliderHeight,
       XtRDimension,
       sizeof(Dimension),
       offset(slider_height),
@@ -253,8 +250,8 @@ static XtResource resources[] = {
       (XtPointer)0
     },
     {
-      XtNshadowColor,
-      XtCShadowColor,
+      (char*)XtNshadowColor,
+      (char*)XtCShadowColor,
       XtRPixel,
       sizeof(Pixel),
       offset(shadow_color),
@@ -262,8 +259,8 @@ static XtResource resources[] = {
       (XtPointer)XtDefaultForeground
     },
     {
-      XtNshadowThickness,
-      XtCShadowThickness,
+      (char*)XtNshadowThickness,
+      (char*)XtCShadowThickness,
       XtRDimension,
       sizeof(Dimension),
       offset(shadow_thickness),
@@ -271,8 +268,8 @@ static XtResource resources[] = {
       (XtPointer)2
     },
     {
-      XtNtopShadowColor,
-      XtCTopShadowColor,
+      (char*)XtNtopShadowColor,
+      (char*)XtCTopShadowColor,
       XtRPixel,
       sizeof(Pixel),
       offset(top_shadow_color),
@@ -280,8 +277,8 @@ static XtResource resources[] = {
       (XtPointer)"rgb:E3/E3/E3"
     },
     {
-      XtNbottmShadowColor,
-      XtCBottomShadowColor,
+      (char*)XtNbottmShadowColor,
+      (char*)XtCBottomShadowColor,
       XtRPixel,
       sizeof(Pixel),
       offset(bottom_shadow_color),
@@ -296,7 +293,7 @@ PannerClassRec pannerClassRec = {
   /* core */
   {
     (WidgetClass)Superclass,		/* superclass */
-    "Panner",				/* class_name */
+    (char*)"Panner",				/* class_name */
     sizeof(PannerRec),			/* widget_size */
     XawInitializeWidgetSet,		/* class_initialize */
     NULL,				/* class_part_initialize */
@@ -331,6 +328,10 @@ PannerClassRec pannerClassRec = {
   /* simple */
   {
     XtInheritChangeSensitive,		/* change_sensitive */
+#ifndef OLDXAW
+    NULL,
+#endif
+
   },
   /* panner */
   {
@@ -557,12 +558,6 @@ check_knob(PannermWidget pw, Bool knob)
 }
 
 static void
-move_shadow(PannermWidget pw)
-{
-    pw->panner.shadow_valid = False;
-}
-
-static void
 scale_knob(PannermWidget pw, Bool location, Bool size)
 {
     if (location) {
@@ -703,6 +698,8 @@ parse_page_string(char *s, int pagesize, int canvassize, Bool *relative)
 static void
 XawPannerInitialize(Widget greq, Widget gnew, ArgList args, Cardinal *num_args)
 {
+    (void) args;
+    (void) num_args;
     PannermWidget req = (PannermWidget)greq, cnew = (PannermWidget)gnew;
     Dimension defwidth, defheight;
 
@@ -813,6 +810,9 @@ static Boolean
 XawPannerSetValues(Widget gcur, Widget greq, Widget gnew,
 		   ArgList args, Cardinal *num_args)
 {
+    (void) greq;
+    (void) args;
+    (void) num_args;
     PannermWidget cur = (PannermWidget)gcur;
     PannermWidget cnew = (PannermWidget)gnew;
     Bool redisplay = False;
@@ -892,6 +892,8 @@ XawPannerQueryGeometry(Widget gw, XtWidgetGeometry *intended,
 static void
 ActionStart(Widget gw, XEvent *event, String *params, Cardinal *num_params)
 {
+    (void) params;
+    (void) num_params;
     PannermWidget pw = (PannermWidget)gw;
     int x, y;
 
@@ -913,6 +915,8 @@ ActionStart(Widget gw, XEvent *event, String *params, Cardinal *num_params)
 static void
 ActionStop(Widget gw, XEvent *event, String *params, Cardinal *num_params)
 {
+    (void) params;
+    (void) num_params;
     PannermWidget pw = (PannermWidget)gw;
     int x, y;
 
@@ -1008,6 +1012,9 @@ ActionPage(Widget gw, XEvent *event, String *params, Cardinal *num_params)
 static void
 ActionNotify(Widget gw, XEvent *event, String *params, Cardinal *num_params)
 {
+    (void) event;
+    (void) params;
+    (void) num_params;
     PannermWidget pw = (PannermWidget)gw;
 
     if (!pw->panner.tmp.doing)
@@ -1055,7 +1062,7 @@ ActionNotify(Widget gw, XEvent *event, String *params, Cardinal *num_params)
     }
 }
 
-void CallActionPage(Widget gw, XEvent *event, String *params, Cardinal *num_params)
+void CallActionPagem(Widget gw, XEvent *event, String *params, Cardinal *num_params)
 {
     ActionPage(gw, event, params, num_params);
 }

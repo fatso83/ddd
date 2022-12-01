@@ -568,7 +568,7 @@ DDD_SRC = \
 
 # part of the athena library modified for DDD
 ATHENA_SRC = \
-	athena_ddd/PannerM.c \
+	athena_ddd/PannerM.C \
 	athena_ddd/PannerM.h \
 	athena_ddd/PannerMP.h 
 
