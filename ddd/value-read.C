@@ -280,6 +280,12 @@ static DispValueType _determine_type (string& value)
     }
 
     // In Perl, pointers are printed as `TYPE(ADDR)'
+#if RUNTIME_REGEX
+#define RXADDRESS "(0x[0-9a-fA-F]+|0[0-9a-fA-F]+[hH]|H'[0-9a-fA-F]+" \
+                  "|00+|[(]nil[)]|NIL|null|@[0-9a-fA-F]+|16_[0-9a-f]+)"
+#define STANDARD_IDENTFIER "([A-Za-z_$@%][A-Za-z0-9_$]*|[$]([^ \n\t\f]|[0-9]+))"
+        static regex rxperlref("((" STANDARD_IDENTFIER "::)*" STANDARD_IDENTFIER "=)?" STANDARD_IDENTFIER "[(]" RXADDRESS "[)]");
+#endif
     if (value.contains(rxperlref, 0))
 	return Pointer;
 
@@ -725,6 +731,9 @@ bool read_array_next(string& value)
 	{
 	    // Ladebug doesn't end array with "}". For a multi-dimensional
 	    // array, we have to detect the next dimmension: '[N] = [N] ='
+#if RUNTIME_REGEX
+            static regex rxdoubleindex("[[]-?[0-9]+][ \f\t]+*=[ \f\t]+[[]-?[0-9]+](.|\n)*");
+#endif
             if (value.matches(rxdoubleindex))
 		return false;
 
