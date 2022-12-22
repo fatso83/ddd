@@ -135,7 +135,7 @@ bool ProgressMeter::process(int remaining_length)
 	wait_until_mapped(dialog);
     }
 
-    if (processed - last_shown >= UPDATE_THRESHOLD)
+    if (abs(processed - last_shown) >= UPDATE_THRESHOLD && remaining_length>40)
     {
 	// Another bunch of characters processed.  Wow!
 	int percent = (processed * 100) / total;
