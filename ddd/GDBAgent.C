@@ -1992,6 +1992,8 @@ string GDBAgent::pwd_command() const
 	return "!pwd";
 
     case BASH:
+        return "!! pwd";
+
     case MAKE:
 	return "shell pwd";
 
