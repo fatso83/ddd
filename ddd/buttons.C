@@ -376,6 +376,7 @@ static string gdbTip(const string& command)
 	    int i = commands.index(command, start);
 	    if (i < 0)
 		break;
+            int lastfound = i;
 	    while (i > 0 
 		   && commands[i - 1] != '\n' 
 		   && isspace(commands[i - 1]))
@@ -391,7 +392,7 @@ static string gdbTip(const string& command)
 		break;
 	    }
 
-	    start = i + 1;
+	    start = lastfound + 1;
 	}
     }
 
