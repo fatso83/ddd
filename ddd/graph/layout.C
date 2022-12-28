@@ -1335,7 +1335,7 @@ void Layout::graphRemoveNode (GRAPH *graph, const ID *id, NODETYPE type)
      * remove the node from the double linked list
      */
 
-    if (node->hashprev && node->hashprev) {
+    if (node->hashprev && node->hashnext) {
 	node->hashprev->hashnext = node->hashnext;
 	node->hashnext->hashprev = node->hashprev;
     } else {
@@ -1793,7 +1793,7 @@ void Layout::graphRemove (GRAPHTAB *tab, const char *label)
     /*
      * remove the graph
      */
-    if (graph->hashprev && graph->hashprev) {
+    if (graph->hashprev && graph->hashnext) {
 	graph->hashprev->hashnext = graph->hashnext;
 	graph->hashnext->hashprev = graph->hashprev;
     } else {
