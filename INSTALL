@@ -14,7 +14,7 @@ To build a complete DDD from sources, you need:
 
    * A `make' program.  We recommend GNU make.
 
-   * A Motif Widget library (2.3 or later)  
+   * The Motif Widget library (2.3.4 or later)  
      - motif
 
    * The X window library (Xlib) and X toolkit library (Xt), X11R4 or
@@ -29,6 +29,9 @@ To build a complete DDD from sources, you need:
 
    * Curses terminal manipulation library
      -   ncurses
+
+   * X Athena Widgets (recommended)
+     - libXaw
 
 Be sure to install the headers for these libraries, usually in a 
 a package named <pkg>-devel or similar.
