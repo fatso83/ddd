@@ -7573,9 +7573,10 @@ static void setup_options(int& argc, const char *argv[],
 	    continue;
 	}
 
-	if (save)
+	if (save || arg == "--args" || arg == "-args")
 	{
-	    // Found `--' - save all remaining options
+            save = true;
+	    // Found `--' or `--args' - save all remaining options
 	    saved_options.push_back(arg);
 
 	    for (int j = i; j <= argc - 1; j++)
