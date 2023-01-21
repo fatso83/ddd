@@ -686,7 +686,6 @@ Configuration Notes
 * Perl::                        Using @DDD{} with Perl
 * Bash::                        Using @DDD{} with Bash
 * Make::                        Using @DDD{} with GNU Make
-* LessTif::                     Using @DDD{} with LessTif
 
 Using @value{DDD} with GDB
 
@@ -783,16 +782,15 @@ To debug @emph{executable binaries}, you can use @DDD{} with @dfn{@GDB{}},
 @cindex C
 @cindex C++
 @cindex Modula-2
-@cindex Modula-3
+@cindex Objective-C
 @cindex Pascal
-@cindex Chill
+@cindex Rust
 @cindex Ada
 @cindex FORTRAN
 @dfn{@GDB{}}, the @GNU{} debugger, is the recommended inferior debugger
 for @DDD{}.  @GDB{} supports native executables binaries originally
-written in C, C++, Java, Modula-2, Modula-3, Pascal, Chill, Ada, and
-FORTRAN.  (@pxref{Languages, Using @GDB{} with Different Languages,
-Using @GDB{} with Different Languages, gdb, Debugging with @GDB{}}, for
+written in C, C++, Objective-C, OpenCL, D, Modula-2, Rust, Go, Pascal, Ada, and
+FORTRAN.  (see @uref{https://sourceware.org/gdb/onlinedocs/gdb/Languages.html, , Using @GDB{} with Different Languages in Debugging with @GDB{}}, for
 information on language support in @GDB{}.)
 
 @item
@@ -831,7 +829,6 @@ To debug @emph{Java byte code programs}, you can use @DDD{} with
 (@DDD{} has been tested with @JDK{} 1.1 and @JDK{} 1.2.)
 
 @item
-@item
 @cindex Bash
 To debug @emph{Bash programs}, you need a version Bash that supports
 extended debugging support; see
@@ -854,7 +851,6 @@ debugger,} as of Perl 5.003 and later.
 @item
 @cindex Python
 @cindex pydb
-
 To debug @emph{Python programs}, you need an extended version of the
 python debugger called @dfn{@PYDB{}}. To get this, see
 @uref{http://bashdb.sourceforge.net/pydb}.
@@ -2009,24 +2005,6 @@ Interaction}, for details.
 
 
 
-@item --lesstif-hacks
-Equivalent to @option{--lesstif-version 999}.  Deprecated.
-
-Giving this option is equivalent to setting the @DDD{}
-@samp{lessTifVersion} resource to @code{999}.  @xref{LessTif}, for
-details.
-
-
-
-@item --lesstif-version @var{version}
-Enable some hacks to make @DDD{} run properly with LessTif.
-@xref{LessTif}, for a discussion.
-
-Giving this option is equivalent to setting the @DDD{}
-@samp{lessTifVersion} resource to @var{version}.  @xref{LessTif}, for
-details.
-
-
 @item --license
 @cindex License, showing on standard output
 Print the @DDD{} license on standard output and exit.
@@ -2126,14 +2104,6 @@ Giving this option is equivalent to setting the @DDD{}
 for details.
 
 
-@item --no-lesstif-hacks
-Equivalent to @option{--lesstif-version 1000}.  Deprecated.
-
-Giving this option is equivalent to setting the @DDD{}
-@samp{lessTifVersion} resource to @code{1000}.  @xref{LessTif}, for
-details.
-
-
 @item --no-maintenance
 Do not enable the top-level @samp{Maintenance} menu with options for
 debugging @DDD{}.  This is the default.  @xref{Maintenance Menu},
@@ -2187,7 +2157,7 @@ for details.
 @item --panned-graph-editor
 Use an Athena panner to scroll the data window.  Most people prefer
 panners on scroll bars, since panners allow two-dimensional scrolling.
-However, the panner is off by default, since some M*tif implementations
+However, the panner is off by default, since some Motif implementations
 do not work well with Athena widgets.  @xref{Display Resources}, for
 details; see also @option{--scrolled-graph-editor}, below.
 
@@ -2237,7 +2207,7 @@ Debugger}, for details.
 
 
 @item --scrolled-graph-editor
-Use M*tif scroll bars to scroll the data window.  This is the default in
+Use Motif scroll bars to scroll the data window.  This is the default in
 most @DDD{} configurations.  @xref{Display Resources}, for details;
 see also @option{--panned-graph-editor}, above.
 
@@ -2752,7 +2722,7 @@ This setting is tied to the following resource (@pxref{Customizing}):
 @defvr Resource suppressWarnings (class SuppressWarnings)
 If @samp{on}, X warnings are suppressed.  This is
 sometimes useful for executables that were built on a machine with a
-different X or M*tif configuration.  By default, this is
+different X or Motif configuration.  By default, this is
 @samp{off}.
 @end defvr
 
@@ -4632,7 +4602,7 @@ Controls the key bindings for clipboard operations.
 @item
 If this is @samp{Motif} (default), Cut/Copy/Paste is on
 @key{Shift+Del}/@key{Ctrl+Ins}/@key{Shift+Ins}.  This is conformant to
-the M*tif style guide.
+the Motif style guide.
 @item
 If this is @samp{KDE}, Cut/Copy/Paste is on
 @key{Ctrl+X}/@key{Ctrl+C}/@key{Ctrl+V}.  This is conformant to the KDE
@@ -4864,7 +4834,7 @@ latest-and-greatest @acronym{GUI} invention can be disabled, such that
 the button border is always shown.
 
 If you enable @samp{Color} buttons, tool bar images will be colored when
-entered.  If @DDD{} was built using M*tif 2.0 and later, you can
+entered.  If @DDD{} was built using Motif 2.0 and later, you can
 also choose a third setting, where buttons appear in color all the time.
 
 Here are the related resources (@pxref{Customizing}):
@@ -9868,7 +9838,7 @@ The control to scroll the graph.
 If this is @samp{on}, an Athena panner is used (a kind of
 two-directional scrollbar).
 @item
-If this is @samp{off} (default), two M*tif scrollbars are used.
+If this is @samp{off} (default), two Motif scrollbars are used.
 @end itemize
 
 @xref{Options}, for the @option{--scrolled-graph-editor} and
@@ -12275,8 +12245,8 @@ to the developers' mailing list @email{bug-ddd@@gnu.org}.
 
 Before sending in a bug report, try to find out whether the problem
 cause really lies within @DDD{}.  A common cause of problems
-are incomplete or missing X or M*tif installations, for instance, or
-bugs in the X server or M*tif itself.  Running @DDD{} as
+are incomplete or missing X or Motif installations, for instance, or
+bugs in the X server or Motif itself.  Running @DDD{} as
 
 @example
 $ @kbd{@value{ddd} --check-configuration}
@@ -12590,7 +12560,7 @@ exit.  @xref{Options}, for the @option{--version} option.
 
 @defvr Resource suppressWarnings (class SuppressWarnings)
 If @samp{on}, X warnings are suppressed.  This is sometimes useful for
-executables that were built on a machine with a different X or M*tif
+executables that were built on a machine with a different X or Motif
 configuration.  By default, this is @samp{off}.  @xref{X Warnings}, for
 details.
 @end defvr
@@ -12615,7 +12585,6 @@ on standard output.  Default is @samp{off}.  @xref{Options}, for the
 * Perl::                        Using @DDD{} with Perl
 * Python::                      Using @DDD{} with Python
 * XDB::                         Using @DDD{} with @XDB{}
-* LessTif::                     Using @DDD{} with LessTif
 @end menu
 
 @node GDB
@@ -12936,70 +12905,6 @@ There is no automatic data display in @XDB{}.  As a workaround,
 @DDD{} uses the @samp{p} command to access data values.  This
 means that variable names are interpreted according to the current
 frame; variables outside the current frame cannot be displayed.
-
-@node LessTif
-@section Using @value{DDD} with LessTif
-
-@DDD{} includes a number of hacks that make @DDD{} run with
-@emph{LessTif,} a free M*tif library without loss of functionality.
-Since a @DDD{} binary may be dynamically bound and used with either an
-OSF/Motif or LessTif library, these @emph{lesstif hacks} can be enabled
-and disabled at run time.
-
-Whether the @emph{lesstif hacks} are included at run-time depends on the
-setting of the @samp{lessTifVersion} resource:
-
-@defvr Resource lessTifVersion (class LessTifVersion)
-Indicates the LessTif version @DDD{} is running against.  For
-LessTif version @var{x.y}, the value is @var{x} multiplied by 1000 plus
-@var{y}---for instance, the value @code{79} stands for LessTif 0.79 and
-the value @code{1005} stands for LessTif 1.5.
-
-If the value of this resource is less than 1000, indicating LessTif
-0.99 or earlier, @DDD{} enables version-specific hacks to make
-@DDD{} work around LessTif bugs and deficiencies.
-
-If @DDD{} was compiled against LessTif, the default value is the
-value of the @samp{LessTifVersion} macro in @file{<Xm/Xm.h>}.  If
-@DDD{} was compiled against OSF/Motif, the default value is
-@code{1000}, disabling all LessTif-specific hacks.
-@end defvr
-
-To set the @samp{lessTifVersion} resource at @DDD{} invocation and
-to specify the version number of the LessTif library, you can also use
-the option @option{--lesstif-version} @var{version}.
-
-The default value of the @samp{lessTifVersion} resource is derived from
-the LessTif library @DDD{} was compiled against (or @code{1000}
-when compiled against OSF/Motif).  Hence, you normally don't need to
-worry about the value of this resource.  However, if you use a
-dynamically linked @DDD{} binary with a library other than the one
-@DDD{} was compiled against, you must specify the version number of
-the library using this resource.  (Unfortunately, @DDD{} cannot
-detect this at run-time.)
-
-Here are a few scenarios to illustrate this scheme:
-@itemize @bullet{}
-@item
-Your @DDD{} binary was compiled against OSF/Motif, but you use
-a LessTif 0.88 dynamic library instead.  Invoke @DDD{} with
-@option{--lesstif-version 88}.
-@item
-Your @DDD{} binary was compiled against LessTif, but you use
-a OSF/Motif dynamic library instead.    Invoke @DDD{} with
-@option{--lesstif-version 1000}.
-@item
-Your @DDD{} binary was compiled against LessTif 0.85, and you
-have upgraded to LessTif 0.90.  Invoke @DDD{} with
-@option{--lesstif-version 90}.
-@end itemize
-
-To find out the LessTif or OSF/Motif version @DDD{} was
-compiled against, invoke @DDD{} with the
-@option{--configuration} option.
-
-In the @DDD{} source, LessTif-specific hacks are controlled by
-the string @samp{lesstif_version}.
 
 
 
