@@ -57,8 +57,8 @@ DEBIANPKGS=( \
   "libxt-dev" "libxaw7-dev" "libxpm-dev" "libncurses-dev" "gdb" "fonts-liberation" \
   )
 DEBIANDEVPKGS=( \
-  "automake" "autoconf" "libtool" "bison" "flex" "texinfo" "netpbm" \
-  "texlive-font-utils" "texlive-latex-base" \
+  "automake" "autoconf" "libtool" "bison" "flex" "texinfo" "netpbm" "fig2dev" \
+  "imagemagick" "texlive-font-utils" "texlive-latex-base" \
   )
 
 FEDORAPKGS=( \
