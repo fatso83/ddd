@@ -1316,7 +1316,7 @@ htmldir = $(builddocdir)/html
 .PHONY: html
 html: $(htmldir)/ddd.html $(htmldir)/ddd-themes.html
 
-$(htmldir)/ddd.html $(htmldir)/ddd-themes.html: \
+$(htmldir)/ddd.html $(htmldir)/ddd-themes.html: $(JPG_IMAGES) \
 	$(srcdir)/ddd.texi $(srcdir)/ddd-themes.texi \
 	style.css $(srcdir)/fix-html.sed
 	@-test -d $(htmldir) || mkdir -p $(htmldir)
@@ -1325,12 +1325,17 @@ $(htmldir)/ddd.html $(htmldir)/ddd-themes.html: \
 	$(RM) ddd*.html
 	$(MAKEINFOHTML) -I $(srcdir) -I $(texidir) $(srcdir)/ddd-themes.texi --no-split
 	$(MAKEINFOHTML) -I $(srcdir) -I $(texidir) $(srcdir)/ddd.texi --no-split
+	for file in ddd*.html; do \
+		$(SED) -f $(srcdir)/fix-html.sed $$file | \
+		$(SED) 's/$(IMGEXT)/\$(IMGEXT2)/g' > $$file~ && \
+		$(MV) $$file~ $$file; \
+	done
 	cd $(htmldir) && $(RM) ddd*.html style.css PICS/*
 	$(INSTALL_DATA) ddd*.html $(srcdir)/style.css $(htmldir)
 	($(ECHO) 'index.html:'; $(ECHO) '	$(LN_S) ddd.html index.html') \
 	 > $(htmldir)/Makefile
 	@$(ECHO) Installing images...
-	@$(INSTALL_DATA) $(picdir)/*$(IMGEXT) $(htmldir)/PICS
+	@$(INSTALL_DATA) $(JPG_IMAGES) $(htmldir)/PICS
 	@$(ECHO) Installing images...done.
 
 # Manual page
@@ -1349,6 +1354,7 @@ ddd.1:   ddd.man $(srcdir)/unumlaut.sed
 
 # The image extension (.jpg, .png, or .gif)
 IMGEXT     = .png
+IMGEXT2    = .jpg
 
 # Width of image in HTML manual (pixels)
 IMAGE_WIDTH = 800
@@ -1381,6 +1387,7 @@ EPSTOPDF = epstopdf
 FIG2DEV = fig2dev
 FIG2PS  = $(FIG2DEV) -L eps
 FIG2PDF = $(FIG2DEV) -L pdf
+FIG2JPG = $(FIG2DEV) -L jpeg
 
 # The Ghostscript command.  (gs)
 GS = gs
@@ -1405,6 +1412,10 @@ GSOPT = -q -sDEVICE=pdfwrite -dCompatibilityLevel=1.4
 	$(GS) $(GSOPT) -o $@ $@-17
 	rm $@-17
 
+%.jpg: %.fig 
+	@-test -d $(buildpicdir) || mkdir $(buildpicdir)
+	$(FIG2JPG) $< $@
+
 # Our `texinfo.tex' must reside in the current directory, otherwise
 # texi2dvi will use the default.
 .texi.pdf:
@@ -1426,6 +1437,70 @@ GSOPT = -q -sDEVICE=pdfwrite -dCompatibilityLevel=1.4
 # All of these are generated from FIG and XPM files.
 picdir = $(srcdir)/PICS
 buildpicdir = $(top_builddir)/ddd/PICS
+
+DOC_IMAGES = \
+	ddd-aliases		\
+	ddd-all			\
+	ddd-arguments		\
+	ddd-attach		\
+	ddd-backtrace		\
+	ddd-bp-popup		\
+	ddd-bp-properties	\
+	ddd-button-editor	\
+	ddd-clusters		\
+	ddd-code		\
+	ddd-data-prefs		\
+	ddd-define-command	\
+	ddd-display		\
+	ddd-drag		\
+	ddd-edit-breakpoints	\
+	ddd-edit-displays	\
+	ddd-examine		\
+	ddd-font-prefs		\
+	ddd-general-prefs	\
+	ddd-helpers		\
+	ddd-hide-display	\
+	ddd-history		\
+	ddd-layout		\
+	ddd-line-popup		\
+	ddd-locals		\
+	ddd-open		\
+	ddd-open-session	\
+	ddd-plots		\
+	ddd-print-graph		\
+	ddd-print-output	\
+	ddd-print-popup		\
+	ddd-registers		\
+	ddd-repeats		\
+	ddd-rotate-display	\
+	ddd-save-session	\
+	ddd-select-display	\
+	ddd-separate		\
+	ddd-set			\
+	ddd-settings		\
+	ddd-shortcut-editor	\
+	ddd-shortcuts		\
+	ddd-signals		\
+	ddd-source		\
+	ddd-source-popup	\
+	ddd-source-prefs	\
+	ddd-startup-prefs	\
+	ddd-status-displays	\
+	ddd-suppress		\
+	ddd-themes		\
+	ddd-threads		\
+	ddd-tool		\
+	ddd-toolbar		\
+	ddd-toolbars		\
+	ddd-value-tip		\
+	tut-backtrace		\
+	tut-display		\
+	tut-finish		\
+	tut-invoke		\
+	tut-run			\
+	tut-set			\
+	tut-value
+
 PS_IMAGES = \
 	$(buildpicdir)/disclaimer.eps           \
 	$(buildpicdir)/ddd-aliases.eps          \
@@ -1491,70 +1566,23 @@ PS_IMAGES = \
 	$(buildpicdir)/tut-set.eps              \
 	$(buildpicdir)/tut-value.eps
 
-PDF_IMAGES = \
-	$(buildpicdir)/disclaimer.pdf           \
-	$(buildpicdir)/ddd-aliases.pdf          \
-	$(buildpicdir)/ddd-all.pdf              \
-	$(buildpicdir)/ddd-arguments.pdf        \
-	$(buildpicdir)/ddd-attach.pdf           \
-	$(buildpicdir)/ddd-backtrace.pdf	\
-	$(buildpicdir)/ddd-bp-popup.pdf         \
-	$(buildpicdir)/ddd-bp-properties.pdf    \
-	$(buildpicdir)/ddd-button-editor.pdf    \
-	$(buildpicdir)/ddd-clusters.pdf         \
-	$(buildpicdir)/ddd-code.pdf             \
-	$(buildpicdir)/ddd-console.pdf          \
-	$(buildpicdir)/ddd-data-prefs.pdf       \
-	$(buildpicdir)/ddd-define-command.pdf   \
-	$(buildpicdir)/ddd-display.pdf          \
-	$(buildpicdir)/ddd-drag.pdf             \
-	$(buildpicdir)/ddd-edit-breakpoints.pdf \
-	$(buildpicdir)/ddd-edit-displays.pdf    \
-	$(buildpicdir)/ddd-examine.pdf          \
-	$(buildpicdir)/ddd-font-prefs.pdf       \
-	$(buildpicdir)/ddd-general-prefs.pdf    \
-	$(buildpicdir)/ddd-helpers.pdf  	\
-	$(buildpicdir)/ddd-hide-display.pdf     \
-	$(buildpicdir)/ddd-history.pdf          \
-	$(buildpicdir)/ddd-layout.pdf           \
-	$(buildpicdir)/ddd-line-popup.pdf       \
-	$(buildpicdir)/ddd-locals.pdf	        \
-	$(buildpicdir)/ddd-open.pdf             \
-	$(buildpicdir)/ddd-open-session.pdf     \
-	$(buildpicdir)/ddd-plots.pdf            \
-	$(buildpicdir)/ddd-print-graph.pdf      \
-	$(buildpicdir)/ddd-print-output.pdf     \
-	$(buildpicdir)/ddd-print-popup.pdf      \
-	$(buildpicdir)/ddd-registers.pdf        \
-	$(buildpicdir)/ddd-repeats.pdf          \
-	$(buildpicdir)/ddd-rotate-display.pdf   \
-	$(buildpicdir)/ddd-save-session.pdf     \
-	$(buildpicdir)/ddd-select-display.pdf   \
-	$(buildpicdir)/ddd-separate.pdf         \
-	$(buildpicdir)/ddd-set.pdf	        \
-	$(buildpicdir)/ddd-settings.pdf         \
-	$(buildpicdir)/ddd-shortcuts.pdf        \
-	$(buildpicdir)/ddd-shortcut-editor.pdf  \
-	$(buildpicdir)/ddd-signals.pdf          \
-	$(buildpicdir)/ddd-source-popup.pdf     \
-	$(buildpicdir)/ddd-source-prefs.pdf     \
-	$(buildpicdir)/ddd-source.pdf           \
-	$(buildpicdir)/ddd-startup-prefs.pdf    \
-	$(buildpicdir)/ddd-status-displays.pdf  \
-	$(buildpicdir)/ddd-suppress.pdf         \
-	$(buildpicdir)/ddd-themes.pdf           \
-	$(buildpicdir)/ddd-threads.pdf          \
-	$(buildpicdir)/ddd-tool.pdf             \
-	$(buildpicdir)/ddd-toolbar.pdf          \
-	$(buildpicdir)/ddd-toolbars.pdf         \
-	$(buildpicdir)/ddd-value-tip.pdf        \
-	$(buildpicdir)/tut-backtrace.pdf        \
-	$(buildpicdir)/tut-display.pdf          \
-	$(buildpicdir)/tut-finish.pdf           \
-	$(buildpicdir)/tut-invoke.pdf           \
-	$(buildpicdir)/tut-run.pdf              \
-	$(buildpicdir)/tut-set.pdf              \
-	$(buildpicdir)/tut-value.pdf
+PDF_IMAGES = $(addprefix $(buildpicdir)/,$(addsuffix .pdf,$(DOC_IMAGES)))
+
+FIG_IMAGES = $(addprefix $(picdir)/,$(addsuffix .fig,$(DOC_IMAGES)))
+
+JPG_IMAGES := $(addprefix $(buildpicdir)/,$(addsuffix .jpg,$(DOC_IMAGES)))
+
+PNG_IMAGES := $(addprefix $(picdir)/,$(addsuffix .png,$(DOC_IMAGES))) \
+	$(picdir)/ddd-drag1.png			\
+	$(picdir)/ddd-drag2.png			\
+	$(picdir)/ddd-drag3.png			\
+	$(picdir)/ddd-toolbar-1.png		\
+	$(picdir)/ddd-toolbar-2.png		\
+	$(picdir)/ddd-toolbar-3.png		\
+	$(picdir)/ddd-toolbar-4.png
+
+
+# $(buildpicdir)/%.jpg: $(picdir)/%.fig $(picdir)/%.png
 
 # All derived pictures
 IMAGES = $(PS_IMAGES) $(PDF_IMAGES)
