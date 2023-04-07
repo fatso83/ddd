@@ -7169,8 +7169,8 @@ static void setup_version_info()
 	     "us a picture postcard:") + cr()
 	+ cr()
 	+ rm("    Free Software Foundation") + cr()
-	+ rm("    59 Temple Place - Suite 330") + cr()
-	+ rm("    Boston, MA  02111-1307, USA") + cr();
+	+ rm("    51 Franklin Street, Fifth Floor") + cr()
+	+ rm("    Boston, MA  02110, USA") + cr();
 #endif
 
     string log = session_log_file();
@@ -7220,7 +7220,7 @@ static void setup_version_info()
 		    "Universit\344t Passau, Germany.\n"
 		    "Copyright \251 2001 "
 		    "Universit\344t des Saarlandes, Germany.\n"
-		    "Copyright \251 2001-2004 "
+		    "Copyright \251 2001-2023 "
 		    "Free Software Foundation, Inc.\n"));
 #endif
 }

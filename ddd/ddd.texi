@@ -127,8 +127,8 @@ GERMANY
 @noindent
 Distributed by @*
 Free Software Foundation, Inc. @*
-59 Temple Place - Suite 330 @*
-Boston, MA 02111-1307 @*
+51 Franklin Street, Fifth Floor @*
+Boston, MA 02110 @*
 USA
 
 @noindent
@@ -195,7 +195,7 @@ GERMANY
 Distributed by @*
 Free Software Foundation, Inc. @*
 51 Franklin Street, Fifth Floor @*
-Boston, MA 02110-1335 @*
+Boston, MA 02110 @*
 USA
 @sp 1
 
@@ -716,8 +716,8 @@ GERMANY
 @noindent
 Distributed by @*
 Free Software Foundation, Inc. @*
-59 Temple Place - Suite 330 @*
-Boston, MA 02111-1307 @*
+51 Franklin Street, Fifth Floor @*
+Boston, MA 02110 @*
 USA
 
 @noindent
