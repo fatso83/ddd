@@ -103,8 +103,8 @@ This is the @value{EDITION} Edition, @value{DATE}, of @cite{Writing
 
 @group
 @noindent
-Copyright @copyright{} 2023 Michael J. Eager <eager@eagercon.com> and
-Stefan Eickeler <stefan.eickeler@iais.fraunhofer.de>.
+Copyright @copyright{} 2023 Michael J. Eager and
+Stefan Eickeler.
 
 @noindent
 Copyright @copyright{} 2001 Universität Passau @*

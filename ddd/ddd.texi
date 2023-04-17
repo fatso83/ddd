@@ -118,8 +118,8 @@ with @DDD{}} for @DDD{} Version @value{VERSION}.
 
 @group
 @noindent
-Copyright @copyright{} 2023 Michael J. Eager <eager@eagercon.com> and
-Stefan Eickeler <stefan.eickeler@iais.fraunhofer.de>.
+Copyright @copyright{} 2023 Michael J. Eager  and
+Stefan Eickeler.
 @sp 1
 @noindent
 Copyright @copyright{} 2004 Universität des Saarlandes @*
