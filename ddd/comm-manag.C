@@ -3293,11 +3293,11 @@ static void extra_completed (StringArray& answers,
 	}
     }
 
-    if (extra_data->refresh_user)
+    if (extra_data->refresh_user && extra_data->n_refresh_user>0 && int(answers.size())<qu_count + extra_data->n_refresh_user)
     {
 // 	StringArray answers_(answers.data() + qu_count,
 // 			    extra_data->n_refresh_user);
-        StringArray answers_(&answers[qu_count], &answers[qu_count + extra_data->n_refresh_user]);
+        StringArray answers_(answers.cbegin() + qu_count, answers.cbegin() + qu_count + extra_data->n_refresh_user);
 	data_disp->process_user(answers_);
 	qu_count += extra_data->n_refresh_user;
     }
