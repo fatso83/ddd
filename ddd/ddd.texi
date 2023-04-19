@@ -714,8 +714,8 @@ Using @value{DDD} with GDB
 
 @group
 @noindent
-Copyright @copyright{} 2023 Michael J. Eager @email{eager@@eagercon.com} @*
-Stefan Eickeler @email{stefan.eickeler@@iais.fraunhofer.de}.
+Copyright @copyright{} 2023 Michael J. Eager and
+Stefan Eickeler.
 
 @noindent
 Copyright @copyright{} 2004 Universität des Saarlandes @*
