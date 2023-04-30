@@ -132,22 +132,23 @@ fi
 dnl
 dnl The debugger.
 dnl
-AC_CHECK_PROGS(DEBUGGER, gdb wdb dbx ladebug xdb jdb)dnl
+dnl AC_CHECK_PROGS(DEBUGGER, gdb wdb dbx ladebug xdb jdb)dnl
+AC_CHECK_PROGS(DEBUGGER, gdb dbx)dnl
 case "$DEBUGGER" in
 *gdb*) DEBUGGER_OPTION="";;
-*wdb*) DEBUGGER_OPTION="--wdb";;
+dnl *wdb*) DEBUGGER_OPTION="--wdb";;
 *dbx*) DEBUGGER_OPTION="--dbx";;
-*ladebug*) DEBUGGER_OPTION="--ladebug";;
-*xdb*) DEBUGGER_OPTION="--xdb";;
-*jdb*) DEBUGGER_OPTION="--jdb";;
+dnl *ladebug*) DEBUGGER_OPTION="--ladebug";;
+dnl *xdb*) DEBUGGER_OPTION="--xdb";;
+dnl *jdb*) DEBUGGER_OPTION="--jdb";;
 esac
 case "$DEBUGGER" in
 gdb) ;;
-wdb) ;;
+dnl wdb) ;;
 dbx) ;;
-ladebug) ;;
-xdb) ;;
-jdb) ;;
+dnl ladebug) ;;
+dnl xdb) ;;
+dnl jdb) ;;
 *)   DEBUGGER_OPTION="$DEBUGGER_OPTION --debugger $DEBUGGER";
 esac
 AC_SUBST(DEBUGGER_OPTION)dnl
@@ -280,16 +281,16 @@ ddd_have_regcmp_in_libc=no
 AC_CHECK_FUNC(regcmp, ddd_have_regcmp_in_libc=yes)
 dnl
 dnl
-if test "$ddd_have_connect_in_libc" != yes; then
+dnl if test "$ddd_have_connect_in_libc" != yes; then
 dnl Solaris 2.6 wants an explicit `-lsocket' before `-lnsl'.
 dnl Reported by Emmanuel Engel <Emmanuel.Engel@lri.fr>
 dnl
 dnl Andreas Buschmann <Andreas.Buschmann@ks.sel.alcatel.de> says that
 dnl libsocket may _not_ go into LIBS, because otherwise the X11
 dnl configuration on Solaris will not find -lsocket -lnsl anymore.
-AC_CHECK_LIB(socket, connect, LIBSOCKET="-lsocket")
-AC_SUBST(LIBSOCKET)
-fi
+dnl AC_CHECK_LIB(socket, connect, LIBSOCKET="-lsocket")
+dnl AC_SUBST(LIBSOCKET)
+dnl fi
 dnl
 if test "$ddd_have_gethostbyname_in_libc" != yes; then
 AC_CHECK_LIB(nsl, gethostbyname, LIBNSL="-lnsl")
@@ -322,9 +323,9 @@ dnl Marc Lepage <mlepage@kingston.hummingbird.com> reports that
 dnl the Digital UNIX native compiler wants -lcxxinst to get
 dnl template instantiations.  Do this only if not GCC.
 dnl
-if test "$GXX" != yes; then
-AC_CHECK_LIB(cxxinst, main, CXXLIBS="-lcxxinst $CXXLIBS")
-fi
+dnl if test "$GXX" != yes; then
+dnl AC_CHECK_LIB(cxxinst, main, CXXLIBS="-lcxxinst $CXXLIBS")
+dnl fi
 dnl
 dnl
 dnl Check for -ltermcap or compatible.
@@ -511,18 +512,18 @@ dnl
 dnl Autoconf bug fix: GCC 2.95 and later want -isystem for including X files
 X_CFLAGS=`echo $X_CFLAGS | $SED "s,-I,$ISYSTEM,g"`
 dnl
-ICE_FIND_MOTIF
-ICE_FIND_XPM
-ICE_FIND_ATHENA
+dnl ICE_FIND_MOTIF
+dnl ICE_FIND_XPM
+dnl ICE_FIND_ATHENA
 ICE_X_PERMISSIVE
 CXXFLAGS="$CXXFLAGS $X_PERMISSIVE"
 dnl
 dnl Autoconf bug fix: Sun CC 3.0 requires `-R lib', g++ requires `-Rlib'.
-changequote(,)dnl
-case "$CXX" in
-  *CC) X_LIBS=`echo $X_LIBS | $SED 's, -R\([^ ]\), -R \1,g'`
-esac
-changequote([,])dnl
+dnl changequote(,)dnl
+dnl case "$CXX" in
+dnl   *CC) X_LIBS=`echo $X_LIBS | $SED 's, -R\([^ ]\), -R \1,g'`
+dnl esac
+dnl changequote([,])dnl
 dnl
 dnl
 dnl
@@ -554,14 +555,14 @@ dnl that DLD-Linux with CDE wants `-lXintl' to refine `Xlcmbcurmax'.
 dnl Guenther Roehrich <guenther@studbox.uni-stuttgart.de> says that
 dnl we must check for `_Xlcmbcurmax' instead of `Xlcmbcurmax'.
 dnl
-AC_CHECK_LIB([Xintl],[_Xlcmbcurmax],[X11_LIBS="${X11_LIBS} -lXintl"],[],
-	[${X_PRE_LIBS} ${X11_LIBS} ${X_EXTRA_LIBS}])
+dnl AC_CHECK_LIB([Xintl],[_Xlcmbcurmax],[X11_LIBS="${X11_LIBS} -lXintl"],[],
+dnl 	[${X_PRE_LIBS} ${X11_LIBS} ${X_EXTRA_LIBS}])
 dnl
 dnl
 dnl Check for -lipc library.  SCO unix is said to want that.
 dnl
-AC_CHECK_LIB([ipc],[shmap],[X11_LIBS="${X11_LIBS} -lipc"],[],
-	[${X_PRE_LIBS} ${X11_LIBS} ${X_EXTRA_LIBS}])
+dnl AC_CHECK_LIB([ipc],[shmap],[X11_LIBS="${X11_LIBS} -lipc"],[],
+dnl 	[${X_PRE_LIBS} ${X11_LIBS} ${X_EXTRA_LIBS}])
 dnl
 dnl
 dnl Check for X toolkit libraries
@@ -699,19 +700,19 @@ fi
 dnl Tweak: HPUX-10.20, 11.00, and 11.11 require that Motif be statically linked.
 dnl Linking dynamically will appear to succeed, but DDD will core on startup.
 dnl (I haven't tried other HPUX versions, so I'd be glad for any feedback.)
-case "$host_os" in
-hpux10.20|hpux11.00|hpux11.11)
-  for file in "/usr/lib/libXm.a" "/usr/lib/Motif1.2_R6/libXm.a";
-  do
-   if test -f "$file"; then
-    XM_LIBS="$file"
-    AC_MSG_WARN([Forcing static link of Motif as HP-UX linker bug workaround.])
-    AC_MSG_WARN([LIBXM is set to $XM_LIBS.])
-    break
-   fi
-  done
-  ;;
-esac
+dnl case "$host_os" in
+dnl hpux10.20|hpux11.00|hpux11.11)
+dnl   for file in "/usr/lib/libXm.a" "/usr/lib/Motif1.2_R6/libXm.a";
+dnl   do
+dnl    if test -f "$file"; then
+dnl     XM_LIBS="$file"
+dnl     AC_MSG_WARN([Forcing static link of Motif as HP-UX linker bug workaround.])
+dnl     AC_MSG_WARN([LIBXM is set to $XM_LIBS.])
+dnl     break
+dnl    fi
+dnl   done
+dnl   ;;
+dnl esac
 
 AC_SUBST(XP_LIBS)
 AC_SUBST(XM_LIBS)
@@ -1051,42 +1052,42 @@ fi
 dnl
 dnl Check for risky LessTif versions.
 dnl
-risky_lesstif=false
-ice_save_CPPFLAGS="$CPPFLAGS"
-CPPFLAGS="$CPPFLAGS $X_CFLAGS"
-AC_PREPROC_IFELSE([AC_LANG_PROGRAM([[#include <Xm/Xm.h>
+dnl risky_lesstif=false
+dnl ice_save_CPPFLAGS="$CPPFLAGS"
+dnl CPPFLAGS="$CPPFLAGS $X_CFLAGS"
+dnl AC_PREPROC_IFELSE([AC_LANG_PROGRAM([[#include <Xm/Xm.h>
 #ifdef LESSTIF_VERSION
 #if LESSTIF_VERSION == 0 && LESSTIF_REVISION <= 86
 #error LessTif 0.86 or earlier
 #endif
 #endif]])],[risky_lesstif=false],[risky_lesstif=true])
-CPPFLAGS="$ice_save_CPPFLAGS"
+dnl CPPFLAGS="$ice_save_CPPFLAGS"
 dnl
 dnl
 dnl Check for risky CC versions.
 dnl
-risky_cc=false
+dnl risky_cc=false
 # Warn about old SGI CC versions.
-case "$CXX" in
-*CC)
-  if test "$host_vendor" = "sgi" && test "$ice_cv_have_bool" != yes; then
-    risky_cc=true
-  fi
-  ;;
-*)
-  ;;
-esac
+dnl case "$CXX" in
+dnl *CC)
+dnl  if test "$host_vendor" = "sgi" && test "$ice_cv_have_bool" != yes; then
+dnl    risky_cc=true
+dnl  fi
+dnl  ;;
+dnl*)
+dnl  ;;
+dnl esac
 dnl
 # Warn about old xlC versions.
-case "$CXX" in
-*xlC)
-  if test "$ice_cv_have_bool" != yes; then
-    risky_cc=true
-  fi
-  ;;
-*)
-  ;;
-esac
+dnl case "$CXX" in
+dnl*xlC)
+dnl  if test "$ice_cv_have_bool" != yes; then
+dnl    risky_cc=true
+dnl  fi
+dnl  ;;
+dnl*)
+dnl  ;;
+dnl esac
 dnl
 dnl Look for M4 macros in subdirectory
 dnl
@@ -1103,15 +1104,15 @@ dnl
 dnl
 dnl Give some warnings
 dnl
-if $risky_cc; then
-AC_MSG_WARN([This $CXX version may not generate safe $DDD code.
-Use GCC instead or continue at own risk.])
-fi
+dnl if $risky_cc; then
+dnl AC_MSG_WARN([This $CXX version may not generate safe $DDD code.
+dnl Use GCC instead or continue at own risk.])
+dnl fi
 dnl
-if $risky_lesstif; then
-AC_MSG_WARN([This $DDD release requires LessTif 0.87 or later.
-Upgrade to a recent LessTif version or continue at own risk.])
-fi
+dnl if $risky_lesstif; then
+dnl AC_MSG_WARN([This $DDD release requires LessTif 0.87 or later.
+dnl Upgrade to a recent LessTif version or continue at own risk.])
+dnl fi
 dnl
 dnl Give an indication of what to do next.
 dnl

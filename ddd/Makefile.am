@@ -602,7 +602,8 @@ LIBM       = @LIBM@
 # C library (-lc)
 LIBC       = @LIBC@
 # Socket library (-lsocket)
-LIBSOCKET  = @LIBSOCKET@
+#LIBSOCKET  = @LIBSOCKET@
+LIBSOCKET  = 
 # ELF library (-lelf)
 LIBELF     = @LIBELF@
 # NSL library (-lnsl)
