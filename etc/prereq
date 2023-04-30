@@ -28,6 +28,8 @@
 
 MAINTAINER=0
 
+ARCH=$(uname -p)
+
 usage()
 {
   echo "Check for pre-requisite packages to build DDD"
@@ -102,7 +104,7 @@ if [ "$DISTRO" = "DEBIAN" ]; then
   
   for PKG in ${PKGS[@]}
   do 
-    if echo $INSTALLED | grep " $PKG " &> /dev/null ; then
+    if echo $INSTALLED | grep " $PKG " | grep $ARCH &> /dev/null ; then
       echo "$PKG installed"
     else
       echo "$PKG not installed"
@@ -123,7 +125,7 @@ if [ "$DISTRO" = "FEDORA" ]; then
  
   for PKG in ${PKGS[@]}
   do 
-    if dnf list installed $PKG &> /dev/null ; then
+    if dnf list installed $PKG | grep -e "$ARCH\|noarch" &> /dev/null ; then
       echo "$PKG installed"
     else
       echo "$PKG not installed"
