@@ -1016,6 +1016,9 @@ bool GDBAgent::ends_with_yn (const string& answer) const
     if (ends_in(answer, "(y or n) "))
 	return true;		// GDB
 
+    if (ends_in(answer, "(y or [n]) "))
+	return true;		// GDB
+
     if (ends_in(answer, "(y/n): "))
 	return true;		// BASH
 
