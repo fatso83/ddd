@@ -984,8 +984,9 @@ dnl Terry Teague <terry_teague@users.sourceforge.net> reports Mac OS X
 dnl requires some fixes
 AC_MSG_CHECKING([fixes needed for Mac OS X])
 case "$host_os" in
-Darwin*)
+Darwin*|darwin*)
 LDFLAGS="-bind_at_load ${LDFLAGS}"
+CXXOPT="-std=c++17 $CXXOPT"
   AC_DEFINE(GDB_ABI_OPTIONS,1,
 [Define if you want any inferior debugger abi (e.g. "cp-abi", "osabi" in gdb for Mac OS X) settings to have their own settings buttons (rather than entering the abi as text) in DDD.])
   AC_DEFINE(GDB_AMBIGUOUS_SHOW_PATH,1,
