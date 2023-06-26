@@ -791,7 +791,7 @@ AC_CHECK_LIB(m, hypot)
 dnl
 dnl Check for headers
 dnl
-AC_CHECK_HEADERS(netdb.h termios.h sys/ioctl.h)
+AC_CHECK_HEADERS(netdb.h termios.h sys/ioctl.h fcntl.h)
 dnl
 ICE_CHECK_DECL(_getpty, unistd.h)
 AH_TEMPLATE([HAVE__GETPTY_DECL],[Define if _getpty is declared in unistd.h.])
