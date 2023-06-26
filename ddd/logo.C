@@ -49,7 +49,9 @@ char logo_rcsid[] =
 #ifdef XpmVersion
 
 #include "icons/ddd.xpm"
+#define char const char
 #include "icons/dddsplash.xpm"
+#undef char
 
 #else
 static const char **ddd_xpm = 0;
