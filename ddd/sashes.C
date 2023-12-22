@@ -45,39 +45,39 @@ char sashes_rcsid[] =
 void unmanage_sashes(Widget paned)
 {
     if (paned == 0 || !XtIsSubclass(paned, xmPanedWindowWidgetClass))
-	return;
+        return;
 
     WidgetList children   = 0;
     Cardinal num_children = 0;
 
     XtVaGetValues(paned,
-		  XtNchildren, &children,
-		  XtNnumChildren, &num_children,
-		  XtPointer(0));
+                  XtNchildren, &children,
+                  XtNnumChildren, &num_children,
+                  XtPointer(0));
 
     for (Cardinal i = 0; i < num_children; i++)
-	if (XmIsSash(children[i]))
-	{
-	    XtUnmanageChild(children[i]);
-	    XtUnmapWidget(children[i]);
-	}
+        if (XmIsSash(children[i]))
+        {
+            XtUnmanageChild(children[i]);
+            XtUnmapWidget(children[i]);
+        }
 }
 
 // Disable traversal for all sashes of PANED
 void untraverse_sashes(Widget paned)
 {
     if (paned == 0 || !XtIsSubclass(paned, xmPanedWindowWidgetClass))
-	return;
+        return;
 
     WidgetList children   = 0;
     Cardinal num_children = 0;
 
     XtVaGetValues(paned,
-		  XtNchildren, &children,
-		  XtNnumChildren, &num_children,
-		  XtPointer(0));
+                  XtNchildren, &children,
+                  XtNnumChildren, &num_children,
+                  XtPointer(0));
 
     for (Cardinal i = 0; i < num_children; i++)
-	if (XmIsSash(children[i]))
-	    XtVaSetValues(children[i], XmNtraversalOn, False, XtPointer(0));
+        if (XmIsSash(children[i]))
+            XtVaSetValues(children[i], XmNtraversalOn, False, XtPointer(0));
 }
