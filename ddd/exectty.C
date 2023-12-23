@@ -943,6 +943,9 @@ void startup_exec_tty(string& command, Widget origin)
 
         // Tell GDB not to redirect its process I/O
         unredirect_process(command, origin);
+
+        // deactivate external tty in appdata
+        app_data.separate_exec_window = false;
     }
 
     if (!command.empty())
