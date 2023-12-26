@@ -56,9 +56,7 @@
 #include "base/strclass.h"
 #include "template/Assoc.h"
 #include "motif/MakeMenu.h"
-#include "template/StringA.h"
 #include "template/IntIntAA.h"
-#include "template/TextPosA.h"
 
 // DDD includes
 #include "ArgField.h"
@@ -190,29 +188,29 @@ class SourceView {
     // * If MAKE_FALSE is == 0, enable breakpoint by restoring
     //   the original condition.
     // * Otherwise, preserve the condition state.
-    static void _set_bps_cond(const IntArray& nrs, const string& cond, 
+    static void _set_bps_cond(const std::vector<int>& nrs, const string& cond,
 			      int make_false, Widget origin);
 
     // Set condition of breakpoints NRS to COND.
-    inline static void set_bps_cond(const IntArray& nrs, const string& cond,
+    inline static void set_bps_cond(const std::vector<int>& nrs, const string& cond,
 				    Widget origin = 0)
     {
 	_set_bps_cond(nrs, cond, -1, origin);
     }
 
     // Enable and disable breakpoints via conditions.
-    inline static void set_bps_cond_enabled(const IntArray& nrs, bool enabled,
+    inline static void set_bps_cond_enabled(const std::vector<int>& nrs, bool enabled,
 					    Widget origin = 0)
     {
 	_set_bps_cond(nrs, char(-1), enabled ? 0 : 1, origin);
     }
 
     // Custom calls
-    inline static void enable_bps_cond(const IntArray& nrs, Widget origin = 0)
+    inline static void enable_bps_cond(const std::vector<int>& nrs, Widget origin = 0)
     {
 	set_bps_cond_enabled(nrs, true, origin);
     }
-    inline static void disable_bps_cond(const IntArray& nrs, Widget origin = 0)
+    inline static void disable_bps_cond(const std::vector<int>& nrs, Widget origin = 0)
     {
 	set_bps_cond_enabled(nrs, false, origin);
     }
@@ -321,8 +319,8 @@ class SourceView {
     static string current_file_name;
     static int    line_count;
     static IntIntArrayAssoc bps_in_line;
-    static TextPositionArray _pos_of_line;
-    static StringArray bp_addresses;
+    static std::vector<XmTextPosition> m_pos_of_line;
+    static std::vector<string> bp_addresses;
     static XmTextPosition pos_of_line(int line);
 
     // True iff breakpoint BP is in current file (at LINE, if given)
@@ -373,7 +371,7 @@ class SourceView {
     static StringStringAssoc file_name_cache;
 
     // Files listed as erroneous
-    static StringArray bad_files;
+    static std::vector<string> bad_files;
     static bool new_bad_file(const string& file_name);
     static void post_file_error(const string& file_name,
 				const string& text, const _XtString name = 0,
@@ -554,7 +552,7 @@ private:
     // store location in POSITIONS.  Return mapped widget (0 if none)
     static Widget map_stop_at(Widget w, XmTextPosition pos,
 			      WidgetArray& stops, int& count,
-			      TextPositionArray& positions);
+			      std::vector<XmTextPosition>& positions);
 
     // Map arrow/drag arrow/drag stop in W at POS.  If ORIGIN is
     // given, use colors from ORIGIN.
@@ -600,7 +598,7 @@ private:
     static int breakpoint_number(const string& bp_info, string& file);
 
     // Get numbers of selected breakpoints
-    static void getBreakpointNumbers(IntArray& numbers);
+    static void getBreakpointNumbers(std::vector<int>& numbers);
 
 public:
     // Constructor
@@ -787,53 +785,53 @@ public:
     static void temp_n_cont(const string& a, Widget origin = 0);
 
     // Enable/Disable/Delete/Edit breakpoints
-    static void enable_bps     (const IntArray& nrs, Widget origin = 0);
-    static void disable_bps    (const IntArray& nrs, Widget origin = 0);
-    static void delete_bps     (const IntArray& nrs, Widget origin = 0);
-    static void edit_bps       (IntArray& nrs, Widget origin = 0);
+    static void enable_bps     (const std::vector<int>& nrs, Widget origin = 0);
+    static void disable_bps    (const std::vector<int>& nrs, Widget origin = 0);
+    static void delete_bps     (const std::vector<int>& nrs, Widget origin = 0);
+    static void edit_bps       (std::vector<int>& nrs, Widget origin = 0);
 
     inline static void enable_bp(int nr, Widget origin = 0)
     {
-	IntArray nrs;
+	std::vector<int> nrs;
 	nrs.push_back(nr);
 	enable_bps(nrs, origin);
     }
 
     inline static void disable_bp(int nr, Widget origin = 0)
     {
-	IntArray nrs;
+	std::vector<int> nrs;
 	nrs.push_back(nr);
 	disable_bps(nrs, origin);
     }
 
     inline static void delete_bp(int nr, Widget origin = 0)
     {
-	IntArray nrs;
+	std::vector<int> nrs;
 	nrs.push_back(nr);
 	delete_bps(nrs, origin);
     }
 
     inline static void edit_bp(int nr, Widget origin = 0)
     {
-	IntArray nrs;
+	std::vector<int> nrs;
 	nrs.push_back(nr);
 	edit_bps(nrs, origin);
     }
 
     // Set breakpoint commands
-    static void set_bp_commands(IntArray& nrs, const StringArray& commands,
+    static void set_bp_commands(std::vector<int>& nrs, const std::vector<string>& commands,
 				Widget origin = 0);
-    inline static void set_bp_commands(int nr, const StringArray& commands,
+    inline static void set_bp_commands(int nr, const std::vector<string>& commands,
 				       Widget origin = 0)
     {
-	IntArray nrs;
+	std::vector<int> nrs;
 	nrs.push_back(nr);
 	set_bp_commands(nrs, commands, origin);
     }
 
-    static string numbers(const IntArray& nrs);
-    static string all_numbers(const IntArray& nrs);
-    static bool all_bps(const IntArray& nrs);
+    static string numbers(const std::vector<int>& nrs);
+    static string all_numbers(const std::vector<int>& nrs);
+    static bool all_bps(const std::vector<int>& nrs);
 	    
     // Move PC to ADDRESS; return true if changed.
     static bool move_pc(const string& address, Widget origin = 0);

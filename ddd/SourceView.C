@@ -81,7 +81,6 @@ char SourceView_rcsid[] =
 #include "HelpCB.h"
 #include "HistoryD.h"
 #include "x11/InitImage.h"
-#include "IntArray.h"
 #include "motif/MakeMenu.h"
 #include "PosBuffer.h"
 #include "RefreshDI.h"
@@ -371,8 +370,8 @@ Map<int, BreakPoint> SourceView::bp_map;
 string SourceView::current_file_name = "";
 int    SourceView::line_count = 0;
 IntIntArrayAssoc SourceView::bps_in_line;
-TextPositionArray SourceView::_pos_of_line;
-StringArray SourceView::bp_addresses;
+std::vector<XmTextPosition> SourceView::m_pos_of_line;
+std::vector<string> SourceView::bp_addresses;
 StringStringAssoc SourceView::file_cache;
 StringOriginAssoc SourceView::origin_cache;
 StringStringAssoc SourceView::source_name_cache;
@@ -434,7 +433,7 @@ static XEvent         selection_event;
 //-----------------------------------------------------------------------
 
 // Sort A
-static void sort(IntArray& a)
+static void sort(std::vector<int>& a)
 {
     // Shell sort -- simple and fast
     int h = 1;
@@ -1017,14 +1016,14 @@ bool SourceView::move_bp(int bp_nr, const string& a, Widget w, bool copy)
     return true;
 }
 
-void SourceView::_set_bps_cond(const IntArray& _nrs, const string& cond,
+void SourceView::_set_bps_cond(const std::vector<int>& _nrs, const string& cond,
 			       int make_false, Widget w)
 {
     CommandGroup cg;
 
     // _NRS might be changed via MOVE_BREAKPOINT_PROPERTIES, 
     // so we make a copy
-    IntArray nrs(_nrs);
+    std::vector<int> nrs(_nrs);
 
     int count = 0;
     for (int i = 0; i < int(nrs.size()); i++)
@@ -1114,7 +1113,7 @@ void SourceView::bp_popup_disableCB (Widget w,
 }
 
 // Convert NRS to a list of numbers
-string SourceView::numbers(const IntArray& nrs)
+string SourceView::numbers(const std::vector<int>& nrs)
 {
     string cmd = ""; 
     for (int i = 0; i < int(nrs.size()); i++)
@@ -1127,7 +1126,7 @@ string SourceView::numbers(const IntArray& nrs)
 }
 
 // Same, but use "" if we have GDB and all numbers are used
-string SourceView::all_numbers(const IntArray& nrs)
+string SourceView::all_numbers(const std::vector<int>& nrs)
 {
     if ((gdb->type() == GDB || gdb->type() == PYDB || gdb->type() == DBG) && all_bps(nrs))
 	return "";		// In GDB, no arg means `all'
@@ -1137,7 +1136,7 @@ string SourceView::all_numbers(const IntArray& nrs)
 
 // Return true if NRS contains all breakpoints and
 // a GDB delete/disable/enable command can be given without args.
-bool SourceView::all_bps(const IntArray& nrs)
+bool SourceView::all_bps(const std::vector<int>& nrs)
 {
     if ((gdb->type() != GDB && gdb->type() != PYDB) || nrs.size() < 2)
 	return false;
@@ -1160,7 +1159,7 @@ bool SourceView::all_bps(const IntArray& nrs)
     return true;
 }
 
-void SourceView::enable_bps(const IntArray& nrs, Widget w)
+void SourceView::enable_bps(const std::vector<int>& nrs, Widget w)
 {
     CommandGroup cg;
 
@@ -1175,7 +1174,7 @@ void SourceView::enable_bps(const IntArray& nrs, Widget w)
     }
 }
 
-void SourceView::disable_bps(const IntArray& nrs, Widget w)
+void SourceView::disable_bps(const std::vector<int>& nrs, Widget w)
 {
     CommandGroup cg;
 
@@ -1190,7 +1189,7 @@ void SourceView::disable_bps(const IntArray& nrs, Widget w)
     }
 }
 
-void SourceView::delete_bps(const IntArray& nrs, Widget w)
+void SourceView::delete_bps(const std::vector<int>& nrs, Widget w)
 {
     CommandGroup cg;
 
@@ -1963,7 +1962,7 @@ void SourceView::SetInsertionPosition(Widget text_w,
 // Error handling
 //-----------------------------------------------------------------------
 
-StringArray SourceView::bad_files;
+std::vector<string> SourceView::bad_files;
 bool SourceView::new_bad_file(const string& file_name)
 {
     for (int i = 0; i < int(bad_files.size()); i++)
@@ -2662,16 +2661,16 @@ int SourceView::read_current(string& file_name, bool force_reload, bool silent)
 
     // Number of lines
     line_count   = current_source.freq('\n');
-    _pos_of_line.clear();
-    _pos_of_line.reserve(line_count + 2);
-    _pos_of_line.push_back((XmTextPosition(0)));
-    _pos_of_line.push_back((XmTextPosition(0)));
+    m_pos_of_line.clear();
+    m_pos_of_line.reserve(line_count + 2);
+    m_pos_of_line.push_back((XmTextPosition(0)));
+    m_pos_of_line.push_back((XmTextPosition(0)));
 
     for (int i = 0; i < int(current_source.length()); i++)
 	if (current_source[i] == '\n')
-	    _pos_of_line.push_back((XmTextPosition(i + 1)));
+	        m_pos_of_line.push_back((XmTextPosition(i + 1)));
 
-    assert(int(_pos_of_line.size()) == line_count + 2);
+    assert(int( m_pos_of_line.size()) == line_count + 2);
 
     if (current_source.length() == 0)
 	return -1;
@@ -2682,10 +2681,10 @@ int SourceView::read_current(string& file_name, bool force_reload, bool silent)
 // Return position of line LINE
 XmTextPosition SourceView::pos_of_line(int line)
 {
-    if (line < 0 || line > line_count || line >= int(_pos_of_line.size()))
+    if (line < 0 || line > line_count || line >= int( m_pos_of_line.size()))
 	return 0;
     else
-	return _pos_of_line[line];
+	return m_pos_of_line[line];
 }
 
 // Clear the file cache
@@ -2699,7 +2698,7 @@ void SourceView::clear_file_cache()
     static const StringOriginAssoc origin_empty;
     origin_cache      = origin_empty;
 
-    static const StringArray bad_files_empty;
+    static const std::vector<string> bad_files_empty;
     bad_files         = bad_files_empty;
 }
 
@@ -2844,7 +2843,7 @@ void SourceView::read_file (string file_name,
     // Refresh breakpoints
     static const IntIntArrayAssoc empty_bps;
     bps_in_line = empty_bps;
-    static const StringArray empty_addresses;
+    static const std::vector<string> empty_addresses;
     bp_addresses = empty_addresses;
     refresh_bp_disp(true);
 
@@ -3014,7 +3013,7 @@ void SourceView::refresh_source_bp_disp(bool reset)
 	if (indent > 0)
 	{
 	    // Display all breakpoints in a line
-	    VarIntArray& bps = bps_in_line[line_nr];
+	    std::vector<int>& bps = bps_in_line[line_nr];
 
 	    string insert_string = "";
 	    for (int i = 0; i < int(bps.size()); i++)
@@ -3068,7 +3067,7 @@ void SourceView::refresh_code_bp_disp(bool reset)
 	}
     }
 
-    static const StringArray empty;
+    static const std::vector<string> empty;
     bp_addresses = empty;
 
     if (display_glyphs)
@@ -3216,7 +3215,7 @@ bool SourceView::get_line_of_pos (Widget   w,
 		line_nr = max(line_nr, 1);
 
 		// Check for breakpoints...
-		VarIntArray& bps = bps_in_line[line_nr];
+		std::vector<int>& bps = bps_in_line[line_nr];
 		if (bps.size() == 1)
 		{
 		    // Return single breakpoint in this line
@@ -3276,7 +3275,7 @@ bool SourceView::get_line_of_pos (Widget   w,
 		address = current_code.from(index);
 		address = address.through(rxaddress);
 
-		VarIntArray bps;
+		std::vector<int> bps;
 
 		MapRef ref;
 		for (BreakPoint *bp = bp_map.first(ref);
@@ -4207,7 +4206,7 @@ void SourceView::process_info_bp (string& info_output,
 	break;
     }
 				    
-    VarIntArray bps_not_read;
+    std::vector<int> bps_not_read;
     MapRef ref;
     int i;
     for (i = bp_map.first_key(ref); i != 0; i = bp_map.next_key(ref))
@@ -5089,7 +5088,7 @@ string SourceView::get_source_name(string filename)
 
 		    if (source_name_cache[all_sources].empty())
 		    {
-			StringArray sources;
+			std::vector<string> sources;
 			get_gdb_sources(sources);
 
 			if (sources.size() > 0)
@@ -5577,7 +5576,7 @@ void SourceView::doubleClickAct(Widget w, XEvent *e, String *params,
     if (!in_text)
     {
 	// In breakpoint area
-	IntArray bps;
+	std::vector<int> bps;
 	if (text_w == source_text_w)
 	{
 	    MapRef ref;
@@ -5810,7 +5809,7 @@ void SourceView::NewWatchpointCB(Widget w, XtPointer, XtPointer)
 //----------------------------------------------------------------------------
 
 struct BreakpointPropertiesInfo {
-    IntArray nrs;		// The affected breakpoints
+    std::vector<int> nrs;		// The affected breakpoints
 
     Widget dialog;		// The widgets of the properties panel
     Widget title;
@@ -5974,7 +5973,7 @@ void SourceView::update_properties_panel(BreakpointPropertiesInfo *info)
 	    info->nrs[i] = 0;
 	}
     }
-    IntArray new_nrs;
+    std::vector<int> new_nrs;
 
     for (i = 0; i < int(info->nrs.size()); i++)
     {
@@ -6192,12 +6191,12 @@ static string cond_filter(const string& cmd)
 
 
 // Get selected breakpoint numbers
-void SourceView::getBreakpointNumbers(IntArray& breakpoint_nrs)
+void SourceView::getBreakpointNumbers(std::vector<int>& breakpoint_nrs)
 {
     if (breakpoint_list_w == 0)
 	return;
 
-    IntArray numbers;
+    std::vector<int> numbers;
     getItemNumbers(breakpoint_list_w, numbers);
 
     // Double-check each number for safety.  One may define commands
@@ -6216,7 +6215,7 @@ void SourceView::EditBreakpointPropertiesCB(Widget,
 					    XtPointer client_data, 
 					    XtPointer)
 {
-    IntArray breakpoint_nrs;
+    std::vector<int> breakpoint_nrs;
     if (client_data == 0)
     {
 	getBreakpointNumbers(breakpoint_nrs);
@@ -6229,7 +6228,7 @@ void SourceView::EditBreakpointPropertiesCB(Widget,
     edit_bps(breakpoint_nrs);
 }
 
-void SourceView::edit_bps(IntArray& breakpoint_nrs, Widget /* origin */)
+void SourceView::edit_bps(std::vector<int>& breakpoint_nrs, Widget /* origin */)
 {
     if (breakpoint_nrs.size() == 0)
 	return;			// No breakpoints given
@@ -6599,7 +6598,7 @@ void SourceView::RecordingHP(Agent *, void *client_data, void *call_data)
 }
 
 // Set breakpoint commands
-void SourceView::set_bp_commands(IntArray& nrs, const StringArray& commands,
+void SourceView::set_bp_commands(std::vector<int>& nrs, const std::vector<string>& commands,
 				 Widget origin)
 {
     CommandGroup cg;
@@ -6744,7 +6743,7 @@ void SourceView::EditBreakpointCommandsCB(Widget w,
 
 	if (!cmd.contains('\n', -1))
 	    cmd += '\n';
-	StringArray commands;
+	std::vector<string> commands;
 
 	while (!cmd.empty())
 	{
@@ -6789,7 +6788,7 @@ void SourceView::BreakpointCmdCB(Widget,
     if (breakpoint_list_w == 0)
 	return;
 
-    IntArray nrs;
+    std::vector<int> nrs;
     getBreakpointNumbers(nrs);
 
     if (nrs.size() == 0)
@@ -6810,7 +6809,7 @@ void SourceView::LookupBreakpointCB(Widget, XtPointer client_data, XtPointer)
     if (breakpoint_list_w == 0)
 	return;
 
-    IntArray breakpoint_nrs;
+    std::vector<int> breakpoint_nrs;
 
     if (client_data == 0)
     {
@@ -6848,7 +6847,7 @@ void SourceView::PrintWatchpointCB(Widget w, XtPointer client_data, XtPointer)
     if (breakpoint_list_w == 0)
 	return;
 
-    IntArray breakpoint_nrs;
+    std::vector<int> breakpoint_nrs;
 
     if (client_data == 0)
     {
@@ -7031,7 +7030,7 @@ void SourceView::UpdateBreakpointButtonsCB(Widget, XtPointer,
     if (edit_breakpoints_dialog_w == 0)
 	return;
 
-    IntArray breakpoint_nrs;
+    std::vector<int> breakpoint_nrs;
     getBreakpointNumbers(breakpoint_nrs);
 
     // Update selection
@@ -7249,7 +7248,7 @@ void SourceView::process_where(const string& where_output)
 
     split(where_output, frame_list, count, '\n');
 
-    StringArray frames;
+    std::vector<string> frames;
     int i;
     for (i = 0; i < count; i++)
     {
@@ -7823,7 +7822,7 @@ void SourceView::ThreadCommandCB(Widget w, XtPointer client_data, XtPointer)
     string command = (char *)client_data;
 
     // Get the selected threads
-    IntArray threads;
+    std::vector<int> threads;
     getItemNumbers(thread_list_w, threads);
 
     for (int i = 0; i < int(threads.size()); i++)
@@ -7835,7 +7834,7 @@ void SourceView::ThreadCommandCB(Widget w, XtPointer client_data, XtPointer)
 void SourceView::SelectThreadCB(Widget w, XtPointer, XtPointer)
 {
     // Get the selected threads
-    IntArray threads;
+    std::vector<int> threads;
     getItemNumbers(thread_list_w, threads);
 
     if (threads.size() == 1)
@@ -8622,7 +8621,7 @@ bool SourceView::glyph_pos_to_xy(Widget glyph, XmTextPosition pos,
 // store location in POSITIONS.  Return mapped widget (0 if none)
 Widget SourceView::map_stop_at(Widget glyph, XmTextPosition pos,
 			       WidgetArray& stops, int& count,
-			       TextPositionArray& positions)
+			       std::vector<XmTextPosition>& positions)
 {
     Position x, y;
     bool pos_displayed = glyph_pos_to_xy(glyph, pos, x, y);
@@ -8972,7 +8971,7 @@ void SourceView::update_glyphs_now()
 
 	if (display_glyphs)
 	{
-	    TextPositionArray positions;
+	    std::vector<XmTextPosition> positions;
 	    
 	    MapRef ref;
 	    for (BreakPoint *bp = bp_map.first(ref);
@@ -9627,7 +9626,7 @@ void SourceView::log_glyphs()
 // Delete glyph (breakpoints)
 void SourceView::deleteGlyphAct(Widget glyph, XEvent *, String *, Cardinal *)
 {
-    IntArray bps;
+    std::vector<int> bps;
     MapRef ref;
     for (BreakPoint *bp = bp_map.first(ref); bp != 0; bp = bp_map.next(ref))
     {
@@ -10118,7 +10117,7 @@ int SourceView::max_breakpoint_number = 99;
 // Return DDD commands to restore current state (breakpoints, etc.)
 bool SourceView::get_state(std::ostream& os)
 {
-    IntArray breakpoint_nrs;
+    std::vector<int> breakpoint_nrs;
     bool ok = true;
 
     // Restore breakpoints

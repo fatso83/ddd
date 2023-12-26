@@ -30,7 +30,6 @@
 
 #include <X11/Intrinsic.h>
 #include "base/bool.h"
-#include "template/StringA.h"
 
 // Main types
 typedef int MMType;
