@@ -30,11 +30,11 @@
 
 #include "base/strclass.h"
 #include "base/bool.h"
-#include "template/StringA.h"
 #include "HistoryF.h"
 
 #include <X11/Intrinsic.h>
 
+#include <vector>
 
 // History management
 extern void process_history_filename(string answer);
@@ -79,7 +79,7 @@ extern void tie_combo_box_to_history(Widget text, HistoryFilter filter);
 extern void add_to_recent(const string& file);
 
 // Get recent file history (most recent first)
-extern void get_recent(StringArray& arr);
+extern void get_recent(std::vector<string>& arr);
 
 // Tie a menu to recent files
 struct MMDesc;

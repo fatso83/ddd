@@ -86,7 +86,7 @@ void show_invocation(const string& gdb_command, std::ostream& os)
     string gdb_version = "";
     string title       = "";
     string base        = "";
-    StringArray options;
+    std::vector<string> options;
 
     DebuggerType type;
     bool type_ok = get_debugger_type(command, type);

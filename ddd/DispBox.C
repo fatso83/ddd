@@ -193,11 +193,11 @@ void DispBox::init_vsllib(void (*background)())
 }
 
 struct VSLLibCache {
-    StringArray themes;
+    std::vector<string> themes;
     VSLLib *lib;
     VSLLibCache *next;
 
-    VSLLibCache(const StringArray& _themes, const VSLLib *_lib, 
+    VSLLibCache(const std::vector<string>& _themes, const VSLLib *_lib,
 		VSLLibCache *_next = 0)
 	: themes(_themes), lib(_lib->dup()), next(_next)
     {}
@@ -223,7 +223,7 @@ VSLLib *DispBox::vsllib(const DispValue *dv)
 	return vsllib_ptr;
 
     string expr = dv->full_name();
-    StringArray themes = theme_manager.themes(expr);
+    std::vector<string> themes = theme_manager.themes(expr);
 
 #if LOG_LIB_CACHE
     std::clog << "Searching lib for theme";

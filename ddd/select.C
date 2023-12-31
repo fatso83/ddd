@@ -47,6 +47,8 @@ char select_rcsid[] =
 #include <Xm/SelectioB.h>
 #include <Xm/Text.h>
 
+#include <vector>
+
 Widget gdb_selection_dialog = 0;
 static Widget gdb_selection_list_w = 0;
 
@@ -54,7 +56,7 @@ static void SelectCB(Widget, XtPointer client_data, XtPointer)
 {
     string& reply = *((string *)client_data);
 
-    IntArray numbers;
+    std::vector<int> numbers;
     getItemNumbers(gdb_selection_list_w, numbers);
     if (numbers.size() > 0)
 	reply = itostring(numbers[0]) + "\n";

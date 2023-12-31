@@ -261,7 +261,7 @@ void BreakPoint::process_gdb(string& info_output)
 
     int ignore_count = 0;
     string cond      = "";
-    StringArray commands;
+    std::vector<string> commands;
     string new_info = "";
 
     if (!info_output.empty() && !isdigit(info_output[0]))
@@ -681,8 +681,7 @@ void BreakPoint::process_perl(string& info_output)
 	}
     }
 
-    static const StringArray empty;
-    mycommands = empty;
+    mycommands.clear();
     locn[0].myline_nr = atoi(info_output.chars());
     info_output = info_output.after('\n');
     bool break_seen = false;
@@ -738,7 +737,7 @@ void BreakPoint::process_perl(string& info_output)
 	mytype = ACTIONPOINT;
 }
 
-static bool equal(const StringArray& s1, const StringArray& s2)
+static bool equal(const std::vector<string>& s1, const std::vector<string>& s2)
 {
     if (s1.size() != s2.size())
 	return false;

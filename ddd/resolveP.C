@@ -36,7 +36,9 @@ char resolvePath_rcsid[] =
 #include "status.h"
 #include "version.h"
 #include "x11/ExitCB.h"
-#include "template/StringA.h"
+#include "base/strclass.h"
+
+#include <vector>
 
 #include <stdlib.h>
 
@@ -73,7 +75,7 @@ static string myPrefix()
 // If not found, return "".
 string resolvePath(const string& file, bool include_user)
 {
-    static StringArray prefixes;
+    static std::vector<string> prefixes;
     static int sys_index = 0;
 
     if (prefixes.size() == 0)

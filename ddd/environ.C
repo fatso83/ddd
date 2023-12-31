@@ -29,18 +29,20 @@ char environ_rcsid[] =
     "$Id$";
 
 #include "environ.h"
-#include "template/StringA.h"
 #include "base/bool.h"
 #include "shell.h"
+#include "base/strclass.h"
 
 #include <stdlib.h>		// getenv, putenv
 #include <string.h>
+
+#include <vector>
 
 #if !HAVE_PUTENV_DECL
 extern "C" int putenv(char *string);
 #endif
 
-static StringArray environment_names;
+static std::vector<string> environment_names;
 
 // Put NAME=VALUE into the environment
 void put_environment(const char *name, const char *value)

@@ -249,7 +249,7 @@ int main(int argc, char *argv[])
 		<< (endtime - starttime) / 1000 << " ms\n";
 
 	// Build themes
-	StringArray themes;
+	std::vector<string> themes;
 	for (int i = 2; i < argc; i++)
 	    themes.push_back(argv[i]);
 	lib.set_theme_list(themes);

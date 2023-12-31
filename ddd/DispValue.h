@@ -35,11 +35,14 @@
 #include "base/strclass.h"
 #include "base/bool.h"
 #include "base/mutable.h"
-#include "DispValueA.h"
 #include "DispValueT.h"
 #include "template/StringSA.h"
 #include "box/Box.h"
 #include <Xm/Xm.h>
+
+#include <vector>
+#include <map>
+
 
 class Agent;
 class PlotAgent;
@@ -63,7 +66,7 @@ class DispValue {
     string _value;		// Value of basic types
     bool _dereferenced;		// True iff pointer is dereferenced
     bool _member_names;	// True iff struct shows member names
-    DispValueArray _children;	// Array or Struct members 
+    std::vector<DispValue *> _children;	// Array or Struct members
     int _index_base;		// First index
     bool _have_index_base;	// True if INDEX_BASE is valid
     mutable DispValueOrientation _orientation; // Array orientation

@@ -41,7 +41,6 @@
 #include "base/strclass.h"
 #include "base/bool.h"
 #include "GDBAgent.h"
-#include "template/StringA.h"
 
 // Breakpoint type, respectively:
 //  Breakpoint
@@ -114,7 +113,7 @@ class BreakPoint {
     string  myinfos;		// Additional information (human-readable)
     int     myignore_count;	// Ignore count
     string  mycondition;	// Breakpoint condition
-    StringArray mycommands;	// Commands to be issued when reached
+    std::vector<string> mycommands;	// Commands to be issued when reached
     string  myarg;		// Argument as given to breakpoint command
     WatchMode mywatch_mode;	// Watchpoint detail
 
@@ -192,7 +191,7 @@ public:
     const string& infos() const          { return myinfos; }
     int ignore_count() const             { return myignore_count; }
     const string& real_condition() const { return mycondition; }
-    const StringArray& commands() const  { return mycommands; }
+    const std::vector<string>& commands() const  { return mycommands; }
     string condition() const;
 
     // Argument of breakpoint-setting command, as passed to constructor

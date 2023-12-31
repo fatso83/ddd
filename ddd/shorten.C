@@ -31,7 +31,6 @@ char shorten_rcsid[] =
 #include "shorten.h"
 #include "base/cook.h"
 #include "regexps.h"
-#include "IntArray.h"
 #include <ctype.h>
 
 static string shorten_replacement = "...";

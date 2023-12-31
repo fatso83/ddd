@@ -47,12 +47,13 @@ char DispGraph_rcsid[] =
 #include "assert.h"
 #include "AliasGE.h"
 #include "graph/HintGraphN.h"
-#include "template/VoidArray.h"
 #include "regexps.h"
 #include "graph/BoxEdgeA.h"
 #include "annotation.h"
 #include "DispBox.h"
 #include "graph/EdgeAPA.h"
+
+#include <vector>
 
 DEFINE_TYPE_INFO_1(DispGraph, Graph)
 
@@ -820,17 +821,17 @@ bool DispGraph::unalias(int alias_disp_nr)
     dn->hidden() = false;
 
     // Delete all alias edges associated with this node
-    VoidArray kill_edges;
+    std::vector<AliasGraphEdge*> kill_edges;
     GraphEdge *edge;
     for (edge = firstEdge(); edge != 0; edge = nextEdge(edge))
     {
 	AliasGraphEdge *e = ptr_cast(AliasGraphEdge, edge);
 	if (e != 0 && e->disp_nr() == alias_disp_nr)
-	    kill_edges.push_back((void *)e);
+	    kill_edges.push_back(e);
     }
     for (int i = 0; i < int(kill_edges.size()); i++)
     {
-	AliasGraphEdge *e = (AliasGraphEdge *)kill_edges[i];
+	AliasGraphEdge *e = kill_edges[i];
 	if (e->to()->isHint())
 	{
 	    *this -= e->to();	// Also removes E from graph

@@ -44,7 +44,6 @@ char DispValue_rcsid[] =
 
 #include "AppData.h"
 #include "DispNode.h"
-#include "DispValueA.h"
 #include "GDBAgent.h"
 #include "PlotAgent.h"
 #include "base/assert.h"
@@ -302,8 +301,7 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 
     const char *initial_value = value.chars();
 
-    static const DispValueArray empty(0);
-    _children = empty;
+    _children.clear();
 
     if (background(value.length()))
     {
@@ -949,8 +947,7 @@ void DispValue::clear()
     for (int i = 0; i < nchildren(); i++)
 	child(i)->unlink();
 
-    static const DispValueArray empty(0);
-    _children = empty;
+    _children.clear();
 
     if (plotter() != 0)
     {
@@ -1322,8 +1319,8 @@ DispValue *DispValue::_update(DispValue *source,
 	    // (i.e. don't mark the entire struct and don't mark new members)
 	    // We do so by creating a new list of children.  `Old' children
 	    // that still are reported get updated; `new' children are added.
-	    DispValueArray new_children;
-	    DispValueArray processed_children;
+	    std::vector<DispValue *> new_children;
+	    std::vector<DispValue *> processed_children;
 	    for (int j = 0; j < source->nchildren(); j++)
 	    {
 		DispValue *c = 0;

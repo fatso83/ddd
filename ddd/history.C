@@ -66,8 +66,6 @@ char history_rcsid[] =
 #include "motif/MakeMenu.h"
 #include "SmartC.h"
 #include "SourceView.h"
-#include "template/StringA.h"
-#include "template/VoidArray.h"
 #include "args.h"
 #include "base/cook.h"
 #include "base/cwd.h"
@@ -87,11 +85,14 @@ char history_rcsid[] =
 #include "base/uniquify.h"
 #include "x11/verify.h"
 #include "wm.h"
+#include "base/strclass.h"
 
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <fstream>
+#include <vector>
+
 #include <Xm/Xm.h>
 #include <Xm/Text.h>
 #include <Xm/List.h>
@@ -122,7 +123,7 @@ static Widget gdb_history_w  = 0;
 static Widget gdb_commands_w = 0;
 
 // History storage
-static StringArray gdb_history;
+static std::vector<string> gdb_history;
 
 // Index to current history entry
 static int gdb_current_history;
@@ -273,8 +274,7 @@ void load_history(const string& file)
     if (is.bad())
 	return;
 
-    static const StringArray empty;
-    gdb_history = empty;
+    gdb_history.clear();
 
 #if WITH_READLINE
     clear_history();
@@ -367,7 +367,7 @@ void save_history(const string& file, Widget origin)
 
 	// Save the 10 most recently opened files
 	int i;
-	StringArray recent;
+	std::vector<string> recent;
 	get_recent(recent);
 	for (i = recent.size() - 1; i >= 0 && i >= int(recent.size()) - 10; i--)
 	    os << gdb->debug_command(recent[i]) << "\n";
@@ -562,7 +562,7 @@ void goto_history(int pos)
 // Update combo box containing TEXT
 static void update_combo_box(Widget text, HistoryFilter filter)
 {
-    StringArray entries;
+    std::vector<string> entries;
 
     for (int i = gdb_history.size() - 1; i >= 0; i--)
     {
@@ -641,7 +641,7 @@ void tie_combo_box_to_history(Widget text, HistoryFilter filter)
 static void update_recent_menus();
 
 // Recent files storage
-static StringArray recent_files;
+static std::vector<string> recent_files;
 
 // Add FILE to recent file history
 void add_to_recent(const string& file)
@@ -668,7 +668,7 @@ void add_to_recent(const string& file)
 }
 
 // Get recent file history (most recent first)
-void get_recent(StringArray& arr)
+void get_recent(std::vector<string>& arr)
 {
     for (int i = recent_files.size() - 1; i >= 0; i--)
     {
@@ -682,13 +682,13 @@ void get_recent(StringArray& arr)
 
 
 // Menus to be updated
-static VoidArray menus;
+static std::vector<const MMDesc*> menus;
 
 static void update_recent_menu(const MMDesc *items)
 {
-    StringArray recent_files;
+    std::vector<string> recent_files;
     {
-	StringArray r;
+	std::vector<string> r;
 	get_recent(r);
 	for (int i = 0; i < int(r.size()) && items[i].widget != 0; i++)
 	    recent_files.push_back(r[i]);
@@ -699,7 +699,7 @@ static void update_recent_menu(const MMDesc *items)
     if (gdb->type() == JDB)
 	sep = '.';
 
-    StringArray labels;
+    std::vector<string> labels;
     uniquify(recent_files, labels, sep);
 
     // Set labels
@@ -736,7 +736,7 @@ static void update_recent_menus()
 {
     for (int i = 0; i < int(menus.size()); i++)
     {
-	const MMDesc *items = (const MMDesc *)menus[i];
+	const MMDesc *items = menus[i];
 	update_recent_menu(items);
     }
 }
@@ -746,7 +746,7 @@ void tie_menu_to_recent_files(MMDesc *items)
     if (items == 0 || items[0].widget == 0)
 	return;
 
-    menus.push_back(((void *)items));
+    menus.push_back(items);
     update_recent_menu(items);
 }
 
