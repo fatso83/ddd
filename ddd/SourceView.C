@@ -75,7 +75,7 @@ char SourceView_rcsid[] =
 #include "AppData.h"
 #include "motif/ComboBox.h"
 #include "Command.h"
-#include "DataDisp.h"		// Only for `DataDisp::SelectionLostCB'
+#include "DataDisp.h"                // Only for `DataDisp::SelectionLostCB'
 #include "x11/Delay.h"
 #include "x11/DestroyCB.h"
 #include "HelpCB.h"
@@ -195,7 +195,7 @@ XtActionsRec SourceView::actions [] = {
 
 // Popup menus - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 struct LineItms { enum Itms {SetBP, SetTempBP, Sep1, TempNContBP, 
-			     Sep2, SetPC}; };
+                             Sep2, SetPC}; };
 MMDesc SourceView::line_popup[] = 
 {
     {"set",         MMPush, {SourceView::line_popup_setCB, 0}, 0, 0, 0, 0},
@@ -222,7 +222,7 @@ MMDesc SourceView::bp_popup[] =
 };
 
 struct BPButtons { enum Itms {Properties, Lookup, NewBP, NewWP, Print, 
-			      Enable, Disable, Delete}; };
+                              Enable, Disable, Delete}; };
 MMDesc SourceView::bp_area[] =
 {
     {"properties",   MMPush,   
@@ -245,19 +245,19 @@ MMDesc SourceView::bp_area[] =
 
 struct TextItms { 
     enum Itms {
-	Print, 
-	Disp, 
-	Watch,
-	Sep1, 
-	PrintRef, 
-	DispRef,
-	WatchRef,
-	Sep2,
-	Whatis,
-	Sep3,
-	Lookup, 
-	Break,
-	Clear
+        Print, 
+        Disp, 
+        Watch,
+        Sep1, 
+        PrintRef, 
+        DispRef,
+        WatchRef,
+        Sep2,
+        Whatis,
+        Sep3,
+        Lookup, 
+        Break,
+        Clear
     };
 };
 
@@ -438,19 +438,19 @@ static void sort(std::vector<int>& a)
     // Shell sort -- simple and fast
     int h = 1;
     do {
-	h = h * 3 + 1;
+        h = h * 3 + 1;
     } while (h <= int(a.size()));
     do {
-	h /= 3;
-	for (int i = h; i < int(a.size()); i++)
-	{
-	    int v = a[i];
-	    int j;
-	    for (j = i; j >= h && a[j - h] > v; j -= h)
-		a[j] = a[j - h];
-	    if (i != j)
-		a[j] = v;
-	}
+        h /= 3;
+        for (int i = h; i < int(a.size()); i++)
+        {
+            int v = a[i];
+            int j;
+            for (j = i; j >= h && a[j - h] > v; j -= h)
+                a[j] = a[j - h];
+            if (i != j)
+                a[j] = v;
+        }
     } while (h != 1);
 }
 
@@ -459,17 +459,17 @@ static int address_index(const string& s, int pos)
 {
     int eol = s.index('\n', pos);
     if (eol < 0)
-	eol = s.length();
+        eol = s.length();
 
     const string first_line = s.at(pos, eol - pos);
     int i = 0;
     while (i < int(first_line.length()) && isspace(first_line[i]))
-	i++;
+        i++;
     i = first_line.index(rxaddress_start, i);
     if (i < 0)
-	return -1;
+        return -1;
     else
-	return pos + i;
+        return pos + i;
 }
 
 // Return true if W is a descendant of code_form_w
@@ -477,10 +477,10 @@ bool SourceView::is_code_widget(Widget w)
 {
     while (w != 0)
     {
-	if (w == code_form_w)
-	    return true;
-	else
-	    w = XtParent(w);
+        if (w == code_form_w)
+            return true;
+        else
+            w = XtParent(w);
     }
     return false;
 }
@@ -490,10 +490,10 @@ bool SourceView::is_source_widget(Widget w)
 {
     while (w != 0)
     {
-	if (w == source_form_w)
-	    return true;
-	else
-	    w = XtParent(w);
+        if (w == source_form_w)
+            return true;
+        else
+            w = XtParent(w);
     }
     return false;
 }
@@ -503,9 +503,9 @@ string& SourceView::current_text(Widget w)
     assert(is_source_widget(w) || is_code_widget(w));
 
     if (is_code_widget(w))
-	return current_code;
+        return current_code;
     else
-	return current_source;
+        return current_source;
 }
 
 
@@ -518,18 +518,18 @@ int SourceView::indent_amount(Widget w, int pos)
     int indent = 0;
     if (is_code_widget(w))
     {
-	indent = code_indent_amount;
+        indent = code_indent_amount;
     }
     else
     {
-	indent = source_indent_amount;
+        indent = source_indent_amount;
 
-	if (display_line_numbers)
-	    indent += line_indent_amount;
+        if (display_line_numbers)
+            indent += line_indent_amount;
 
-	// Set a minimum indentation for scripting languages
-	if (gdb->requires_script_indent())
-	    indent = max(indent, script_indent_amount);
+        // Set a minimum indentation for scripting languages
+        if (gdb->requires_script_indent())
+            indent = max(indent, script_indent_amount);
     }
 
     // Make sure indentation stays within reasonable bounds
@@ -537,12 +537,12 @@ int SourceView::indent_amount(Widget w, int pos)
 
     if (pos >= 0)
     {
-	const string& text = current_text(w);
-	while (pos < int(text.length()) && text[pos] == ' ')
-	{
-	    pos++;
-	    indent++;
-	}
+        const string& text = current_text(w);
+        while (pos < int(text.length()) && text[pos] == ' ')
+        {
+            pos++;
+            indent++;
+        }
     }
 
     return indent;
@@ -557,16 +557,16 @@ int SourceView::indent_amount(Widget w, int pos)
 // ***************************************************************************
 //
 void SourceView::line_popup_setCB (Widget w,
-				   XtPointer client_data,
-				   XtPointer)
+                                   XtPointer client_data,
+                                   XtPointer)
 {
     const string address = *((const string *)client_data);
     create_bp(address, w);
 }
 
 void SourceView::line_popup_set_tempCB (Widget w,
-					XtPointer client_data,
-					XtPointer)
+                                        XtPointer client_data,
+                                        XtPointer)
 {
     const string address = *((const string *)client_data);
     create_temp_bp(address, w);
@@ -577,7 +577,7 @@ void SourceView::line_popup_set_tempCB (Widget w,
 // temporary.  If COND is given, break only iff COND evals to true. W
 // is the origin.
 void SourceView::set_bp(const string& a, bool set, bool temp, 
-			const char *cond, Widget w)
+                        const char *cond, Widget w)
 {
     CommandGroup cg;
 
@@ -585,174 +585,174 @@ void SourceView::set_bp(const string& a, bool set, bool temp,
     string address = a;
 
     if (address.contains('0', 0) && !address.contains(":"))
-	address.prepend("*");	// Machine code address given
+        address.prepend("*");        // Machine code address given
 
     if (!set)
     {
-	// Clear bp
-	gdb_command(clear_command(address), w);
+        // Clear bp
+        gdb_command(clear_command(address), w);
     }
     else
     {
-	// Set bp
-	switch (gdb->type())
-	{
-	case DBG:
-	case GDB:
-	case BASH:
-	case MAKE:
-	case PYDB:
-	    if (temp)
-		gdb_command("tbreak " + address, w);
-	    else
-		gdb_command("break " + address, w);
-	    break;
+        // Set bp
+        switch (gdb->type())
+        {
+        case DBG:
+        case GDB:
+        case BASH:
+        case MAKE:
+        case PYDB:
+            if (temp)
+                gdb_command("tbreak " + address, w);
+            else
+                gdb_command("break " + address, w);
+            break;
 
-	case DBX:
-	{
-	    string cond_suffix = "";
-	    if (strlen(cond) != 0)
-	    {
-		if (gdb->has_handler_command())
-		    cond_suffix = string(" -if ") + cond;
-		else
-		    cond_suffix = string(" if ") + cond;
-	    }
+        case DBX:
+        {
+            string cond_suffix = "";
+            if (strlen(cond) != 0)
+            {
+                if (gdb->has_handler_command())
+                    cond_suffix = string(" -if ") + cond;
+                else
+                    cond_suffix = string(" if ") + cond;
+            }
 
-	    if (address.contains('*', 0))
-	    {
-		// Address given
-		address = address.after('*');
-		gdb_command("stopi at " + address + cond_suffix, w);
+            if (address.contains('*', 0))
+            {
+                // Address given
+                address = address.after('*');
+                gdb_command("stopi at " + address + cond_suffix, w);
 
-		if (temp)
-		{
-		    syncCommandQueue();
-		    gdb_command("when $pc == " + address + " "
-				+ command_list(clear_command(address, true, 
-							     new_bps)),
-				w);
-		}
-	    }
-	    else
-	    {
-		string line = "";
-		if (address.matches(rxint))
-		{
-		    // Line number given
-		    line = address;
-		    gdb_command("stop at " + address + cond_suffix, w);
-		}
-		else if (is_file_pos(address))
-		{
-		    // FILE:LINE given
-		    int colon_index = address.index(':', -1);
-		    assert(colon_index >= 0);
-		    string file = address.before(colon_index);
-		    line = address.after(colon_index);
+                if (temp)
+                {
+                    syncCommandQueue();
+                    gdb_command("when $pc == " + address + " "
+                                + command_list(clear_command(address, true, 
+                                                             new_bps)),
+                                w);
+                }
+            }
+            else
+            {
+                string line = "";
+                if (address.matches(rxint))
+                {
+                    // Line number given
+                    line = address;
+                    gdb_command("stop at " + address + cond_suffix, w);
+                }
+                else if (is_file_pos(address))
+                {
+                    // FILE:LINE given
+                    int colon_index = address.index(':', -1);
+                    assert(colon_index >= 0);
+                    string file = address.before(colon_index);
+                    line = address.after(colon_index);
 
-		    gdb_command("file " + file, w);
-		    gdb_command("stop at " + line + cond_suffix, w);
-		}
-		else
-		{
-		    // Function given
-		    string pos = dbx_lookup(address);
+                    gdb_command("file " + file, w);
+                    gdb_command("stop at " + line + cond_suffix, w);
+                }
+                else
+                {
+                    // Function given
+                    string pos = dbx_lookup(address);
 
-		    if (pos.contains(':'))
-		    {
-			string file = pos.before(':');
-			line = pos.after(':');
+                    if (pos.contains(':'))
+                    {
+                        string file = pos.before(':');
+                        line = pos.after(':');
 
-			gdb_command("file " + file, w);
-			gdb_command("stop at " + line + cond_suffix, w);
-		    }
-		    else
-		    {
-			// Cannot determine function position - try this one
-			gdb_command("stop in " + address + cond_suffix, w);
-		    }
-		}
+                        gdb_command("file " + file, w);
+                        gdb_command("stop at " + line + cond_suffix, w);
+                    }
+                    else
+                    {
+                        // Cannot determine function position - try this one
+                        gdb_command("stop in " + address + cond_suffix, w);
+                    }
+                }
 
-		if (temp && !line.empty())
-		{
-		    syncCommandQueue();
-		    const string clear_cmd = clear_command(line, true, new_bps);
-		    gdb_command("when at " + line + " " 
-				+ command_list(clear_cmd), w);
-		}
-	    }
-	    break;
-	}
+                if (temp && !line.empty())
+                {
+                    syncCommandQueue();
+                    const string clear_cmd = clear_command(line, true, new_bps);
+                    gdb_command("when at " + line + " " 
+                                + command_list(clear_cmd), w);
+                }
+            }
+            break;
+        }
 
-	case JDB:
-	{
-	    if (is_file_pos(address))
-		gdb_command("stop at " + address);
-	    else
-		gdb_command("stop in " + address);
-	    break;
-	}
+        case JDB:
+        {
+            if (is_file_pos(address))
+                gdb_command("stop at " + address);
+            else
+                gdb_command("stop in " + address);
+            break;
+        }
 
-	case XDB:
-	{
-	    string command;
-	    if (address.contains('*', 0))
-		command = "ba " + address.after('*');
-	    else
-		command = "b " + address;
+        case XDB:
+        {
+            string command;
+            if (address.contains('*', 0))
+                command = "ba " + address.after('*');
+            else
+                command = "b " + address;
 
-	    if (temp)
-		command += " \\1t";
+            if (temp)
+                command += " \\1t";
 
-	    if (strlen(cond) != 0 && !gdb->has_condition_command())
-		command += " {if " + string(cond) + " {} {Q;c}}";
+            if (strlen(cond) != 0 && !gdb->has_condition_command())
+                command += " {if " + string(cond) + " {} {Q;c}}";
 
-	    gdb_command(command, w);
-	    break;
-	}
+            gdb_command(command, w);
+            break;
+        }
 
-	case PERL:
-	{
-	    if (is_file_pos(address))
-	    {
-		string file = address.before(':');
-		address = address.after(':');
+        case PERL:
+        {
+            if (is_file_pos(address))
+            {
+                string file = address.before(':');
+                address = address.after(':');
 
-		if (!file_matches(file, current_file_name))
-		    gdb_command("f " + file, w);
-	    }
+                if (!file_matches(file, current_file_name))
+                    gdb_command("f " + file, w);
+            }
 
-	    string command = "b " + address;
-	    if (strlen(cond) != 0 && !gdb->has_condition_command()) {
-		command += ' ';
-		command += cond;
-	    }
+            string command = "b " + address;
+            if (strlen(cond) != 0 && !gdb->has_condition_command()) {
+                command += ' ';
+                command += cond;
+            }
 
-	    gdb_command(command, w);
+            gdb_command(command, w);
 
-	    if (temp)
-	    {
-		// Perl actions include Perl commands, but not
-		// debugger commands.  Use an auto-command instead.
-		string del = "d " + address;
-		add_auto_command_prefix(del);
-		string clear = "a " + address;
-		add_auto_command_prefix(clear);
+            if (temp)
+            {
+                // Perl actions include Perl commands, but not
+                // debugger commands.  Use an auto-command instead.
+                string del = "d " + address;
+                add_auto_command_prefix(del);
+                string clear = "a " + address;
+                add_auto_command_prefix(clear);
 
-		command = "a " + address + " " + del + "; " + clear;
-		gdb_command(command, w);
-	    }
+                command = "a " + address + " " + del + "; " + clear;
+                gdb_command(command, w);
+            }
 
-	    break;
-	}
-	}
+            break;
+        }
+        }
 
-	if (strlen(cond) != 0 && gdb->has_condition_command())
-	{
-	    // Add condition
-	    gdb_command(gdb->condition_command(itostring(new_bps), cond), w);
-	}
+        if (strlen(cond) != 0 && gdb->has_condition_command())
+        {
+            // Add condition
+            gdb_command(gdb->condition_command(itostring(new_bps), cond), w);
+        }
     }
 }
 
@@ -763,7 +763,7 @@ void SourceView::clearBP(XtPointer client_data, XtIntervalId *)
     int bp_nr = (int)(long)client_data;
     BreakPoint *bp = bp_map.get(bp_nr);
     if (bp != 0)
-	delete_bp(bp_nr);
+        delete_bp(bp_nr);
 }
 
 // Save last `jump' target for XDB
@@ -775,24 +775,24 @@ void SourceView::clearJumpBP(const string& msg, void *data)
 
     if (gdb->type() == XDB && msg.empty())
     {
-	// Moving PC was successful.
-	show_execution_position(last_jump_address, true);
+        // Moving PC was successful.
+        show_execution_position(last_jump_address, true);
     }
 
     int old_max_breakpoint_number_seen = (int)(long)data;
 
     for (int i = old_max_breakpoint_number_seen + 1;
-	 i <= max_breakpoint_number_seen; i++)
+         i <= max_breakpoint_number_seen; i++)
     {
-	// Delete all recently created breakpoints
-	XtAppAddTimeOut(XtWidgetToApplicationContext(source_text_w),
-			0, clearBP, XtPointer(intptr_t(i)));
+        // Delete all recently created breakpoints
+        XtAppAddTimeOut(XtWidgetToApplicationContext(source_text_w),
+                        0, clearBP, XtPointer(intptr_t(i)));
     }
 }
 
 void SourceView::line_popup_temp_n_contCB (Widget w,
-					   XtPointer client_data,
-					   XtPointer)
+                                           XtPointer client_data,
+                                           XtPointer)
 {
     const string address = *((const string *)client_data);
     temp_n_cont(address, w);
@@ -807,9 +807,9 @@ void SourceView::temp_n_cont(const string& a, Widget w)
     switch (gdb->type())
     {
     case GDB:
-#if 0				// GDB `until' only works in the current frame
-	gdb_command("until " + address, w);
-	break;
+#if 0                                // GDB `until' only works in the current frame
+        gdb_command("until " + address, w);
+        break;
 #endif
     
     case BASH: 
@@ -819,38 +819,38 @@ void SourceView::temp_n_cont(const string& a, Widget w)
     case JDB:
     case PYDB:
     {
-	int old_max_breakpoint_number_seen = max_breakpoint_number_seen;
+        int old_max_breakpoint_number_seen = max_breakpoint_number_seen;
 
-	// Create a temporary breakpoint
-	create_temp_bp(address, w);
+        // Create a temporary breakpoint
+        create_temp_bp(address, w);
 
-	// Make sure the temporary breakpoint is deleted after `cont'
-	Command c("cont", w);
-	c.callback = clearJumpBP;
-	c.data     = XtPointer(intptr_t(old_max_breakpoint_number_seen));
-	gdb_command(c);
-	break;
+        // Make sure the temporary breakpoint is deleted after `cont'
+        Command c("cont", w);
+        c.callback = clearJumpBP;
+        c.data     = XtPointer(intptr_t(old_max_breakpoint_number_seen));
+        gdb_command(c);
+        break;
     }
 
     case XDB:
-	if (address.contains('*', 0))
-	    address = address.after('*');
-	gdb_command("c " + address, w);
-	break;
+        if (address.contains('*', 0))
+            address = address.after('*');
+        gdb_command("c " + address, w);
+        break;
 
     case PERL:
-	if (is_file_pos(address))
-	    address = address.after(':');
-	gdb_command("c " + address, w);
-	break;
+        if (is_file_pos(address))
+            address = address.after(':');
+        gdb_command("c " + address, w);
+        break;
     }
 }
 
 // ***************************************************************************
 //
 void SourceView::line_popup_set_pcCB(Widget w, 
-				     XtPointer client_data,
-				     XtPointer)
+                                     XtPointer client_data,
+                                     XtPointer)
 {
     const string address = *((const string *)client_data);
     move_pc(address, w);
@@ -864,90 +864,90 @@ bool SourceView::move_pc(const string& a, Widget w)
 
     if (address.contains('*', 0))
     {
-	if (compare_address(address.after('*'), last_execution_pc) == 0)
-	    return false;	// PC already at address
+        if (compare_address(address.after('*'), last_execution_pc) == 0)
+            return false;        // PC already at address
     }
     else
     {
-	string file = address.before(':');
-	int line    = get_positive_nr(address.after(':'));
+        string file = address.before(':');
+        int line    = get_positive_nr(address.after(':'));
 
-	if (file_matches(file, last_execution_file)
-	    && line == last_execution_line)
-	    return false;	// PC already at address
+        if (file_matches(file, last_execution_file)
+            && line == last_execution_line)
+            return false;        // PC already at address
     }
 
     if (gdb->has_jump_command())
     {
-	int old_max_breakpoint_number_seen = max_breakpoint_number_seen;
+        int old_max_breakpoint_number_seen = max_breakpoint_number_seen;
 
-	// We prefer the GDB `jump' command to setting `$pc'
-	// immediately since `jump' requires confirmation when jumping
-	// out of the current function.
+        // We prefer the GDB `jump' command to setting `$pc'
+        // immediately since `jump' requires confirmation when jumping
+        // out of the current function.
 
-	switch (gdb->type())
-	{
-	case DBX:
-	    // DBX immediately resumes execution - create a temp
-	    // breakpoint at ADDRESS
-	    create_temp_bp(address, w);
+        switch (gdb->type())
+        {
+        case DBX:
+            // DBX immediately resumes execution - create a temp
+            // breakpoint at ADDRESS
+            create_temp_bp(address, w);
 
-	    // DBX `cont at ' requires a line number.
-	    gdb_command("file " + address.before(':'));
-	    // FALL THROUGH
+            // DBX `cont at ' requires a line number.
+            gdb_command("file " + address.before(':'));
+            // FALL THROUGH
 
-	case XDB:
-	    // XDB 'g' wants only a line number
-	    address = address.after(':');
-	    break;
+        case XDB:
+            // XDB 'g' wants only a line number
+            address = address.after(':');
+            break;
 
-	case GDB:
-	    // GDB immediately resumes execution - create a temp
-	    // breakpoint at ADDRESS
-	    create_temp_bp(address, w);
-	    break;
+        case GDB:
+            // GDB immediately resumes execution - create a temp
+            // breakpoint at ADDRESS
+            create_temp_bp(address, w);
+            break;
 
-	case BASH:
-	case DBG:
-	case JDB:
-	case MAKE:
-	case PERL:
-	case PYDB:
-	    break;		// Never reached
-	}
+        case BASH:
+        case DBG:
+        case JDB:
+        case MAKE:
+        case PERL:
+        case PYDB:
+            break;                // Never reached
+        }
 
-	// Jump to the new address and clear the breakpoint again
-	last_jump_address = a;
-	Command c(gdb->jump_command(address), w);
-	c.callback = clearJumpBP;
-	c.data     = XtPointer(intptr_t(old_max_breakpoint_number_seen));
-	gdb_command(c);
+        // Jump to the new address and clear the breakpoint again
+        last_jump_address = a;
+        Command c(gdb->jump_command(address), w);
+        c.callback = clearJumpBP;
+        c.data     = XtPointer(intptr_t(old_max_breakpoint_number_seen));
+        gdb_command(c);
 
-	return true;
+        return true;
     }
     else if (gdb->type() != JDB && gdb->has_assign_command())
     {
-	// Try the `set $pc = ADDR' alternative.
-	if (address.contains('*', 0))
-	{
-	    address = address.after('*');
-	}
-	else
-	{
-	    lookup(address, true);
-	    syncCommandQueue();
-	    address = last_shown_pc;
-	}
+        // Try the `set $pc = ADDR' alternative.
+        if (address.contains('*', 0))
+        {
+            address = address.after('*');
+        }
+        else
+        {
+            lookup(address, true);
+            syncCommandQueue();
+            address = last_shown_pc;
+        }
 
-	if (address.empty())
-	{
-	    set_status("Cannot determine address of " + a);
-	}
-	else
-	{
-	    gdb_command(gdb->assign_command("$pc", address), w);
-	    return true;
-	}
+        if (address.empty())
+        {
+            set_status("Cannot determine address of " + a);
+        }
+        else
+        {
+            gdb_command(gdb->assign_command("$pc", address), w);
+            return true;
+        }
     }
 
     return false;
@@ -963,27 +963,27 @@ bool SourceView::move_bp(int bp_nr, const string& a, Widget w, bool copy)
 
     BreakPoint *bp = bp_map.get(bp_nr);
     if (bp == 0)
-	return false;		// No such breakpoint
+        return false;                // No such breakpoint
 
     if (!copy)
     {
-	if (address.contains('*', 0))
-	{
-	    if (bp->n_locations() > 1) {
-		post_warning("Cannot move multiple BP in code window");
-		return false;
-	    }
-	    if (compare_address(address.after('*'), bp->address()) == 0)
-		return false;	// Breakpoint already at address
-	}
-	else
-	{
-	    string file = address.before(':');
-	    int line    = get_positive_nr(address.after(':'));
+        if (address.contains('*', 0))
+        {
+            if (bp->n_locations() > 1) {
+                post_warning("Cannot move multiple BP in code window");
+                return false;
+            }
+            if (compare_address(address.after('*'), bp->address()) == 0)
+                return false;        // Breakpoint already at address
+        }
+        else
+        {
+            string file = address.before(':');
+            int line    = get_positive_nr(address.after(':'));
 
-	    if (bp_matches(bp, file, line))
-		return false;	// Breakpoint already at address
-	}
+            if (bp_matches(bp, file, line))
+                return false;        // Breakpoint already at address
+        }
     }
 
     // Create a new breakpoint at ADDRESS, making it inherit the
@@ -991,7 +991,7 @@ bool SourceView::move_bp(int bp_nr, const string& a, Widget w, bool copy)
     std::ostringstream os;
     bool ok = bp->get_state(os, 0, false, address);
     if (!ok)
-	return false;		// Command failed
+        return false;                // Command failed
 
     int new_bp_nr = next_breakpoint_number();
     string commands(os);
@@ -1001,23 +1001,23 @@ bool SourceView::move_bp(int bp_nr, const string& a, Widget w, bool copy)
 
     if (copy)
     {
-	// Copy properties
-	copy_breakpoint_properties(bp_nr, new_bp_nr);
+        // Copy properties
+        copy_breakpoint_properties(bp_nr, new_bp_nr);
     }
     else
     {
-	// Rename properties
-	move_breakpoint_properties(bp_nr, new_bp_nr);
+        // Rename properties
+        move_breakpoint_properties(bp_nr, new_bp_nr);
 
-	// Delete old breakpoint
-	delete_bp(bp_nr, w);
+        // Delete old breakpoint
+        delete_bp(bp_nr, w);
     }
 
     return true;
 }
 
 void SourceView::_set_bps_cond(const std::vector<int>& _nrs, const string& cond,
-			       int make_false, Widget w)
+                               int make_false, Widget w)
 {
     CommandGroup cg;
 
@@ -1028,58 +1028,58 @@ void SourceView::_set_bps_cond(const std::vector<int>& _nrs, const string& cond,
     int count = 0;
     for (int i = 0; i < int(nrs.size()); i++)
     {
-	int bp_nr = nrs[i];
-	BreakPoint *bp = bp_map.get(bp_nr);
-	if (bp == 0)
-	    continue;		// No such breakpoint
+        int bp_nr = nrs[i];
+        BreakPoint *bp = bp_map.get(bp_nr);
+        if (bp == 0)
+            continue;                // No such breakpoint
 
-	string c = cond;
-	if (c == char(-1))
-	    c = bp->condition();
+        string c = cond;
+        if (c == char(-1))
+            c = bp->condition();
 
-	int m = make_false;
-	if (m < 0)
-	    m = (!bp->enabled() && !gdb->has_enable_command());
-	if (m)
-	    c = BreakPoint::make_false(c);
+        int m = make_false;
+        if (m < 0)
+            m = (!bp->enabled() && !gdb->has_enable_command());
+        if (m)
+            c = BreakPoint::make_false(c);
 
-	if (gdb->has_condition_command())
-	{
-	    // Use the `cond' command to assign a condition
-	    gdb_command(gdb->condition_command(itostring(bp_nr), c), w);
-	}
-	else
-	{
-	    // Create a new breakpoint with a new condition COND, making it
-	    // inherit the current settings
-	    std::ostringstream os;
-	    bool ok = bp->get_state(os, 0, false, "", c);
-	    if (!ok)
-		continue;		// Command failed
+        if (gdb->has_condition_command())
+        {
+            // Use the `cond' command to assign a condition
+            gdb_command(gdb->condition_command(itostring(bp_nr), c), w);
+        }
+        else
+        {
+            // Create a new breakpoint with a new condition COND, making it
+            // inherit the current settings
+            std::ostringstream os;
+            bool ok = bp->get_state(os, 0, false, "", c);
+            if (!ok)
+                continue;                // Command failed
 
-	    string commands(os);
+            string commands(os);
 
-	    int new_bp_nr = bp_nr;
-	    if (gdb->has_numbered_breakpoints())
-	    {
-		new_bp_nr = next_breakpoint_number() + count;
-		commands.gsub("@0@", itostring(new_bp_nr));
-	    }
+            int new_bp_nr = bp_nr;
+            if (gdb->has_numbered_breakpoints())
+            {
+                new_bp_nr = next_breakpoint_number() + count;
+                commands.gsub("@0@", itostring(new_bp_nr));
+            }
 
-	    gdb_command(commands, w);
+            gdb_command(commands, w);
 
-	    if (gdb->has_numbered_breakpoints())
-	    {
-		// Copy properties to new breakpoint
-		move_breakpoint_properties(bp_nr, new_bp_nr);
+            if (gdb->has_numbered_breakpoints())
+            {
+                // Copy properties to new breakpoint
+                move_breakpoint_properties(bp_nr, new_bp_nr);
 
-		// Delete old breakpoint
-		delete_bp(bp_nr, w);
+                // Delete old breakpoint
+                delete_bp(bp_nr, w);
 
-		// Next breakpoint will get the next number
-		count++;
-	    }
-	}
+                // Next breakpoint will get the next number
+                count++;
+            }
+        }
     }
 }
 
@@ -1087,8 +1087,8 @@ void SourceView::_set_bps_cond(const std::vector<int>& _nrs, const string& cond,
 // ***************************************************************************
 //
 void SourceView::bp_popup_deleteCB (Widget w,
-				    XtPointer client_data,
-				    XtPointer)
+                                    XtPointer client_data,
+                                    XtPointer)
 {
     int bp_nr = *((int *)client_data);
     delete_bp(bp_nr, w);
@@ -1098,17 +1098,17 @@ void SourceView::bp_popup_deleteCB (Widget w,
 // ***************************************************************************
 //
 void SourceView::bp_popup_disableCB (Widget w, 
-				     XtPointer client_data,
-				     XtPointer)
+                                     XtPointer client_data,
+                                     XtPointer)
 {
     int bp_nr = *((int *)client_data);
     BreakPoint *bp = bp_map.get(bp_nr);
     if (bp != 0)
     {
-	if (bp->enabled())
-	    disable_bp(bp_nr, w);
-	else
-	    enable_bp(bp_nr, w);
+        if (bp->enabled())
+            disable_bp(bp_nr, w);
+        else
+            enable_bp(bp_nr, w);
     }
 }
 
@@ -1118,9 +1118,9 @@ string SourceView::numbers(const std::vector<int>& nrs)
     string cmd = ""; 
     for (int i = 0; i < int(nrs.size()); i++)
     {
-	if (i > 0)
-	    cmd += " ";
-	cmd += itostring(nrs[i]);
+        if (i > 0)
+            cmd += " ";
+        cmd += itostring(nrs[i]);
     }
     return cmd;
 }
@@ -1129,9 +1129,9 @@ string SourceView::numbers(const std::vector<int>& nrs)
 string SourceView::all_numbers(const std::vector<int>& nrs)
 {
     if ((gdb->type() == GDB || gdb->type() == PYDB || gdb->type() == DBG) && all_bps(nrs))
-	return "";		// In GDB, no arg means `all'
+        return "";                // In GDB, no arg means `all'
     else
-	return numbers(nrs);
+        return numbers(nrs);
 }
 
 // Return true if NRS contains all breakpoints and
@@ -1139,21 +1139,21 @@ string SourceView::all_numbers(const std::vector<int>& nrs)
 bool SourceView::all_bps(const std::vector<int>& nrs)
 {
     if ((gdb->type() != GDB && gdb->type() != PYDB) || nrs.size() < 2)
-	return false;
+        return false;
 
     MapRef ref;
     BreakPoint *bp = 0;
     for (bp = bp_map.first(ref); bp != 0; bp = bp_map.next(ref))
     {
-	bool found = false;
-	for (int i = 0; !found && i < int(nrs.size()); i++)
-	{
-	    if (bp->number() == nrs[i])
-		found = true;
-	}
+        bool found = false;
+        for (int i = 0; !found && i < int(nrs.size()); i++)
+        {
+            if (bp->number() == nrs[i])
+                found = true;
+        }
 
-	if (!found)
-	    return false;
+        if (!found)
+            return false;
     }
 
     return true;
@@ -1165,12 +1165,12 @@ void SourceView::enable_bps(const std::vector<int>& nrs, Widget w)
 
     if (gdb->has_enable_command())
     {
-	gdb_command(gdb->enable_command(all_numbers(nrs)), w);
+        gdb_command(gdb->enable_command(all_numbers(nrs)), w);
     }
     else if (gdb->has_conditions())
     {
-	// Unset `false' breakpoint condition
-	enable_bps_cond(nrs, w);
+        // Unset `false' breakpoint condition
+        enable_bps_cond(nrs, w);
     }
 }
 
@@ -1180,12 +1180,12 @@ void SourceView::disable_bps(const std::vector<int>& nrs, Widget w)
 
     if (gdb->has_disable_command())
     {
-	gdb_command(gdb->disable_command(all_numbers(nrs)), w);
+        gdb_command(gdb->disable_command(all_numbers(nrs)), w);
     }
     else if (gdb->has_conditions())
     {
-	// Set breakpoint condition to `false'
-	disable_bps_cond(nrs, w);
+        // Set breakpoint condition to `false'
+        disable_bps_cond(nrs, w);
     }
 }
 
@@ -1195,26 +1195,26 @@ void SourceView::delete_bps(const std::vector<int>& nrs, Widget w)
 
     if (gdb->recording() && gdb->has_clear_command())
     {
-	// While recording, prefer commands without explicit numbers.
+        // While recording, prefer commands without explicit numbers.
         for (int i = 0; i < int(nrs.size()); i++)
-	{
-	    BreakPoint *bp = bp_map.get(nrs[i]);
-	    if (bp != 0)
-		for (int j = 0; j < bp->n_locations(); j++)
-		    gdb_command(clear_command(bp->get_location(j).pos()));
-	}
+        {
+            BreakPoint *bp = bp_map.get(nrs[i]);
+            if (bp != 0)
+                for (int j = 0; j < bp->n_locations(); j++)
+                    gdb_command(clear_command(bp->get_location(j).pos()));
+        }
     }
     else if (gdb->has_delete_command())
     {
-	gdb_command(gdb->delete_command(all_numbers(nrs)), w);
+        gdb_command(gdb->delete_command(all_numbers(nrs)), w);
     }
     else
     {
         for (int i = 0; i < int(nrs.size()); i++) {
-	    std::vector<string> delcmds = delete_commands(nrs[i]);
-	    for (unsigned j = 0; j < delcmds.size(); j++)
-		gdb_command(delcmds[j]);
-	}
+            std::vector<string> delcmds = delete_commands(nrs[i]);
+            for (unsigned j = 0; j < delcmds.size(); j++)
+                gdb_command(delcmds[j]);
+        }
     }
 }
 
@@ -1224,15 +1224,15 @@ std::vector<string> SourceView::delete_commands(int bp_nr)
     std::vector<string> cmds;
     if (gdb->has_delete_command())
     {
-	cmds.push_back(gdb->delete_command(itostring(bp_nr)));
+        cmds.push_back(gdb->delete_command(itostring(bp_nr)));
     }
     else if (gdb->has_clear_command())
     {
-	BreakPoint *bp = bp_map.get(bp_nr);
-	if (bp != 0) {
-	    for (int j = 0; j < bp->n_locations(); j++)
-		cmds.push_back(clear_command(bp->get_location(j).pos()));
-	}
+        BreakPoint *bp = bp_map.get(bp_nr);
+        if (bp != 0) {
+            for (int j = 0; j < bp->n_locations(); j++)
+                cmds.push_back(clear_command(bp->get_location(j).pos()));
+        }
     }
     return cmds;
 }
@@ -1249,122 +1249,122 @@ string SourceView::clear_command(string pos, bool clear_next, int first_bp)
     MapRef ref;
 
     if (gdb->type() == DBX && !pos.contains(':') && !pos.matches(rxint))
-	pos = dbx_lookup(pos);
+        pos = dbx_lookup(pos);
 
     if (pos.contains(':'))
     {
-	file = pos.before(':');
-	line = pos.after(':');
+        file = pos.before(':');
+        line = pos.after(':');
     }
 
     int line_no = atoi(line.chars());
 
     if (!clear_next && gdb->has_clear_command())
     {
-	switch (gdb->type())
-	{
-	case BASH:
-	case GDB:
-	case JDB:
-	case PYDB:
-	    return "clear " + pos;
+        switch (gdb->type())
+        {
+        case BASH:
+        case GDB:
+        case JDB:
+        case PYDB:
+            return "clear " + pos;
 
-	case PERL:
-	    if (line_no > 0 && file_matches(file, current_file_name))
-	    {
-		// Clear the breakpoint
-		string command = "B " + line;
+        case PERL:
+            if (line_no > 0 && file_matches(file, current_file_name))
+            {
+                // Clear the breakpoint
+                string command = "B " + line;
 
-		// Check whether there are any other breakpoints with actions
-		bool have_other_actions = false;
-		bool need_clear_actions = false;
-		BreakPoint *bp;
-		for (bp = bp_map.first(ref); bp != 0; bp = bp_map.next(ref))
-		{
-		    if (bp->type() == ACTIONPOINT)
-		    {
-			// We have an action without associated breakpoint.
-			// Be sure to clear this as soon as possible.
-			need_clear_actions = true;
-		    }
+                // Check whether there are any other breakpoints with actions
+                bool have_other_actions = false;
+                bool need_clear_actions = false;
+                BreakPoint *bp;
+                for (bp = bp_map.first(ref); bp != 0; bp = bp_map.next(ref))
+                {
+                    if (bp->type() == ACTIONPOINT)
+                    {
+                        // We have an action without associated breakpoint.
+                        // Be sure to clear this as soon as possible.
+                        need_clear_actions = true;
+                    }
 
-		    if (!bp_matches(bp, file, line_no) &&
-			bp->type() == BREAKPOINT && 
-			bp->commands().size() > 0)
-		    {
-			// We have other breakpoints with actions.
-			have_other_actions = true;
-		    }
-		}
+                    if (!bp_matches(bp, file, line_no) &&
+                        bp->type() == BREAKPOINT && 
+                        bp->commands().size() > 0)
+                    {
+                        // We have other breakpoints with actions.
+                        have_other_actions = true;
+                    }
+                }
 
-		for (bp = bp_map.first(ref); bp != 0; bp = bp_map.next(ref))
-		{
-		    // If we have any associated actions, clear them all
-		    if (bp_matches(bp, file, line_no) && 
-			bp->commands().size() > 0)
-		    {
-			// This breakpoint has actions that must be cleared
+                for (bp = bp_map.first(ref); bp != 0; bp = bp_map.next(ref))
+                {
+                    // If we have any associated actions, clear them all
+                    if (bp_matches(bp, file, line_no) && 
+                        bp->commands().size() > 0)
+                    {
+                        // This breakpoint has actions that must be cleared
 
-			if (have_other_actions)
-			{
-			    // Clear only this action
-			    command += "\na " + line;
-			}
-			else
-			{
-			    // Clear all actions (including this one)
-			    need_clear_actions = true;
-			}
-			break;
-		    }
-		}
+                        if (have_other_actions)
+                        {
+                            // Clear only this action
+                            command += "\na " + line;
+                        }
+                        else
+                        {
+                            // Clear all actions (including this one)
+                            need_clear_actions = true;
+                        }
+                        break;
+                    }
+                }
 
-		if (!have_other_actions && need_clear_actions)
-		{
-		    // Clear all actions
-		    command += "\nA";
-		}
+                if (!have_other_actions && need_clear_actions)
+                {
+                    // Clear all actions
+                    command += "\nA";
+                }
 
-		return command;
-	    }
-	    break;
+                return command;
+            }
+            break;
 
-	case DBX:
-	    if (line_no > 0 && file_matches(file, current_file_name))
-		return "clear " + line;
-	    break;
+        case DBX:
+            if (line_no > 0 && file_matches(file, current_file_name))
+                return "clear " + line;
+            break;
 
-	case DBG:
-	case MAKE:
-	case XDB:
-	    break;
-	}
+        case DBG:
+        case MAKE:
+        case XDB:
+            break;
+        }
     }
 
     // Delete all matching breakpoints
     int max_bp_nr = -1;
     string bps = "";
     for (BreakPoint* bp = bp_map.first(ref);
-	 bp != 0;
-	 bp = bp_map.next(ref))
+         bp != 0;
+         bp = bp_map.next(ref))
     {
-	if (bp->number() >= first_bp
-	    && bp_matches(bp, file, line_no))
-	    {
-		if (!bps.empty())
-		    bps += gdb->wants_delete_comma() ? ", " : " ";
-		bps += itostring(bp->number());
-		max_bp_nr = max(max_bp_nr, bp->number());
-	    }
+        if (bp->number() >= first_bp
+            && bp_matches(bp, file, line_no))
+            {
+                if (!bps.empty())
+                    bps += gdb->wants_delete_comma() ? ", " : " ";
+                bps += itostring(bp->number());
+                max_bp_nr = max(max_bp_nr, bp->number());
+            }
     }
 
     if (bps.empty())
-	return "";
+        return "";
 
     if (clear_next && max_bp_nr >= 0)
     {
-	bps += (gdb->wants_delete_comma() ? ", " : " ");
-	bps += itostring(max_bp_nr + 1);
+        bps += (gdb->wants_delete_comma() ? ", " : " ");
+        bps += itostring(max_bp_nr + 1);
     }
 
     return gdb->delete_command(bps);
@@ -1374,39 +1374,39 @@ string SourceView::clear_command(string pos, bool clear_next, int first_bp)
 // ***************************************************************************
 //
 void SourceView::bp_popup_set_pcCB(Widget w, XtPointer client_data, 
-				   XtPointer call_data)
+                                   XtPointer call_data)
 {
     int bp_nr = *((int *)client_data);
     BreakPoint *bp = bp_map.get(bp_nr);
     if (bp != 0)
     {
-	if (bp->n_locations() > 1)
-	{
-	    post_warning("BP has multiple locations, PC is ambiguous");
-	    return;
-	}
-	string addr = bp->address();
-	if (!addr.empty())
-	{
-	    string address = string('*') + addr;
-	    line_popup_set_pcCB(w, XtPointer(&address), call_data);
-	}
+        if (bp->n_locations() > 1)
+        {
+            post_warning("BP has multiple locations, PC is ambiguous");
+            return;
+        }
+        string addr = bp->address();
+        if (!addr.empty())
+        {
+            string address = string('*') + addr;
+            line_popup_set_pcCB(w, XtPointer(&address), call_data);
+        }
     }
 }
 
 // ***************************************************************************
 //
 void SourceView::text_popup_breakCB (Widget w,
-				     XtPointer client_data,
-				     XtPointer)
+                                     XtPointer client_data,
+                                     XtPointer)
 {
     const string* word_ptr = (const string*)client_data;
     create_bp(fortranize(*word_ptr, true), w);
 }
 
 void SourceView::text_popup_clearCB (Widget w, 
-				     XtPointer client_data, 
-				     XtPointer)
+                                     XtPointer client_data, 
+                                     XtPointer)
 {
     const string* word_ptr = (const string*)client_data;
     clear_bp(fortranize(*word_ptr, true), w);
@@ -1417,8 +1417,8 @@ void SourceView::text_popup_clearCB (Widget w,
 // ***************************************************************************
 //
 void SourceView::text_popup_printCB (Widget w, 
-				     XtPointer client_data, 
-				     XtPointer)
+                                     XtPointer client_data, 
+                                     XtPointer)
 {
     const string* word_ptr = (const string*)client_data;
     assert(word_ptr->length() > 0);
@@ -1427,7 +1427,7 @@ void SourceView::text_popup_printCB (Widget w,
 }
 
 void SourceView::text_popup_print_refCB (Widget w, 
-					 XtPointer client_data, XtPointer)
+                                         XtPointer client_data, XtPointer)
 {
     const string* word_ptr = (const string*)client_data;
     assert(word_ptr->length() > 0);
@@ -1439,8 +1439,8 @@ void SourceView::text_popup_print_refCB (Widget w,
 // ***************************************************************************
 //
 void SourceView::text_popup_watchCB (Widget w, 
-				     XtPointer client_data, 
-				     XtPointer)
+                                     XtPointer client_data, 
+                                     XtPointer)
 {
     const string* word_ptr = (const string*)client_data;
     assert(word_ptr->length() > 0);
@@ -1449,7 +1449,7 @@ void SourceView::text_popup_watchCB (Widget w,
 }
 
 void SourceView::text_popup_watch_refCB (Widget w, 
-					 XtPointer client_data, XtPointer)
+                                         XtPointer client_data, XtPointer)
 {
     const string* word_ptr = (const string*)client_data;
     assert(word_ptr->length() > 0);
@@ -1469,7 +1469,7 @@ void SourceView::text_popup_dispCB (Widget w, XtPointer client_data, XtPointer)
 }
 
 void SourceView::text_popup_disp_refCB (Widget w, 
-					XtPointer client_data, XtPointer)
+                                        XtPointer client_data, XtPointer)
 {
     const string* word_ptr = (const string*)client_data;
     assert(word_ptr->length() > 0);
@@ -1480,7 +1480,7 @@ void SourceView::text_popup_disp_refCB (Widget w,
 // ***************************************************************************
 //
 void SourceView::text_popup_whatisCB (Widget w, XtPointer client_data, 
-				      XtPointer)
+                                      XtPointer)
 {
     const string* word_ptr = (const string*)client_data;
     assert(word_ptr->length() > 0);
@@ -1564,7 +1564,7 @@ string SourceView::full_path(string file)
     // file.gsub("//", "/");
 
     if (file.contains('/', -1))
-	file = file.before(int(file.length() - 1));
+        file = file.before(int(file.length() - 1));
 
     return file;
 }
@@ -1572,10 +1572,10 @@ string SourceView::full_path(string file)
 bool SourceView::file_matches(const string& file1, const string& file2)
 {
     if (gdb->type() == JDB)
-	return file1 == file2;
+        return file1 == file2;
 
     if (gdb->type() == GDB || gdb->type() == MAKE || app_data.use_source_path)
-	return file1 == file2 || full_path(file1) == full_path(file2);
+        return file1 == file2 || full_path(file1) == full_path(file2);
 
     return base_matches(file1, file2);
 }
@@ -1583,9 +1583,9 @@ bool SourceView::file_matches(const string& file1, const string& file2)
 bool SourceView::is_current_file(const string& file)
 {
     if (gdb->type() == JDB)
-	return file == current_source_name();
+        return file == current_source_name();
     else
-	return file_matches(file, current_file_name);
+        return file_matches(file, current_file_name);
 }
 
 bool SourceView::base_matches(const string& file1, const string& file2)
@@ -1597,7 +1597,7 @@ bool SourceView::base_matches(const string& file1, const string& file2)
 bool SourceView::bp_matches(BreakPoint *bp, int line)
 {
     return bp_matches(bp, current_source_name(), line) || 
-	bp_matches(bp, current_file_name, line);
+        bp_matches(bp, current_file_name, line);
 }
 
 bool SourceView::bp_matches(BreakPoint *bp, const string& file, int line)
@@ -1608,29 +1608,29 @@ bool SourceView::bp_matches(BreakPoint *bp, const string& file, int line)
     case BREAKPOINT:
     case ACTIONPOINT:
     case TRACEPOINT:
-	for (i = 0; i < bp->n_locations(); i++) {
-	    BreakPointLocn &locn = bp->get_location(i);
-	    if (bp_matches(locn, file, line)) return true;
-	}
-	return false;
+        for (i = 0; i < bp->n_locations(); i++) {
+            BreakPointLocn &locn = bp->get_location(i);
+            if (bp_matches(locn, file, line)) return true;
+        }
+        return false;
     case WATCHPOINT:
-	return false;
+        return false;
     }
 
-    return false;		// Never reached
+    return false;                // Never reached
 }
 
 // Check if BP occurs in the current source text
 bool SourceView::bp_matches(BreakPointLocn &locn, int line)
 {
     return bp_matches(locn, current_source_name(), line) || 
-	bp_matches(locn, current_file_name, line);
+        bp_matches(locn, current_file_name, line);
 }
 
 bool SourceView::bp_matches(BreakPointLocn &locn, const string& file, int line)
 {
     return ((line == 0 || locn.line_nr() == line) &&
-	    (locn.file_name().empty() || file_matches(locn.file_name(), file)));
+            (locn.file_name().empty() || file_matches(locn.file_name(), file)));
 }
 
 // ***************************************************************************
@@ -1642,63 +1642,63 @@ static bool selection_click = false;
 static string last_info_output = "";
 
 void SourceView::set_source_argCB(Widget text_w, 
-				  XtPointer client_data, 
-				  XtPointer call_data)
+                                  XtPointer client_data, 
+                                  XtPointer call_data)
 {
     const string& text = current_text(text_w);
     if (text.empty())
-	return;
+        return;
 
     XmTextVerifyCallbackStruct *cbs = (XmTextVerifyCallbackStruct *)call_data;
     bool motion = bool((int)(long)client_data);
     if (motion)
-	selection_click = false;
+        selection_click = false;
 
     XmTextPosition startPos, endPos;
     Boolean have_selection = 
-	XmTextGetSelectionPosition(text_w, &startPos, &endPos);
+        XmTextGetSelectionPosition(text_w, &startPos, &endPos);
 
     if (!have_selection || (app_data.source_editing && startPos == endPos))
     {
-	// No selection?  If the current motion was caused by a mouse
-	// click, fetch word at current cursor position instead.
-	if (cbs != 0 && cbs->reason == XmCR_MOVING_INSERT_CURSOR)
-	{
-	    XEvent *event = cbs->event;
-	    if (event == 0)
-	    {
-		// LessTif 0.79 may not pass a reasonable event here.
+        // No selection?  If the current motion was caused by a mouse
+        // click, fetch word at current cursor position instead.
+        if (cbs != 0 && cbs->reason == XmCR_MOVING_INSERT_CURSOR)
+        {
+            XEvent *event = cbs->event;
+            if (event == 0)
+            {
+                // LessTif 0.79 may not pass a reasonable event here.
 #if XtSpecificationRelease >= 6
-		// Use the last processed event instead.
-		event = XtLastEventProcessed(XtDisplay(text_w));
+                // Use the last processed event instead.
+                event = XtLastEventProcessed(XtDisplay(text_w));
 #else
-		// Use the last recorded selection event instead.
-		event = &selection_event;
+                // Use the last recorded selection event instead.
+                event = &selection_event;
 #endif
-		selection_click = true;
-	    }
+                selection_click = true;
+            }
 
-	    // Button4 and Button5 events are generated by wheel mouses.
-	    // Don't change the selection when the wheel is activated.
-	    if (event != 0 && 
-		(event->type == ButtonPress || event->type == ButtonRelease) &&
-		event->xbutton.button != Button4 &&
-		event->xbutton.button != Button5)
-	    {
-		find_word_bounds(text_w, cbs->newInsert, 
-				 startPos, endPos);
-		have_selection = True;
-	    }
-	}
+            // Button4 and Button5 events are generated by wheel mouses.
+            // Don't change the selection when the wheel is activated.
+            if (event != 0 && 
+                (event->type == ButtonPress || event->type == ButtonRelease) &&
+                event->xbutton.button != Button4 &&
+                event->xbutton.button != Button5)
+            {
+                find_word_bounds(text_w, cbs->newInsert, 
+                                 startPos, endPos);
+                have_selection = True;
+            }
+        }
     }
 
     if (!have_selection && cbs == 0)
     {
-	// Still no selection?  We're probably called from setSelection();
-	// use the last selected word instead.
-	startPos = selection_startpos;
-	endPos   = selection_endpos;
-	have_selection = True;
+        // Still no selection?  We're probably called from setSelection();
+        // use the last selected word instead.
+        startPos = selection_startpos;
+        endPos   = selection_endpos;
+        have_selection = True;
     }
 
 #if XtSpecificationRelease < 6
@@ -1708,108 +1708,108 @@ void SourceView::set_source_argCB(Widget text_w,
 
     if (!have_selection)
     {
-	// No selection - sorry
-	return;
+        // No selection - sorry
+        return;
     }
 
     int startIndex = 0;
     if (startPos > 0)
-	startIndex = text.index('\n', startPos - text.length()) + 1;
+        startIndex = text.index('\n', startPos - text.length()) + 1;
 
     int endIndex = 0;
     if (endPos > 0)
-	endIndex = text.index('\n', endPos - text.length()) + 1;
+        endIndex = text.index('\n', endPos - text.length()) + 1;
 
     bool in_bp_area = false;
     if (selection_click && startIndex == endIndex)
     {
-	string pos = "";
+        string pos = "";
 
-	if (text_w == source_text_w)
-	{
-	    int line_nr = 0;
-	    bool in_text;
-	    int bp_nr;
-	    string address;
+        if (text_w == source_text_w)
+        {
+            int line_nr = 0;
+            bool in_text;
+            int bp_nr;
+            string address;
 
-	    if (get_line_of_pos(source_text_w, startPos, line_nr, address, 
-				in_text, bp_nr) 
-		&& !in_text)
-	    {
-		in_bp_area = true;
+            if (get_line_of_pos(source_text_w, startPos, line_nr, address, 
+                                in_text, bp_nr) 
+                && !in_text)
+            {
+                in_bp_area = true;
 
-		// Selection from line number area: prepend source file name
-		pos = current_source_name() + ":" + itostring(line_nr);
-		source_arg->set_string(pos);
+                // Selection from line number area: prepend source file name
+                pos = current_source_name() + ":" + itostring(line_nr);
+                source_arg->set_string(pos);
 
-		// If a breakpoint is here, select this one only
-		MapRef ref;
-		for (BreakPoint* bp = bp_map.first(ref);
-		     bp != 0;
-		     bp = bp_map.next(ref))
-		{
-		    bp->selected() = (bp_matches(bp, line_nr));
-		}
-	    }
-	}
-	else if (text_w == code_text_w
-		 && startPos - startIndex <= indent_amount(text_w)
-		 && endPos - endIndex <= indent_amount(text_w))
-	{
-	    // Selection from address area
-	    int index = address_index(text, startPos);
-	    if (index >= 0)
-	    {
-		in_bp_area = true;
+                // If a breakpoint is here, select this one only
+                MapRef ref;
+                for (BreakPoint* bp = bp_map.first(ref);
+                     bp != 0;
+                     bp = bp_map.next(ref))
+                {
+                    bp->selected() = (bp_matches(bp, line_nr));
+                }
+            }
+        }
+        else if (text_w == code_text_w
+                 && startPos - startIndex <= indent_amount(text_w)
+                 && endPos - endIndex <= indent_amount(text_w))
+        {
+            // Selection from address area
+            int index = address_index(text, startPos);
+            if (index >= 0)
+            {
+                in_bp_area = true;
 
-		pos = text.from(index);
-		pos = pos.through(rxaddress);
+                pos = text.from(index);
+                pos = pos.through(rxaddress);
 
-		source_arg->set_string(pos);
+                source_arg->set_string(pos);
 
-		// If a breakpoint is here, select this one only
-		MapRef ref;
-		for (BreakPoint* bp = bp_map.first(ref);
-		     bp != 0;
-		     bp = bp_map.next(ref))
-		{
-		    int i;
-		    bp->selected() = false;
-		    for (i = 0; i < bp->n_locations(); i++) {
-			BreakPointLocn &locn = bp->get_location(i);
-			if (bp->type() == BREAKPOINT && 
-			    compare_address(pos, locn.address()) == 0) {
-			    bp->selected() = true;
-			    break;
-			}
-		    }
-		}
-	    }
-	}
+                // If a breakpoint is here, select this one only
+                MapRef ref;
+                for (BreakPoint* bp = bp_map.first(ref);
+                     bp != 0;
+                     bp = bp_map.next(ref))
+                {
+                    int i;
+                    bp->selected() = false;
+                    for (i = 0; i < bp->n_locations(); i++) {
+                        BreakPointLocn &locn = bp->get_location(i);
+                        if (bp->type() == BREAKPOINT && 
+                            compare_address(pos, locn.address()) == 0) {
+                            bp->selected() = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
 
-	selection_click = false;
+        selection_click = false;
     }
 
     if (in_bp_area)
     {
-	// Update breakpoint selection
-	process_breakpoints(last_info_output);
+        // Update breakpoint selection
+        process_breakpoints(last_info_output);
     }
     else if (!motion && !selection_click)
     {
-	// Selection from source or code
-	string s;
-	if (startPos < XmTextPosition(text.length())
-	    && endPos < XmTextPosition(text.length()))
-	{
-	    s = text.at((int)startPos, (int)(endPos - startPos));
-	}
+        // Selection from source or code
+        string s;
+        if (startPos < XmTextPosition(text.length())
+            && endPos < XmTextPosition(text.length()))
+        {
+            s = text.at((int)startPos, (int)(endPos - startPos));
+        }
 
-	while (s.contains('\n'))
-	    s = s.after('\n');
+        while (s.contains('\n'))
+            s = s.after('\n');
 
-	if (!s.empty())
-	    source_arg->set_string(s);
+        if (!s.empty())
+            source_arg->set_string(s);
     }
 }
 
@@ -1819,39 +1819,39 @@ BreakPoint *SourceView::breakpoint_at(const string& arg)
     MapRef ref;
     for (BreakPoint* bp = bp_map.first(ref); bp != 0; bp = bp_map.next(ref))
     {
-	if (bp->type() != BREAKPOINT)
-	    continue;
+        if (bp->type() != BREAKPOINT)
+            continue;
 
-	if (arg.matches(rxint))
-	{
-	    // Line number for current source given
-	    if (bp_matches(bp, atoi(arg.chars())))
-		return bp;
-	}
-	else
-	{
-	    string pos = arg;
+        if (arg.matches(rxint))
+        {
+            // Line number for current source given
+            if (bp_matches(bp, atoi(arg.chars())))
+                return bp;
+        }
+        else
+        {
+            string pos = arg;
 
-	    if (!is_file_pos(pos))
-	    {
-		// Function given
-		if (bp->arg() == pos)
-		    return bp;
+            if (!is_file_pos(pos))
+            {
+                // Function given
+                if (bp->arg() == pos)
+                    return bp;
 
-		if (gdb->type() == DBX)
-		    pos = dbx_lookup(arg);
-	    }
-	    
-	    if (is_file_pos(pos))
-	    {
-		// File:line given
-		string file = pos.before(':');
-		string line = pos.after(':');
+                if (gdb->type() == DBX)
+                    pos = dbx_lookup(arg);
+            }
+            
+            if (is_file_pos(pos))
+            {
+                // File:line given
+                string file = pos.before(':');
+                string line = pos.after(':');
 
-		if (bp_matches(bp, file, atoi(line.chars())))
-		    return bp;
-	    }
-	}
+                if (bp_matches(bp, file, atoi(line.chars())))
+                    return bp;
+            }
+        }
     }
 
     return 0;
@@ -1861,41 +1861,41 @@ BreakPoint *SourceView::watchpoint_at(const string& expr)
 {
     for (int trial = 0; trial <= 2; trial++)
     {
-	MapRef ref;
-	for (BreakPoint* bp = bp_map.first(ref); bp != 0; 
-	     bp = bp_map.next(ref))
-	{
-	    if (bp->type() != WATCHPOINT)
-		continue;
+        MapRef ref;
+        for (BreakPoint* bp = bp_map.first(ref); bp != 0; 
+             bp = bp_map.next(ref))
+        {
+            if (bp->type() != WATCHPOINT)
+                continue;
 
-	    switch (trial)
-	    {
-	    case 0:
-		if (bp->expr() == expr)
-		{
-		    // Expression matches exactly
-		    return bp;
-		}
-		break;
+            switch (trial)
+            {
+            case 0:
+                if (bp->expr() == expr)
+                {
+                    // Expression matches exactly
+                    return bp;
+                }
+                break;
 
-	    case 1:
-		if (bp->expr().contains('(') && bp->expr().before('(') == expr)
-		{
-		    // Expr matches EXPR(...)  (e.g. a qualified function name)
-		    return bp;
-		}
-		break;
+            case 1:
+                if (bp->expr().contains('(') && bp->expr().before('(') == expr)
+                {
+                    // Expr matches EXPR(...)  (e.g. a qualified function name)
+                    return bp;
+                }
+                break;
 
-	    case 2:
-		if (bp->expr().contains("`" + expr, -1) ||
-		    bp->expr().contains("::" + expr, -1))
-		{
-		    // Expr matches ...`EXPR (a Sun DBX identifier)
-		    // or ...::EXPR (an SGI DBX identifier)
-		    return bp;
-		}
-	    }
-	}
+            case 2:
+                if (bp->expr().contains("`" + expr, -1) ||
+                    bp->expr().contains("::" + expr, -1))
+                {
+                    // Expr matches ...`EXPR (a Sun DBX identifier)
+                    // or ...::EXPR (an SGI DBX identifier)
+                    return bp;
+                }
+            }
+        }
     }
 
     return 0;
@@ -1909,48 +1909,48 @@ void SourceView::ShowPosition(Widget text_w, XmTextPosition pos, bool fromTop)
 {
     const string& text = current_text(text_w);
     if (text.length() == 0)
-	return;			// No position to show
+        return;                        // No position to show
 
     short rows = 0;
     XmTextPosition current_top = 0;
     XtVaGetValues(text_w,
-		  XmNrows, &rows,
-		  XmNtopCharacter, &current_top,
-		  XtPointer(0));
+                  XmNrows, &rows,
+                  XmNtopCharacter, &current_top,
+                  XtPointer(0));
 
     // Find current relative row
     short relative_row = 1;
     for (XmTextPosition p = min(text.length() - 1, pos); p > current_top; p--)
-	if (text[p] == '\n')
-	    relative_row++;
+        if (text[p] == '\n')
+            relative_row++;
 
     if (relative_row <= lines_above_cursor 
-	|| relative_row >= rows - (lines_below_cursor + 1))
+        || relative_row >= rows - (lines_below_cursor + 1))
     {
-	// Determine new TOP position
-	short n = rows / 2;	// #Lines between new TOP and POS
-	if (fromTop || relative_row <= lines_above_cursor)
-	    n = lines_above_cursor;
-	else if (relative_row >= rows - (lines_below_cursor + 1))
-	    n = rows - (lines_below_cursor + 1);
+        // Determine new TOP position
+        short n = rows / 2;        // #Lines between new TOP and POS
+        if (fromTop || relative_row <= lines_above_cursor)
+            n = lines_above_cursor;
+        else if (relative_row >= rows - (lines_below_cursor + 1))
+            n = rows - (lines_below_cursor + 1);
 
-	XmTextPosition new_top = pos;
-	for (;;) {
-	    while (new_top > 0 && text[new_top - 1] != '\n')
-		new_top--;
-	    if (new_top == 0 || n-- <= 0)
-		break;
-	    new_top--;
-	}
+        XmTextPosition new_top = pos;
+        for (;;) {
+            while (new_top > 0 && text[new_top - 1] != '\n')
+                new_top--;
+            if (new_top == 0 || n-- <= 0)
+                break;
+            new_top--;
+        }
 
-	XmTextSetTopCharacter(text_w, new_top);
+        XmTextSetTopCharacter(text_w, new_top);
     }
 
-    XmTextShowPosition(text_w, pos);	// just to make sure
+    XmTextShowPosition(text_w, pos);        // just to make sure
 }
 
 void SourceView::SetInsertionPosition(Widget text_w, 
-				      XmTextPosition pos, bool fromTop)
+                                      XmTextPosition pos, bool fromTop)
 {
     ShowPosition(text_w, pos, fromTop);
     XmTextSetInsertionPosition(text_w, pos);
@@ -1966,26 +1966,26 @@ std::vector<string> SourceView::bad_files;
 bool SourceView::new_bad_file(const string& file_name)
 {
     for (int i = 0; i < int(bad_files.size()); i++)
-	if (file_name == bad_files[i])
-	    return false;
+        if (file_name == bad_files[i])
+            return false;
     bad_files.push_back(file_name);
     return true;
 }
 
 void SourceView::post_file_error(const string& file_name,
-				 const string& text, const _XtString name,
-				 Widget origin)
+                                 const string& text, const _XtString name,
+                                 Widget origin)
 {
     if (new_bad_file(file_name))
-	post_error(text, name, origin);
+        post_error(text, name, origin);
 }
 
 void SourceView::post_file_warning(const string& file_name,
-				   const string& text, const _XtString name,
-				   Widget origin)
+                                   const string& text, const _XtString name,
+                                   Widget origin)
 {
     if (new_bad_file(file_name))
-	post_warning(text, name, origin);
+        post_warning(text, name, origin);
 }
 
 
@@ -1997,7 +1997,7 @@ void SourceView::post_file_warning(const string& file_name,
 
 // Read local file from FILE_NAME
 String SourceView::read_local(const string& file_name, long& length,
-			      bool silent)
+                              bool silent)
 {
     StatusDelay delay("Reading file " + quote(file_name));
     length = 0;
@@ -2006,34 +2006,34 @@ String SourceView::read_local(const string& file_name, long& length,
     int fd;
     if ((fd = open(file_name.chars(), O_RDONLY)) < 0)
     {
-	delay.outcome = strerror(errno);
-	//if (!silent)
-	//    post_file_error(file_name, 
-	//		    file_name + ": " + delay.outcome, 
-	//		    "source_file_error", source_text_w);
+        delay.outcome = strerror(errno);
+        //if (!silent)
+        //    post_file_error(file_name, 
+        //                    file_name + ": " + delay.outcome, 
+        //                    "source_file_error", source_text_w);
         return 0;
     }
 
     struct stat statb;
     if (fstat(fd, &statb) < 0)
     {
-	delay.outcome = strerror(errno);
-	if (!silent)
-	    post_file_error(file_name,
-			    file_name + ": " + delay.outcome, 
-			    "source_file_error", source_text_w);
-	return 0;
+        delay.outcome = strerror(errno);
+        if (!silent)
+            post_file_error(file_name,
+                            file_name + ": " + delay.outcome, 
+                            "source_file_error", source_text_w);
+        return 0;
     }
 
     // Avoid loading from directory, socket, device, or otherwise.
     if (!S_ISREG(statb.st_mode))
     {
-	delay.outcome = "not a regular file";
-	if (!silent)
-	    post_file_error(file_name,
-			    file_name + ": " + delay.outcome, 
-			    "source_file_error", source_text_w);
-	return 0;
+        delay.outcome = "not a regular file";
+        if (!silent)
+            post_file_error(file_name,
+                            file_name + ": " + delay.outcome, 
+                            "source_file_error", source_text_w);
+        return 0;
     }
 
     // Put the contents of the file in the Text widget by allocating
@@ -2042,11 +2042,11 @@ String SourceView::read_local(const string& file_name, long& length,
     char* text = XtMalloc(unsigned(statb.st_size + 1));
     if ((length = read(fd, text, statb.st_size)) != statb.st_size)
     {
-	delay.outcome = "truncated";
-	if (!silent)
-	    post_file_error(file_name,
-			    file_name + ": " + delay.outcome,
-			    "source_trunc_error", source_text_w);
+        delay.outcome = "truncated";
+        if (!silent)
+            post_file_error(file_name,
+                            file_name + ": " + delay.outcome,
+                            "source_trunc_error", source_text_w);
     }
     close(fd);
 
@@ -2054,11 +2054,11 @@ String SourceView::read_local(const string& file_name, long& length,
 
     if (statb.st_size == 0)
     {
-	delay.outcome = "empty file";
-	if (!silent)
-	    post_file_warning(file_name,
-			      file_name + ": " + delay.outcome,
-			      "source_empty_warning", source_text_w);
+        delay.outcome = "empty file";
+        if (!silent)
+            post_file_warning(file_name,
+                              file_name + ": " + delay.outcome,
+                              "source_empty_warning", source_text_w);
     }
 
     return text;
@@ -2067,10 +2067,10 @@ String SourceView::read_local(const string& file_name, long& length,
 
 // Read (possibly remote) file FILE_NAME; a little slower
 String SourceView::read_remote(const string& file_name, long& length, 
-			       bool silent)
+                               bool silent)
 {
     StatusDelay delay("Reading file " + 
-		      quote(file_name) + " from " + gdb_host);
+                      quote(file_name) + " from " + gdb_host);
     length = 0;
 
     string cat_command = sh_command("cat " + file_name);
@@ -2081,26 +2081,26 @@ String SourceView::read_remote(const string& file_name, long& length,
     FILE *fp = cat.inputfp();
     if (fp == 0)
     {
-	delay.outcome = "failed";
-	return 0;
+        delay.outcome = "failed";
+        return 0;
     }
 
     String text = XtMalloc(1);
 
     do {
-	text = XtRealloc(text, length + BUFSIZ + 1);
-	length += fread(text + length, sizeof(char), BUFSIZ, fp);
+        text = XtRealloc(text, length + BUFSIZ + 1);
+        length += fread(text + length, sizeof(char), BUFSIZ, fp);
     } while (!feof(fp));
 
     text[length] = '\0';  // be sure to null-terminate
 
     if (length == 0)
     {
-	if (!silent)
-	    post_file_error(file_name,
-			    "Cannot access remote file " + quote(file_name), 
-			    "remote_file_error", source_text_w);
-	delay.outcome = "failed";
+        if (!silent)
+            post_file_error(file_name,
+                            "Cannot access remote file " + quote(file_name), 
+                            "remote_file_error", source_text_w);
+        delay.outcome = "failed";
     }
 
     return text;
@@ -2108,8 +2108,8 @@ String SourceView::read_remote(const string& file_name, long& length,
 
 // Read class CLASS_NAME
 String SourceView::read_class(const string& class_name, 
-			      string& file_name, SourceOrigin& origin,
-			      long& length, bool silent)
+                              string& file_name, SourceOrigin& origin,
+                              long& length, bool silent)
 {
     StatusDelay delay("Loading class " + quote(class_name));
     
@@ -2120,34 +2120,34 @@ String SourceView::read_class(const string& class_name,
 
     if (!file_name.empty())
     {
-	if (remote_gdb())
-	    text = read_remote(file_name, length, true);
-	else
-	{
-	    file_name = full_path(file_name);
-	    text = read_local(file_name, length, true);
-	}
+        if (remote_gdb())
+            text = read_remote(file_name, length, true);
+        else
+        {
+            file_name = full_path(file_name);
+            text = read_local(file_name, length, true);
+        }
     }
 
     if (text != 0 && length != 0)
     {
-	// Save class name for further reference
-	source_name_cache[file_name] = class_name;
-	origin = remote_gdb() ? ORIGIN_REMOTE : ORIGIN_LOCAL;
-	return text;
+        // Save class name for further reference
+        source_name_cache[file_name] = class_name;
+        origin = remote_gdb() ? ORIGIN_REMOTE : ORIGIN_LOCAL;
+        return text;
     }
     else
     {
-	// Could not load class
-	file_name = class_name;
-	origin = ORIGIN_NONE;
-	delay.outcome = "failed";
-	if (!silent)
-	    post_file_error(class_name,
-			    "Cannot access class " + quote(class_name),
-			    "class_error", source_text_w);
+        // Could not load class
+        file_name = class_name;
+        origin = ORIGIN_NONE;
+        delay.outcome = "failed";
+        if (!silent)
+            post_file_error(class_name,
+                            "Cannot access class " + quote(class_name),
+                            "class_error", source_text_w);
 
-	return 0;
+        return 0;
     }
 }
 
@@ -2156,16 +2156,16 @@ String SourceView::read_class(const string& class_name,
 // Read file FILE_NAME via the GDB `list' function
 // Really slow, is guaranteed to work for source files.
 String SourceView::read_from_gdb(const string& file_name, long& length, 
-				 bool /* silent */)
+                                 bool /* silent */)
 {
     length = 0;
     if (!can_do_gdb_command())
-	return 0;
+        return 0;
     if (gdb->type() == JDB)
-	return 0;		// Won't work with JDB
+        return 0;                // Won't work with JDB
 
     StatusDelay delay("Reading file " + quote(file_name) + 
-		      " from " + gdb->title());
+                      " from " + gdb->title());
 
     string command;
     switch (gdb->type())
@@ -2173,29 +2173,29 @@ String SourceView::read_from_gdb(const string& file_name, long& length,
     case BASH:
     case DBX:
     case PYDB:
-	command = "list 1," HUGE_LINE_NUMBER;
-	break;
+        command = "list 1," HUGE_LINE_NUMBER;
+        break;
 
     case DBG: // Is this correct? DBG "list" sommand seems not to do anything
     case GDB:
-	command = "list " + file_name + ":1," HUGE_LINE_NUMBER;
-	break;
+        command = "list " + file_name + ":1," HUGE_LINE_NUMBER;
+        break;
 
     case PERL:
-	command = "l 1-" HUGE_LINE_NUMBER;
-	break;
+        command = "l 1-" HUGE_LINE_NUMBER;
+        break;
 
     case JDB:
-	command = "list " + file_name;
-	break;
+        command = "list " + file_name;
+        break;
 
     case MAKE:  // Don't have a "list" function yet.
         command = "";
-	break;
+        break;
 
     case XDB:
-	command = "w " HUGE_LINE_NUMBER;
-	break;
+        command = "w " HUGE_LINE_NUMBER;
+        break;
     }
     string listing = gdb_question(command, -1, true);
 
@@ -2208,72 +2208,72 @@ String SourceView::read_from_gdb(const string& file_name, long& length,
     length = 0;
     while (i < int(listing.length()))
     {
-	int count = 0;
+        int count = 0;
 
-	// Skip leading spaces.  Some debuggers also issue `*', `=',
-	// or `>' to indicate the current position.
-	while (count < 8
-	       && i < int(listing.length())
-	       && (isspace(listing[i])
-		   || listing[i] == '=' 
-		   || listing[i] == '*'
-		   || listing[i] == '>'))
-	    i++, count++;
+        // Skip leading spaces.  Some debuggers also issue `*', `=',
+        // or `>' to indicate the current position.
+        while (count < 8
+               && i < int(listing.length())
+               && (isspace(listing[i])
+                   || listing[i] == '=' 
+                   || listing[i] == '*'
+                   || listing[i] == '>'))
+            i++, count++;
 
-	if (i < int(listing.length()) && isdigit(listing[i]))
-	{
-	    // Skip line number
-	    while (i < int(listing.length()) && isdigit(listing[i]))
-		i++, count++;
+        if (i < int(listing.length()) && isdigit(listing[i]))
+        {
+            // Skip line number
+            while (i < int(listing.length()) && isdigit(listing[i]))
+                i++, count++;
 
-	    // Skip `:' (XDB output)
-	    if (count < 8 && i < int(listing.length()) && listing[i] == ':')
-		i++, count++;
+            // Skip `:' (XDB output)
+            if (count < 8 && i < int(listing.length()) && listing[i] == ':')
+                i++, count++;
 
-	    // Break at first non-blank character or after 8 characters
-	    while (count < 8 && i < int(listing.length()) && listing[i] == ' ')
-		i++, count++;
+            // Break at first non-blank character or after 8 characters
+            while (count < 8 && i < int(listing.length()) && listing[i] == ' ')
+                i++, count++;
 
-	    // Skip tab character
-	    if (count < 8 && i < int(listing.length()) && listing[i] == '\t')
-		i++;
+            // Skip tab character
+            if (count < 8 && i < int(listing.length()) && listing[i] == '\t')
+                i++;
 
-	    // Copy line
-	    while (i < int(listing.length()) && listing[i] != '\n')
-		text[length++] = listing[i++];
+            // Copy line
+            while (i < int(listing.length()) && listing[i] != '\n')
+                text[length++] = listing[i++];
 
-	    // Copy newline character
-	    text[length++] = '\n';
-	    i++;
-	}
-	else
-	{
-	    int start = i;
+            // Copy newline character
+            text[length++] = '\n';
+            i++;
+        }
+        else
+        {
+            int start = i;
 
-	    // Some other line -- the prompt, maybe?
-	    while (i < int(listing.length()) && listing[i] != '\n')
-		i++;
-	    if (i < int(listing.length()))
-		i++;
+            // Some other line -- the prompt, maybe?
+            while (i < int(listing.length()) && listing[i] != '\n')
+                i++;
+            if (i < int(listing.length()))
+                i++;
 
-	    string msg = listing.from(start);
-	    msg = msg.before('\n');
-	    if (!msg.contains("end of file")) // XDB issues this
-		post_gdb_message(msg, true, source_text_w);
-	}
+            string msg = listing.from(start);
+            msg = msg.before('\n');
+            if (!msg.contains("end of file")) // XDB issues this
+                post_gdb_message(msg, true, source_text_w);
+        }
     }
 
     if (text[0] == 'i' && text[1] == 'n' && text[2] == ' ')
     {
-	// GDB 5.0 issues only `LINE_NUMBER in FILE_NAME'.  Treat this
-	// like an error message.
-	length = 0;
+        // GDB 5.0 issues only `LINE_NUMBER in FILE_NAME'.  Treat this
+        // like an error message.
+        length = 0;
     }
 
     text[length] = '\0';  // be sure to null-terminate
 
     if (length == 0)
-	delay.outcome = "failed";
+        delay.outcome = "failed";
 
     return text;
 }
@@ -2331,46 +2331,46 @@ bool utf8toUnicode(wchar_t &unicode, const char *text, int &pos, const int lengt
 
 // Read file FILE_NAME and format it
 String SourceView::read_indented(string& file_name, long& length, 
-				 SourceOrigin& origin, bool silent)
+                                 SourceOrigin& origin, bool silent)
 {
     length = 0;
     Delay delay;
     long t;
-	
+        
     String text = 0;
     origin = ORIGIN_NONE;
     string full_file_name = file_name;
 
     if (gdb->type() == JDB && !file_name.contains('/'))
     {
-	// FILE_NAME is a class name.  Search class in JDB `use' path.
-	text = read_class(file_name, full_file_name, origin, length, true);
+        // FILE_NAME is a class name.  Search class in JDB `use' path.
+        text = read_class(file_name, full_file_name, origin, length, true);
     }
 
     if (gdb->type() == PERL && file_name.contains('-', 0))
     {
-	// Attempt to load `-e' in Perl or likewise
-	origin = ORIGIN_NONE;
-	return 0;
+        // Attempt to load `-e' in Perl or likewise
+        origin = ORIGIN_NONE;
+        return 0;
     }
 
     if (text == 0 || length == 0)
     {
-	for (int trial = 1; (text == 0 || length == 0) && trial <= 3; trial++)
-	{
-	    switch (trial)
-	    {
-	    case 1:
-		// Loop #1: use full path of file
-		full_file_name = full_path(file_name);
-		break;
+        for (int trial = 1; (text == 0 || length == 0) && trial <= 3; trial++)
+        {
+            switch (trial)
+            {
+            case 1:
+                // Loop #1: use full path of file
+                full_file_name = full_path(file_name);
+                break;
 
-	    case 2:
-		// Loop #2: ask debugger for full path, using `edit'
-		full_file_name = full_path(dbx_path(file_name));
-		if (full_file_name == full_path(file_name))
-		    continue;
-		break;
+            case 2:
+                // Loop #2: ask debugger for full path, using `edit'
+                full_file_name = full_path(dbx_path(file_name));
+                if (full_file_name == full_path(file_name))
+                    continue;
+                break;
                 
             case 3:
                 // Loop #3: used file list from debugger
@@ -2378,66 +2378,66 @@ String SourceView::read_indented(string& file_name, long& length,
                 if (full_file_name == full_path(file_name))
                     continue;
                 break;
-	    }
+            }
 
-	    // Attempt #1.  Try to read file from remote source.
-	    if ((text == 0 || length == 0) && remote_gdb())
-	    {
-		text = read_remote(full_file_name, length, true);
-		if (text != 0)
-		    origin = ORIGIN_REMOTE;
-	    }
+            // Attempt #1.  Try to read file from remote source.
+            if ((text == 0 || length == 0) && remote_gdb())
+            {
+                text = read_remote(full_file_name, length, true);
+                if (text != 0)
+                    origin = ORIGIN_REMOTE;
+            }
 
-	    // Attempt #2.  Read file from local source.
-	    if ((text == 0 || length == 0) && !remote_gdb())
-	    {
-		text = read_local(full_file_name, length, true);
-		if (text != 0)
-		    origin = ORIGIN_LOCAL;
-	    }
+            // Attempt #2.  Read file from local source.
+            if ((text == 0 || length == 0) && !remote_gdb())
+            {
+                text = read_local(full_file_name, length, true);
+                if (text != 0)
+                    origin = ORIGIN_LOCAL;
+            }
 
-	    // Attempt #3.  Read file from local source, even if we are remote.
-	    if ((text == 0 || length == 0) && remote_gdb())
-	    {
-		text = read_local(full_file_name, length, true);
-		if (text != 0)
-		    origin = ORIGIN_LOCAL;
-	    }
-	}
+            // Attempt #3.  Read file from local source, even if we are remote.
+            if ((text == 0 || length == 0) && remote_gdb())
+            {
+                text = read_local(full_file_name, length, true);
+                if (text != 0)
+                    origin = ORIGIN_LOCAL;
+            }
+        }
     }
 
     // Attempt #4.  Read file from GDB.
     if (text == 0 || length == 0)
     {
-	string source_name = get_source_name(file_name);
+        string source_name = get_source_name(file_name);
 
-	text = read_from_gdb(source_name, length, silent);
+        text = read_from_gdb(source_name, length, silent);
 
-	if (text != 0 && length != 0)
-	{
-	    // Use the source name as file name
-	    full_file_name = source_name;
-	    if (text != 0)
-		origin = ORIGIN_GDB;
-	}
+        if (text != 0 && length != 0)
+        {
+            // Use the source name as file name
+            full_file_name = source_name;
+            if (text != 0)
+                origin = ORIGIN_GDB;
+        }
     }
 
     if ((text == 0 || length == 0) && !silent)
     {
-	// All failed - produce an appropriate error message.
-	if (gdb->type() == JDB)
-	    text = read_class(file_name, full_file_name, origin, 
-			      length, false);
-	else if (!remote_gdb())
-	    text = read_local(full_file_name, length, false);
-	else
-	    text = read_remote(full_file_name, length, false);
+        // All failed - produce an appropriate error message.
+        if (gdb->type() == JDB)
+            text = read_class(file_name, full_file_name, origin, 
+                              length, false);
+        else if (!remote_gdb())
+            text = read_local(full_file_name, length, false);
+        else
+            text = read_remote(full_file_name, length, false);
     }
 
     if (text == 0 || length == 0)
     {
-	origin = ORIGIN_NONE;
-	return 0;
+        origin = ORIGIN_NONE;
+        return 0;
     }
 
     // At this point, we have a source text.
@@ -2506,18 +2506,18 @@ String SourceView::read_indented(string& file_name, long& length,
     // Determine text length and number of lines
     int lines = 0;
     for (t = 0; t < length; t++)
-	if (text[t] == '\n')
-	    lines++;
+        if (text[t] == '\n')
+            lines++;
 
     int indented_text_length = length;
     if (length > 0 && text[length - 1] != '\n')
     {
-	// Text does not end in '\n':
-	// Make room for final '\n'
-	indented_text_length += 1;
+        // Text does not end in '\n':
+        // Make room for final '\n'
+        indented_text_length += 1;
 
-	// Make room for final line
-	lines++;
+        // Make room for final line
+        lines++;
     }
 
     // Make room for line numbers
@@ -2532,68 +2532,68 @@ String SourceView::read_indented(string& file_name, long& length,
     char *pos_ptr = indented_text; // Writing position in indented_text
     while (t < length)
     {
-	assert (pos_ptr - indented_text <= indented_text_length);
+        assert (pos_ptr - indented_text <= indented_text_length);
 
-	// Increase line number
-	int i;
-	for (i = indent - 2; i >= 0; i--)
-	{
-	    char& c = line_no_s[i];
-	    if (c == ' ')
-	    {
-		c = '1';
-		break;
-	    }
-	    else if (c < '9')
-	    {
-		c++;
-		break;
-	    }
-	    else
-		c = '0';
-	}
+        // Increase line number
+        int i;
+        for (i = indent - 2; i >= 0; i--)
+        {
+            char& c = line_no_s[i];
+            if (c == ' ')
+            {
+                c = '1';
+                break;
+            }
+            else if (c < '9')
+            {
+                c++;
+                break;
+            }
+            else
+                c = '0';
+        }
 
-	// Copy line number
-	for (i = 0; i < indent; i++)
-	    *pos_ptr++ = display_line_numbers ? line_no_s[i] : ' ';
+        // Copy line number
+        for (i = 0; i < indent; i++)
+            *pos_ptr++ = display_line_numbers ? line_no_s[i] : ' ';
 
-	if (indent < script_indent_amount)
-	{
-	    // Check for empty line or line starting with '\t'
-	    int spaces = 0;
-	    while (t + spaces < length && text[t + spaces] == ' ')
-		spaces++;
+        if (indent < script_indent_amount)
+        {
+            // Check for empty line or line starting with '\t'
+            int spaces = 0;
+            while (t + spaces < length && text[t + spaces] == ' ')
+                spaces++;
 
-	    if (spaces < script_indent_amount)
-	    {
-		if (t + spaces >= length ||
-		    text[t + spaces] == '\n' ||
-		    text[t + spaces] == '\t')
-		{
-		    // Prepend a few space characters
-		    while (spaces < script_indent_amount)
-		    {
-			*pos_ptr++ = ' ';
-			spaces++;
-		    }
-		}
-	    }
-	}
+            if (spaces < script_indent_amount)
+            {
+                if (t + spaces >= length ||
+                    text[t + spaces] == '\n' ||
+                    text[t + spaces] == '\t')
+                {
+                    // Prepend a few space characters
+                    while (spaces < script_indent_amount)
+                    {
+                        *pos_ptr++ = ' ';
+                        spaces++;
+                    }
+                }
+            }
+        }
 
-	// Copy remainder of line
-	while (t < length && text[t] != '\n')
-	    *pos_ptr++ = text[t++];
+        // Copy remainder of line
+        while (t < length && text[t] != '\n')
+            *pos_ptr++ = text[t++];
 
-	// Copy '\n' or '\0'
-	if (t == length)
-	{
-	    // Text doesn't end in '\n'
-	    *pos_ptr++ = '\n';
-	}
-	else
-	{
-	    *pos_ptr++ = text[t++];
-	}
+        // Copy '\n' or '\0'
+        if (t == length)
+        {
+            // Text doesn't end in '\n'
+            *pos_ptr++ = '\n';
+        }
+        else
+        {
+            *pos_ptr++ = text[t++];
+        }
     }
     *pos_ptr = '\0';
 
@@ -2611,47 +2611,47 @@ int SourceView::read_current(string& file_name, bool force_reload, bool silent)
 
     if (cache_source_files && !force_reload && file_cache.has(file_name))
     {
-	current_source = file_cache[file_name];
-	current_origin = origin_cache[file_name];
-	file_name      = file_name_cache[file_name];
+        current_source = file_cache[file_name];
+        current_origin = origin_cache[file_name];
+        file_name      = file_name_cache[file_name];
 
-	if (gdb->type() == JDB)
-	{
-	    // In JDB, a single source may contain multiple classes.
-	    // Store current class name FILE_NAME as source name.
-	    source_name_cache[file_name] = requested_file_name;
-	}
+        if (gdb->type() == JDB)
+        {
+            // In JDB, a single source may contain multiple classes.
+            // Store current class name FILE_NAME as source name.
+            source_name_cache[file_name] = requested_file_name;
+        }
     }
     else
     {
-	long length = 0;
-	SourceOrigin orig;
-	String indented_text = read_indented(file_name, length, orig, silent);
-	if (indented_text == 0 || length == 0)
-	    return -1;		// Failure
+        long length = 0;
+        SourceOrigin orig;
+        String indented_text = read_indented(file_name, length, orig, silent);
+        if (indented_text == 0 || length == 0)
+            return -1;                // Failure
 
-	current_source = string(indented_text, length);
-	current_origin = orig;
-	XtFree(indented_text);
+        current_source = string(indented_text, length);
+        current_origin = orig;
+        XtFree(indented_text);
 
-	if (current_source.length() > 0)
-	{
-	    file_cache[file_name]             = current_source;
-	    origin_cache[file_name]           = current_origin;
-	    file_name_cache[file_name]        = file_name;
+        if (current_source.length() > 0)
+        {
+            file_cache[file_name]             = current_source;
+            origin_cache[file_name]           = current_origin;
+            file_name_cache[file_name]        = file_name;
 
-	    if (file_name != requested_file_name)
-	    {
-		file_cache[requested_file_name]      = current_source;
-		origin_cache[requested_file_name]    = current_origin;
-		file_name_cache[requested_file_name] = file_name;
-	    }
-	}
+            if (file_name != requested_file_name)
+            {
+                file_cache[requested_file_name]      = current_source;
+                origin_cache[requested_file_name]    = current_origin;
+                file_name_cache[requested_file_name] = file_name;
+            }
+        }
 
-	int null_count = current_source.freq('\0');
-	if (null_count > 0 && !silent)
-	    post_warning(file_name + ": binary file",
-			 "source_binary_warning", source_text_w);
+        int null_count = current_source.freq('\0');
+        if (null_count > 0 && !silent)
+            post_warning(file_name + ": binary file",
+                         "source_binary_warning", source_text_w);
     }
 
     // Untabify current source, using the current tab width
@@ -2667,24 +2667,24 @@ int SourceView::read_current(string& file_name, bool force_reload, bool silent)
     m_pos_of_line.push_back((XmTextPosition(0)));
 
     for (int i = 0; i < int(current_source.length()); i++)
-	if (current_source[i] == '\n')
-	        m_pos_of_line.push_back((XmTextPosition(i + 1)));
+        if (current_source[i] == '\n')
+                m_pos_of_line.push_back((XmTextPosition(i + 1)));
 
     assert(int( m_pos_of_line.size()) == line_count + 2);
 
     if (current_source.length() == 0)
-	return -1;
+        return -1;
     else
-	return 0;
+        return 0;
 }
 
 // Return position of line LINE
 XmTextPosition SourceView::pos_of_line(int line)
 {
     if (line < 0 || line > line_count || line >= int( m_pos_of_line.size()))
-	return 0;
+        return 0;
     else
-	return m_pos_of_line[line];
+        return m_pos_of_line[line];
 }
 
 // Clear the file cache
@@ -2706,13 +2706,13 @@ void SourceView::reload()
 {
     // Reload current file
     if (current_file_name.empty())
-	return;
+        return;
 
     string file;
     if (gdb->type() == JDB)
-	file = line_of_cursor();
+        file = line_of_cursor();
     else
-	file = file_of_cursor();
+        file = file_of_cursor();
 
     string line = file.after(':');
     file        = file.before(':');
@@ -2726,9 +2726,9 @@ void SourceView::reload()
 
     // Restore execution position
     if (!last_execution_file.empty())
-	show_execution_position(last_execution_file + ":" + 
-				itostring(last_execution_line),
-				at_lowest_frame, signal_received);
+        show_execution_position(last_execution_file + ":" + 
+                                itostring(last_execution_line),
+                                at_lowest_frame, signal_received);
 }
 
 
@@ -2738,18 +2738,18 @@ static const int MAX_TAB_WIDTH = 256;
 void SourceView::set_tab_width(int width)
 {
     if (width <= 0)
-	return;
+        return;
 
     if (tab_width != width)
     {
-	// Make sure the tab width stays within reasonable ranges
-	tab_width = min(max(width, 1), MAX_TAB_WIDTH);
+        // Make sure the tab width stays within reasonable ranges
+        tab_width = min(max(width, 1), MAX_TAB_WIDTH);
 
-	if (!current_file_name.empty())
-	{
-	    StatusDelay delay("Reformatting");
-	    reload();
-	}
+        if (!current_file_name.empty())
+        {
+            StatusDelay delay("Reformatting");
+            reload();
+        }
     }
 }
 
@@ -2757,38 +2757,38 @@ void SourceView::set_tab_width(int width)
 void SourceView::set_indent(int source_indent, int code_indent)
 {
     if (source_indent < 0 || code_indent < 0)
-	return;
+        return;
 
     if (source_indent == source_indent_amount &&
-	code_indent == code_indent_amount)
-	return;
+        code_indent == code_indent_amount)
+        return;
 
     if (source_indent != source_indent_amount)
     {
-	source_indent_amount = min(max(source_indent, 0), MAX_INDENT);
-	if (!current_file_name.empty())
-	{
-	    StatusDelay delay("Reformatting");
-	    reload();
-	}
+        source_indent_amount = min(max(source_indent, 0), MAX_INDENT);
+        if (!current_file_name.empty())
+        {
+            StatusDelay delay("Reformatting");
+            reload();
+        }
     }
 
     if (code_indent != code_indent_amount)
     {
-	code_indent_amount = min(max(code_indent, 0), MAX_INDENT);
+        code_indent_amount = min(max(code_indent, 0), MAX_INDENT);
 
-	clear_code_cache();
-	show_pc(last_shown_pc);
+        clear_code_cache();
+        show_pc(last_shown_pc);
     }
 }
 
 void SourceView::read_file (string file_name, 
-			    int initial_line,
-			    bool force_reload,
-			    bool silent)
+                            int initial_line,
+                            bool force_reload,
+                            bool silent)
 {
     if (file_name.empty())
-	return;
+        return;
 
     /*
       Yves Arrouye <Yves.Arrouye@marin.fdn.fr> states:
@@ -2818,7 +2818,7 @@ void SourceView::read_file (string file_name,
     // Read in current_source
     int error = read_current(file_name, force_reload, silent);
     if (error)
-	return;
+        return;
 
     add_position_to_history(file_name, initial_line, false);
 
@@ -2830,7 +2830,7 @@ void SourceView::read_file (string file_name,
 
     XmTextPosition initial_pos = 0;
     if (initial_line > 0 && initial_line <= line_count)
-	initial_pos = pos_of_line(initial_line) + indent_amount(source_text_w);
+        initial_pos = pos_of_line(initial_line) + indent_amount(source_text_w);
 
     SetInsertionPosition(source_text_w, initial_pos, true);
 
@@ -2853,88 +2853,88 @@ void SourceView::read_file (string file_name,
     switch (current_origin)
     {
     case ORIGIN_LOCAL:
-	msg += rm("File " + quote(file_name));
-	if (remote_gdb())
-	    msg += rm(" (from local host)");
-	break;
+        msg += rm("File " + quote(file_name));
+        if (remote_gdb())
+            msg += rm(" (from local host)");
+        break;
 
     case ORIGIN_REMOTE:
-	msg += rm("File " + quote(file_name));
-	msg += rm(" (from " + gdb_host + ")");
-	break;
+        msg += rm("File " + quote(file_name));
+        msg += rm(" (from " + gdb_host + ")");
+        break;
 
     case ORIGIN_GDB:
-	msg += rm("Source " + quote(file_name));
-	msg += rm(" (from " + gdb->title() + ")");
-	break;
+        msg += rm("Source " + quote(file_name));
+        msg += rm(" (from " + gdb->title() + ")");
+        break;
 
     case ORIGIN_NONE:
-	msg += tt(file_name);
-	break;
+        msg += tt(file_name);
+        break;
     }
     msg += rm(" ");
 
     if (line_count == 1)
-	msg += rm("1 line, ");
+        msg += rm("1 line, ");
     else
-	msg += rm(itostring(line_count) + " lines, ");
+        msg += rm(itostring(line_count) + " lines, ");
     if (current_source.length() == 1)
-	msg += rm("1 character");
+        msg += rm("1 character");
     else
-	msg += rm(itostring(current_source.length()) + " characters");
+        msg += rm(itostring(current_source.length()) + " characters");
 
     set_status_mstring(msg);
 
     XmTextClearSelection(source_text_w, 
-			 XtLastTimestampProcessed(XtDisplay(source_text_w)));
+                         XtLastTimestampProcessed(XtDisplay(source_text_w)));
     XmTextSetHighlight(source_text_w,
-		       0, XmTextGetLastPosition(source_text_w),
-		       XmHIGHLIGHT_NORMAL);
+                       0, XmTextGetLastPosition(source_text_w),
+                       XmHIGHLIGHT_NORMAL);
     last_top = last_pos = last_start_highlight = last_end_highlight = 0;
     update_glyphs(source_text_w);
 
     if (app_data.source_window)
     {
-	static bool popped_up = false;
+        static bool popped_up = false;
 
-	if (!popped_up)
-	{
-	    // Make sure source is visible
-	    Widget shell = (source_view_shell != 0) ? 
-		source_view_shell : command_shell;
+        if (!popped_up)
+        {
+            // Make sure source is visible
+            Widget shell = (source_view_shell != 0) ? 
+                source_view_shell : command_shell;
 
-	    if (source_view_shell != 0 || app_data.tty_mode)
-	    {
-		initial_popup_shell(shell);
-	    }
+            if (source_view_shell != 0 || app_data.tty_mode)
+            {
+                initial_popup_shell(shell);
+            }
 
-	    if (!app_data.command_toolbar)
-		initial_popup_shell(tool_shell);
+            if (!app_data.command_toolbar)
+                initial_popup_shell(tool_shell);
 
-	    if (!started_iconified(shell))
-		gdbOpenSourceWindowCB(source_text_w, 0, 0);
-	}
+            if (!started_iconified(shell))
+                gdbOpenSourceWindowCB(source_text_w, 0, 0);
+        }
 
-	popped_up = true;
+        popped_up = true;
     }
 }
 
 void SourceView::update_title()
 {
     if (toplevel_w == 0)
-	return;
+        return;
 
     string title   = DDD_NAME ": " + current_file_name;
     const _XtString title_s = title.chars();
 
     string icon   = 
-	DDD_NAME ": " + string(basename(current_file_name.chars()));
+        DDD_NAME ": " + string(basename(current_file_name.chars()));
     const _XtString icon_s = icon.chars();
 
     XtVaSetValues(toplevel_w,
-		  XmNtitle, title_s,
-		  XmNiconName, icon_s,
-		  XtPointer(0));
+                  XmNtitle, title_s,
+                  XmNiconName, icon_s,
+                  XtPointer(0));
 }
 
 
@@ -2954,165 +2954,165 @@ void SourceView::refresh_bp_disp(bool reset)
 void SourceView::refresh_source_bp_disp(bool reset)
 {
     if (display_glyphs && !reset)
-	return;
+        return;
 
     // Overwrite old breakpoint displays - - - - - - - - - - - - -
     for (IntIntArrayAssocIter b_i_l_iter(bps_in_line);
-	 b_i_l_iter.ok(); 
-	 ++b_i_l_iter)
+         b_i_l_iter.ok(); 
+         ++b_i_l_iter)
     {
-	int line_nr = b_i_l_iter.key();
-	if (line_nr < 0 || line_nr > line_count)
-	    continue;
+        int line_nr = b_i_l_iter.key();
+        if (line_nr < 0 || line_nr > line_count)
+            continue;
 
-	int pos = pos_of_line(line_nr);
-	int indent = indent_amount(source_text_w, pos);
+        int pos = pos_of_line(line_nr);
+        int indent = indent_amount(source_text_w, pos);
 
-	if (indent > 0)
-	{
-	    string s(current_source.at(pos, indent - 1));
+        if (indent > 0)
+        {
+            string s(current_source.at(pos, indent - 1));
 
-	    if (s.length() > 0)
-		XmTextReplace(source_text_w,
-			      pos_of_line(line_nr),
-			      pos_of_line(line_nr) + s.length(),
-			      XMST(s.chars()));
-	}
+            if (s.length() > 0)
+                XmTextReplace(source_text_w,
+                              pos_of_line(line_nr),
+                              pos_of_line(line_nr) + s.length(),
+                              XMST(s.chars()));
+        }
     }
 
     static const IntIntArrayAssoc empty_bps;
     bps_in_line = empty_bps;
 
     if (display_glyphs)
-	return;
+        return;
 
     // Find all breakpoints referring to this file
     MapRef ref;
     for (BreakPoint* bp = bp_map.first(ref); bp != 0; bp = bp_map.next(ref))
     {
-	if ((bp->type() == BREAKPOINT || bp->type() == TRACEPOINT) && 
-	    bp_matches(bp))
-	{
-	    // ASSUME: multi-location breakpoints all have same source line
-	    bps_in_line[bp->line_nr()].push_back(bp->number());
-	}
+        if ((bp->type() == BREAKPOINT || bp->type() == TRACEPOINT) && 
+            bp_matches(bp))
+        {
+            // ASSUME: multi-location breakpoints all have same source line
+            bps_in_line[bp->line_nr()].push_back(bp->number());
+        }
     }
 
     // Show breakpoints in text
     for (IntIntArrayAssocIter b_i_l_iter2(bps_in_line);
-	 b_i_l_iter2.ok();
-	 ++b_i_l_iter2)
+         b_i_l_iter2.ok();
+         ++b_i_l_iter2)
     {
-	int line_nr = b_i_l_iter2.key();
-	if (line_nr < 0 || line_nr > line_count)
-	    continue;
+        int line_nr = b_i_l_iter2.key();
+        if (line_nr < 0 || line_nr > line_count)
+            continue;
 
-	XmTextPosition pos = pos_of_line(line_nr);
-	int indent = indent_amount(source_text_w, pos);
+        XmTextPosition pos = pos_of_line(line_nr);
+        int indent = indent_amount(source_text_w, pos);
 
-	if (indent > 0)
-	{
-	    // Display all breakpoints in a line
-	    std::vector<int>& bps = bps_in_line[line_nr];
+        if (indent > 0)
+        {
+            // Display all breakpoints in a line
+            std::vector<int>& bps = bps_in_line[line_nr];
 
-	    string insert_string = "";
-	    for (int i = 0; i < int(bps.size()); i++)
-	    {
-		BreakPoint *bp = bp_map.get(bps[i]);
-		insert_string += bp->symbol();
-	    }
+            string insert_string = "";
+            for (int i = 0; i < int(bps.size()); i++)
+            {
+                BreakPoint *bp = bp_map.get(bps[i]);
+                insert_string += bp->symbol();
+            }
 
-	    if (int(insert_string.length()) >= indent - 1)
-	    {
-		insert_string = insert_string.before(indent - 1);
-	    }
-	    else
-	    {
-		for (int i = insert_string.length(); i < indent - 1; i++)
-		{
-		    insert_string += current_source[pos + i];
-		}
-	    }
+            if (int(insert_string.length()) >= indent - 1)
+            {
+                insert_string = insert_string.before(indent - 1);
+            }
+            else
+            {
+                for (int i = insert_string.length(); i < indent - 1; i++)
+                {
+                    insert_string += current_source[pos + i];
+                }
+            }
 
-	    assert(int(insert_string.length()) == indent - 1);
+            assert(int(insert_string.length()) == indent - 1);
 
-	    if (insert_string.length() > 0)
-		XmTextReplace(source_text_w, pos, 
-			      pos + indent - 1,
-			      XMST(insert_string.chars()));
-	}
+            if (insert_string.length() > 0)
+                XmTextReplace(source_text_w, pos, 
+                              pos + indent - 1,
+                              XMST(insert_string.chars()));
+        }
     }
 }
 
 void SourceView::refresh_code_bp_disp(bool reset)
 {
     if (display_glyphs && !reset)
-	return;
+        return;
 
     // Clear all addresses
     int i;
     for (i = 0; i < int(bp_addresses.size()); i++)
     {
-	const string& address = bp_addresses[i];
-	XmTextPosition pos = find_pc(address);
-	if (pos == XmTextPosition(-1))
-	    continue;
+        const string& address = bp_addresses[i];
+        XmTextPosition pos = find_pc(address);
+        if (pos == XmTextPosition(-1))
+            continue;
 
-	// Process all breakpoints at ADDRESS
-	int indent = indent_amount(code_text_w, pos);
-	if (indent > 0)
-	{
-	    string spaces = replicate(' ', indent);
-	    XmTextReplace(code_text_w, pos, pos + indent, XMST(spaces.chars()));
-	}
+        // Process all breakpoints at ADDRESS
+        int indent = indent_amount(code_text_w, pos);
+        if (indent > 0)
+        {
+            string spaces = replicate(' ', indent);
+            XmTextReplace(code_text_w, pos, pos + indent, XMST(spaces.chars()));
+        }
     }
 
     static const std::vector<string> empty;
     bp_addresses = empty;
 
     if (display_glyphs)
-	return;
+        return;
 
     // Collect all addresses
     MapRef ref;
     for (BreakPoint *bp = bp_map.first(ref); bp != 0;
-	 bp = bp_map.next(ref))
+         bp = bp_map.next(ref))
     {
-	if (bp->type() != BREAKPOINT)
-	    continue;
+        if (bp->type() != BREAKPOINT)
+            continue;
 
-	for (i = 0; i < bp->n_locations(); i++)
-	    bp_addresses.push_back(bp->get_location(i).address());
+        for (i = 0; i < bp->n_locations(); i++)
+            bp_addresses.push_back(bp->get_location(i).address());
     }
 
     // Process all bp_addresses
     for (i = 0; i < int(bp_addresses.size()); i++)
     {
-	const string& address = bp_addresses[i];
-	XmTextPosition pos = find_pc(address);
-	if (pos == XmTextPosition(-1))
-	    continue;
+        const string& address = bp_addresses[i];
+        XmTextPosition pos = find_pc(address);
+        if (pos == XmTextPosition(-1))
+            continue;
 
-	// Process all breakpoints at ADDRESS
-	string insert_string = "";
-	for (BreakPoint *bp = bp_map.first(ref);
-	     bp != 0;
-	     bp = bp_map.next(ref))
-	{
-	    for (int j = 0; j < bp->n_locations(); j++)
-		if (bp->get_location(j).address() == address)
-		    insert_string += bp->symbol();
-	}
+        // Process all breakpoints at ADDRESS
+        string insert_string = "";
+        for (BreakPoint *bp = bp_map.first(ref);
+             bp != 0;
+             bp = bp_map.next(ref))
+        {
+            for (int j = 0; j < bp->n_locations(); j++)
+                if (bp->get_location(j).address() == address)
+                    insert_string += bp->symbol();
+        }
 
-	int indent = indent_amount(code_text_w, pos);
-	if (indent > 0)
-	{
-	    insert_string += replicate(' ', indent);
-	    insert_string = insert_string.before(indent);
+        int indent = indent_amount(code_text_w, pos);
+        if (indent > 0)
+        {
+            insert_string += replicate(' ', indent);
+            insert_string = insert_string.before(indent);
 
-	    XmTextReplace(code_text_w, pos, pos + indent, 
-			  XMST(insert_string.chars()));
-	}
+            XmTextReplace(code_text_w, pos, pos + indent, 
+                          XMST(insert_string.chars()));
+        }
     }
 }
 
@@ -3127,11 +3127,11 @@ void SourceView::refresh_code_bp_disp(bool reset)
 // BP_NR is the number of the breakpoint at POS (none: 0)
 // Return false iff failure
 bool SourceView::get_line_of_pos (Widget   w,
-				  XmTextPosition pos,
-				  int&     line_nr,
-				  string&  address,
-				  bool&    in_text,
-				  int&     bp_nr)
+                                  XmTextPosition pos,
+                                  int&     line_nr,
+                                  string&  address,
+                                  bool&    in_text,
+                                  int&     bp_nr)
 {
     bool found = false;
 
@@ -3142,177 +3142,177 @@ bool SourceView::get_line_of_pos (Widget   w,
 
     Widget text_w;
     if (is_source_widget(w))
-	text_w = source_text_w;
+        text_w = source_text_w;
     else if (is_code_widget(w))
-	text_w = code_text_w;
+        text_w = code_text_w;
     else
-	return false;
+        return false;
 
     if (w != text_w)
     {
-	// Glyph selected
+        // Glyph selected
 
-	MapRef ref;
-	for (BreakPoint *bp = bp_map.first(ref);
-	     bp != 0;
-	     bp = bp_map.next(ref))
-	{
-	    for (int i = 0; i < bp->n_locations(); i++) {
-		BreakPointLocn &locn = bp->get_location(i);
-		if (w == locn.source_glyph() || w == locn.code_glyph())
-		{
-		    // Breakpoint glyph found
-		    line_nr = locn.line_nr();
-		    address = locn.address();
-		    in_text = false;
-		    bp_nr   = bp->number();
-		    return true;
-		}
-	    }
-	}
+        MapRef ref;
+        for (BreakPoint *bp = bp_map.first(ref);
+             bp != 0;
+             bp = bp_map.next(ref))
+        {
+            for (int i = 0; i < bp->n_locations(); i++) {
+                BreakPointLocn &locn = bp->get_location(i);
+                if (w == locn.source_glyph() || w == locn.code_glyph())
+                {
+                    // Breakpoint glyph found
+                    line_nr = locn.line_nr();
+                    address = locn.address();
+                    in_text = false;
+                    bp_nr   = bp->number();
+                    return true;
+                }
+            }
+        }
     }
 
     if (pos >= int(current_text(text_w).length()))
     {
-	// Position is on the right of text
-	in_text = false;
-	line_nr = line_count;
-	return true;
+        // Position is on the right of text
+        in_text = false;
+        line_nr = line_count;
+        return true;
     }
 
     if (text_w == source_text_w)
     {
-	// Search in source code
-	XmTextPosition line_pos = 0;
-	XmTextPosition next_line_pos = 0;
+        // Search in source code
+        XmTextPosition line_pos = 0;
+        XmTextPosition next_line_pos = 0;
 
-	while (!found && line_count >= line_nr)
-	{
-	    next_line_pos = (line_count >= line_nr + 1) ?
-		pos_of_line(line_nr + 1) :
-		XmTextGetLastPosition (text_w) + 1;
+        while (!found && line_count >= line_nr)
+        {
+            next_line_pos = (line_count >= line_nr + 1) ?
+                pos_of_line(line_nr + 1) :
+                XmTextGetLastPosition (text_w) + 1;
 
-	    bool left_of_first_nonblank = false;
-	    if (pos < next_line_pos)
-	    {
-		// Check if we're left of first non-blank source character
-		int first_nonblank = line_pos + indent_amount(text_w);
-		const string& text = current_text(text_w);
-		while (first_nonblank < next_line_pos
-		       && first_nonblank < int(text.length())
-		       && isspace(text[first_nonblank]))
-		    first_nonblank++;
-		left_of_first_nonblank = (pos < first_nonblank);
-	    }
+            bool left_of_first_nonblank = false;
+            if (pos < next_line_pos)
+            {
+                // Check if we're left of first non-blank source character
+                int first_nonblank = line_pos + indent_amount(text_w);
+                const string& text = current_text(text_w);
+                while (first_nonblank < next_line_pos
+                       && first_nonblank < int(text.length())
+                       && isspace(text[first_nonblank]))
+                    first_nonblank++;
+                left_of_first_nonblank = (pos < first_nonblank);
+            }
 
-	    if (pos == line_pos
-		|| left_of_first_nonblank
-		|| pos < (line_pos + indent_amount(text_w) - 1))
-	    {
-		// Position in breakpoint area
-		found = true;
-		in_text = false;
-		line_nr = max(line_nr, 1);
+            if (pos == line_pos
+                || left_of_first_nonblank
+                || pos < (line_pos + indent_amount(text_w) - 1))
+            {
+                // Position in breakpoint area
+                found = true;
+                in_text = false;
+                line_nr = max(line_nr, 1);
 
-		// Check for breakpoints...
-		std::vector<int>& bps = bps_in_line[line_nr];
-		if (bps.size() == 1)
-		{
-		    // Return single breakpoint in this line
-		    bp_nr = bps[0];
-		}
-		else if (bps.size() > 1)
-		{
-		    // Find which breakpoint was selected
-		    XmTextPosition bp_disp_pos = line_pos;
-		    int i;
-		    for (i = 0; i < int(bps.size()); i++)
-		    {
-			BreakPoint* bp = bp_map.get(bps[i]);
-			assert(bp != NULL);
+                // Check for breakpoints...
+                std::vector<int>& bps = bps_in_line[line_nr];
+                if (bps.size() == 1)
+                {
+                    // Return single breakpoint in this line
+                    bp_nr = bps[0];
+                }
+                else if (bps.size() > 1)
+                {
+                    // Find which breakpoint was selected
+                    XmTextPosition bp_disp_pos = line_pos;
+                    int i;
+                    for (i = 0; i < int(bps.size()); i++)
+                    {
+                        BreakPoint* bp = bp_map.get(bps[i]);
+                        assert(bp != NULL);
 
-			bp_disp_pos += 2; // respect '#' and '_';
-			bp_disp_pos += itostring(bp->number()).length();
-			if (pos < bp_disp_pos)
-			{
-			    bp_nr = bps[i];
-			    break; // exit for loop
-			}
-		    }
-		}
-	    }
-	    else if (pos < next_line_pos)
-	    {
-		// Position is in text
-		found   = true;
-		in_text = true;
-	    }
-	    else
-	    {
-		// Position is in one of the following lines
-		line_pos = next_line_pos;
-		line_nr++;
-	    }
-	}
+                        bp_disp_pos += 2; // respect '#' and '_';
+                        bp_disp_pos += itostring(bp->number()).length();
+                        if (pos < bp_disp_pos)
+                        {
+                            bp_nr = bps[i];
+                            break; // exit for loop
+                        }
+                    }
+                }
+            }
+            else if (pos < next_line_pos)
+            {
+                // Position is in text
+                found   = true;
+                in_text = true;
+            }
+            else
+            {
+                // Position is in one of the following lines
+                line_pos = next_line_pos;
+                line_nr++;
+            }
+        }
     }
     else if (text_w == code_text_w)
     {
-	// Search in machine code
-	XmTextPosition line_pos = pos;
-	while (line_pos >= 0 && current_code[line_pos] != '\n')
-	    line_pos--;
-	line_pos++;
+        // Search in machine code
+        XmTextPosition line_pos = pos;
+        while (line_pos >= 0 && current_code[line_pos] != '\n')
+            line_pos--;
+        line_pos++;
 
-	if (pos == line_pos || pos - line_pos < indent_amount(text_w))
-	{
-	    // Breakpoint area
-	    in_text = false;
+        if (pos == line_pos || pos - line_pos < indent_amount(text_w))
+        {
+            // Breakpoint area
+            in_text = false;
 
-	    // Check if we have a breakpoint around here
-	    int index = address_index(current_code, pos);
-	    if (index >= 0)
-	    {
-		address = current_code.from(index);
-		address = address.through(rxaddress);
+            // Check if we have a breakpoint around here
+            int index = address_index(current_code, pos);
+            if (index >= 0)
+            {
+                address = current_code.from(index);
+                address = address.through(rxaddress);
 
-		std::vector<int> bps;
+                std::vector<int> bps;
 
-		MapRef ref;
-		for (BreakPoint *bp = bp_map.first(ref);
-		     bp != 0;
-		     bp = bp_map.next(ref))
-		{
-		    for (int i = 0; i < bp->n_locations(); i++)
-			if (compare_address(address, bp->get_location(i).address()) == 0)
-			    bps.push_back(bp->number());
-		}
-		if (bps.size() == 1)
-		{
-		    // Return single breakpoint in this line
-		    bp_nr = bps[0];
-		}
-		else if (bps.size() > 1)
-		{
-		    // Find which breakpoint was selected
-		    int i;
-		    XmTextPosition bp_disp_pos = line_pos;
-		    for (i = 0; i < int(bps.size()); i++)
-		    {
-			BreakPoint* bp = bp_map.get(bps[i]);
-			assert(bp != NULL);
-			bp_disp_pos += 2; // respect '#' and '_';
-			bp_disp_pos += itostring(bp->number()).length();
-			if (pos < bp_disp_pos)
-			{
-			    bp_nr = bps[i];
-			    break; // exit for loop
-			}
-		    }
-		}
-	    }
-	}
+                MapRef ref;
+                for (BreakPoint *bp = bp_map.first(ref);
+                     bp != 0;
+                     bp = bp_map.next(ref))
+                {
+                    for (int i = 0; i < bp->n_locations(); i++)
+                        if (compare_address(address, bp->get_location(i).address()) == 0)
+                            bps.push_back(bp->number());
+                }
+                if (bps.size() == 1)
+                {
+                    // Return single breakpoint in this line
+                    bp_nr = bps[0];
+                }
+                else if (bps.size() > 1)
+                {
+                    // Find which breakpoint was selected
+                    int i;
+                    XmTextPosition bp_disp_pos = line_pos;
+                    for (i = 0; i < int(bps.size()); i++)
+                    {
+                        BreakPoint* bp = bp_map.get(bps[i]);
+                        assert(bp != NULL);
+                        bp_disp_pos += 2; // respect '#' and '_';
+                        bp_disp_pos += itostring(bp->number()).length();
+                        if (pos < bp_disp_pos)
+                        {
+                            bp_nr = bps[i];
+                            break; // exit for loop
+                        }
+                    }
+                }
+            }
+        }
 
-	found = true;
+        found = true;
     }
 
     return found;
@@ -3322,9 +3322,9 @@ bool SourceView::get_line_of_pos (Widget   w,
 // Find word around POS.  STARTPOS is the first character, ENDPOS + 1
 // is the last character in the word.
 void SourceView::find_word_bounds (Widget text_w,
-				   const XmTextPosition pos,
-				   XmTextPosition& startpos,
-				   XmTextPosition& endpos)
+                                   const XmTextPosition pos,
+                                   XmTextPosition& startpos,
+                                   XmTextPosition& endpos)
 {
     startpos = endpos = pos;
 
@@ -3332,14 +3332,14 @@ void SourceView::find_word_bounds (Widget text_w,
 
     XmTextPosition line_pos = pos;
     if (line_pos < XmTextPosition(text.length()))
-	while (line_pos > 0 && text[line_pos - 1] != '\n')
-	    line_pos--;
+        while (line_pos > 0 && text[line_pos - 1] != '\n')
+            line_pos--;
 
     int offset = pos - line_pos;
     if (offset == 0 || offset < indent_amount(text_w))
     {
-	// Do not select words in breakpoint area.
-	return;
+        // Do not select words in breakpoint area.
+        return;
     }
 
     // We first check the special case in BASH and MAKE where we are 
@@ -3348,148 +3348,148 @@ void SourceView::find_word_bounds (Widget text_w,
     // We also dispose of the special automatic variables of GNU make: 
     // $@, $<, etc and special variables of BASH: $*, $@, $? $$, etc.
     if ( '$' == text[endpos] && endpos < XmTextPosition(text.length()) 
-	 && (endpos - 1 <= 0 || '$' != text[endpos-1]) )
+         && (endpos - 1 <= 0 || '$' != text[endpos-1]) )
     {
       if ( gdb->program_language() == LANGUAGE_BASH ) {
-	if ( text[endpos+1] == '{' )
-	  // Advance position over ${
-	  startpos = endpos += 2;
-	else if (is_bash_special(text[endpos+1])) {
-	  // Found a Bash special variable
-	  startpos = endpos;
-	  endpos  =  endpos+2;
-	  return;
-	}
+        if ( text[endpos+1] == '{' )
+          // Advance position over ${
+          startpos = endpos += 2;
+        else if (is_bash_special(text[endpos+1])) {
+          // Found a Bash special variable
+          startpos = endpos;
+          endpos  =  endpos+2;
+          return;
+        }
       } else if ( gdb->program_language() == LANGUAGE_MAKE ) {
-	if ( text[endpos+1] == '(' )
-	  // Advance position over $(
-	  startpos = endpos += 2;
-	else if (is_make_automatic(text[endpos+1])) {
-	  // Found a GNU Make automatic variable
-	  startpos = endpos;
-	  endpos  =  endpos+2;
-	  return;
-	}
+        if ( text[endpos+1] == '(' )
+          // Advance position over $(
+          startpos = endpos += 2;
+        else if (is_make_automatic(text[endpos+1])) {
+          // Found a GNU Make automatic variable
+          startpos = endpos;
+          endpos  =  endpos+2;
+          return;
+        }
       }
     } else if (endpos - 1 > 0 || '$' == text[endpos-1]) {
       /* Previous character was a $ - check it out. */
       if ( gdb->program_language() == LANGUAGE_MAKE &&
-	   is_make_automatic(text[endpos]) ) {
-	// Found a GNU Make automatic variable
-	startpos = endpos-1;
-	endpos  =  endpos+1;
-	return;
+           is_make_automatic(text[endpos]) ) {
+        // Found a GNU Make automatic variable
+        startpos = endpos-1;
+        endpos  =  endpos+1;
+        return;
       } else if ( gdb->program_language() == LANGUAGE_BASH &&
-	   is_bash_special(text[endpos]) ) {
-	// Found a Bash special variable
-	startpos = endpos-1;
-	endpos  =  endpos+1;
-	return;
+           is_bash_special(text[endpos]) ) {
+        // Found a Bash special variable
+        startpos = endpos-1;
+        endpos  =  endpos+1;
+        return;
       }
     }
 
     // Find end of word - Start scanning for a non-identifier
     while (endpos < XmTextPosition(text.length()) && isid(text[endpos]))
-	endpos++;
+        endpos++;
 
     // Find start of word
     if (startpos >= XmTextPosition(text.length()))
-	startpos = XmTextPosition(text.length() - 1);
+        startpos = XmTextPosition(text.length() - 1);
 
     while (startpos > 0)
     {
-	while (startpos > 0 && isid(text[startpos - 1]))
-	    startpos--;
+        while (startpos > 0 && isid(text[startpos - 1]))
+            startpos--;
 
-	if (gdb->program_language() == LANGUAGE_PERL &&
-	    startpos > 1 &&
-	    is_perl_prefix(text[startpos - 1]))
-	{
-	    // Include Perl prefix character
-	    startpos -= 1;
-	    break;
-	}
-	else if (gdb->program_language() == LANGUAGE_BASH &&
-		 startpos > 2 && text[startpos - 1] == '{' &&
-		 text[startpos - 2] == '$')
-	{
-	  // Include ${...} rather than ...
-	  int brace_count=1;
-	  int new_endpos=startpos;
-	  for (new_endpos=startpos+1; 
-	       new_endpos < XmTextPosition(text.length()) 
-		 && new_endpos-startpos < 30; 
-	       new_endpos++) 
-	    {
-	      if (text[new_endpos] == '{') brace_count++;
-	      if (text[new_endpos] == '}') {
-		brace_count--;
-		if (brace_count==0) {
-		  startpos -= 2; // Go back over ${
-		  endpos=new_endpos+1;
-		  break;
-		}
-	      }
-	    }
-	  break;
-	}
-	else if (gdb->program_language() == LANGUAGE_MAKE &&
-		 startpos > 2 && text[startpos -1] == '(' &&
-		 text[startpos - 2] == '$')
-	{
-	  // Include $(...) rather than ...
-	  int brace_count=1;
-	  int new_endpos=startpos;
-	  for (new_endpos=startpos+1; 
-	       new_endpos < XmTextPosition(text.length()) 
-		 && new_endpos-startpos < 30; 
-	       new_endpos++) 
-	    {
-	      if (text[new_endpos] == '(') brace_count++;
-	      if (text[new_endpos] == ')') {
-		brace_count--;
-		if (brace_count==0) {
-		  startpos -= 2; // Go back over $(
-		  endpos=new_endpos+1;
-		  break;
-		}
-	      }
-	    }
-	  break;
-	}
-	else if (startpos > 2 && 
-	    isid(text[startpos - 2]) &&
-	    text[startpos - 1] == '.')
-	{
-	    // Select A.B as a whole
-	    startpos -= 1;
-	}
-	else if (startpos > 3 && 
-		 isid(text[startpos - 3]) &&
-		 text[startpos - 2] == '-' &&
-		 text[startpos - 1] == '>')
-	{
-	    // Select A->B as a whole
-	    startpos -= 2;
-	}
-	else if (startpos > 3 && 
-		 isid(text[startpos - 3]) &&
-		 text[startpos - 2] == ':' &&
-		 text[startpos - 1] == ':')
-	{
-	    // Select A::B as a whole
-	    startpos -= 2;
-	}
-	else
-	    break;
+        if (gdb->program_language() == LANGUAGE_PERL &&
+            startpos > 1 &&
+            is_perl_prefix(text[startpos - 1]))
+        {
+            // Include Perl prefix character
+            startpos -= 1;
+            break;
+        }
+        else if (gdb->program_language() == LANGUAGE_BASH &&
+                 startpos > 2 && text[startpos - 1] == '{' &&
+                 text[startpos - 2] == '$')
+        {
+          // Include ${...} rather than ...
+          int brace_count=1;
+          int new_endpos=startpos;
+          for (new_endpos=startpos+1; 
+               new_endpos < XmTextPosition(text.length()) 
+                 && new_endpos-startpos < 30; 
+               new_endpos++) 
+            {
+              if (text[new_endpos] == '{') brace_count++;
+              if (text[new_endpos] == '}') {
+                brace_count--;
+                if (brace_count==0) {
+                  startpos -= 2; // Go back over ${
+                  endpos=new_endpos+1;
+                  break;
+                }
+              }
+            }
+          break;
+        }
+        else if (gdb->program_language() == LANGUAGE_MAKE &&
+                 startpos > 2 && text[startpos -1] == '(' &&
+                 text[startpos - 2] == '$')
+        {
+          // Include $(...) rather than ...
+          int brace_count=1;
+          int new_endpos=startpos;
+          for (new_endpos=startpos+1; 
+               new_endpos < XmTextPosition(text.length()) 
+                 && new_endpos-startpos < 30; 
+               new_endpos++) 
+            {
+              if (text[new_endpos] == '(') brace_count++;
+              if (text[new_endpos] == ')') {
+                brace_count--;
+                if (brace_count==0) {
+                  startpos -= 2; // Go back over $(
+                  endpos=new_endpos+1;
+                  break;
+                }
+              }
+            }
+          break;
+        }
+        else if (startpos > 2 && 
+            isid(text[startpos - 2]) &&
+            text[startpos - 1] == '.')
+        {
+            // Select A.B as a whole
+            startpos -= 1;
+        }
+        else if (startpos > 3 && 
+                 isid(text[startpos - 3]) &&
+                 text[startpos - 2] == '-' &&
+                 text[startpos - 1] == '>')
+        {
+            // Select A->B as a whole
+            startpos -= 2;
+        }
+        else if (startpos > 3 && 
+                 isid(text[startpos - 3]) &&
+                 text[startpos - 2] == ':' &&
+                 text[startpos - 1] == ':')
+        {
+            // Select A::B as a whole
+            startpos -= 2;
+        }
+        else
+            break;
     }
 }
 
 // Get the word at event position
 string SourceView::get_word_at_event(Widget text_w,
-				     XEvent *event,
-				     XmTextPosition& startpos,
-				     XmTextPosition& endpos)
+                                     XEvent *event,
+                                     XmTextPosition& startpos,
+                                     XmTextPosition& endpos)
 {
     BoxPoint event_pos = point(event);
     XmTextPosition pos = XmTextXYToPos(text_w, event_pos[X], event_pos[Y]);
@@ -3500,29 +3500,29 @@ string SourceView::get_word_at_event(Widget text_w,
 
 // Get the word at POS
 string SourceView::get_word_at_pos(Widget text_w,
-				   XmTextPosition pos,
-				   XmTextPosition& startpos,
-				   XmTextPosition& endpos)
+                                   XmTextPosition pos,
+                                   XmTextPosition& startpos,
+                                   XmTextPosition& endpos)
 {
     const string& text = current_text(text_w);
     if (text.empty())
       {
-	startpos = 0;
-	endpos = 0;
-	return "";
+        startpos = 0;
+        endpos = 0;
+        return "";
       }
 
     if (!XmTextGetSelectionPosition(text_w, &startpos, &endpos)
-	|| pos < startpos
-	|| pos > endpos)
+        || pos < startpos
+        || pos > endpos)
     {
-	find_word_bounds(text_w, pos, startpos, endpos);
+        find_word_bounds(text_w, pos, startpos, endpos);
     }
 
     string word = "";
     if (startpos < XmTextPosition(text.length())
-	&& startpos < endpos)
-	word = text.at(int(startpos), int(endpos - startpos));
+        && startpos < endpos)
+        word = text.at(int(startpos), int(endpos - startpos));
 
     strip_space(word);
 
@@ -3541,11 +3541,11 @@ string SourceView::get_word_at_pos(Widget text_w,
 
 // Install the given X bitmap as NAME
 static void InstallBitmapAsImage(unsigned char *bits, int width, int height, 
-				 const char *name)
+                                 const char *name)
 {
     Boolean ok = InstallBitmap(bits, width, height, name);
     if (!ok)
-	std::cerr << "Could not install " << quote(name) << " bitmap\n";
+        std::cerr << "Could not install " << quote(name) << " bitmap\n";
 }
 
 
@@ -3556,53 +3556,53 @@ SourceView::SourceView(Widget parent)
     // Find application shell
     toplevel_w = parent;
     while (toplevel_w != 0 && !XtIsWMShell(toplevel_w))
-	toplevel_w = XtParent(toplevel_w);
+        toplevel_w = XtParent(toplevel_w);
 
     // Install glyph images
     InstallBitmapAsImage(arrow_bits, arrow_width, arrow_height, 
-			 "plain_arrow");
+                         "plain_arrow");
     InstallBitmapAsImage(grey_arrow_bits, grey_arrow_width, grey_arrow_height, 
-			 "grey_arrow");
+                         "grey_arrow");
     InstallBitmapAsImage(past_arrow_bits, past_arrow_width, past_arrow_height, 
-			 "past_arrow");
+                         "past_arrow");
     InstallBitmapAsImage(signal_arrow_bits, signal_arrow_width, 
-			 signal_arrow_height, "signal_arrow");
+                         signal_arrow_height, "signal_arrow");
     InstallBitmapAsImage(drag_arrow_bits, drag_arrow_width, drag_arrow_height, 
-			 "drag_arrow");
+                         "drag_arrow");
 
     InstallBitmapAsImage(stop_bits, stop_width, stop_height, 
-			 "plain_stop");
+                         "plain_stop");
     InstallBitmapAsImage(cond_bits, cond_width, cond_height, 
-			 "plain_cond");
+                         "plain_cond");
     InstallBitmapAsImage(temp_bits, temp_width, temp_height, 
-			 "plain_temp");
+                         "plain_temp");
 
     InstallBitmapAsImage(grey_stop_bits, grey_stop_width, grey_stop_height, 
-			 "grey_stop");
+                         "grey_stop");
     InstallBitmapAsImage(grey_cond_bits, grey_cond_width, grey_cond_height, 
-			 "grey_cond");
+                         "grey_cond");
     InstallBitmapAsImage(grey_temp_bits, grey_temp_width, grey_temp_height, 
-			 "grey_temp");
+                         "grey_temp");
 
     InstallBitmapAsImage(drag_stop_bits, drag_stop_width, drag_stop_height, 
-			 "drag_stop");
+                         "drag_stop");
     InstallBitmapAsImage(drag_cond_bits, drag_cond_width, drag_cond_height, 
-			 "drag_cond");
+                         "drag_cond");
     InstallBitmapAsImage(drag_temp_bits, drag_temp_width, drag_temp_height, 
-			 "drag_temp");
+                         "drag_temp");
 
     // Setup actions
     XtAppAddActions (app_context, actions, XtNumber (actions));
 
     // Create source code window
     create_text(parent, "source", app_data.source_editing,
-		source_form_w, source_text_w);
+                source_form_w, source_text_w);
     XtManageChild(source_form_w);
 
     // Create machine code window
     create_text(parent, "code", false, code_form_w, code_text_w);
     if (disassemble)
-	XtManageChild(code_form_w);
+        XtManageChild(code_form_w);
 }
 
 void SourceView::create_shells()
@@ -3617,96 +3617,96 @@ void SourceView::create_shells()
     arg = 0;
     XtSetArg(args[arg], XmNvisibleItemCount, 0); arg++;
     edit_breakpoints_dialog_w =
-	verify(createTopLevelSelectionDialog(parent, "edit_breakpoints_dialog",
-					     args, arg));
+        verify(createTopLevelSelectionDialog(parent, "edit_breakpoints_dialog",
+                                             args, arg));
     Delay::register_shell(edit_breakpoints_dialog_w);
 
     XtUnmanageChild(XmSelectionBoxGetChild(edit_breakpoints_dialog_w,
-					   XmDIALOG_TEXT));
+                                           XmDIALOG_TEXT));
     XtUnmanageChild(XmSelectionBoxGetChild(edit_breakpoints_dialog_w,
-					   XmDIALOG_CANCEL_BUTTON));
+                                           XmDIALOG_CANCEL_BUTTON));
     XtUnmanageChild(XmSelectionBoxGetChild(edit_breakpoints_dialog_w,
-					   XmDIALOG_APPLY_BUTTON));
+                                           XmDIALOG_APPLY_BUTTON));
     XtUnmanageChild(XmSelectionBoxGetChild(edit_breakpoints_dialog_w,
-					   XmDIALOG_SELECTION_LABEL));
+                                           XmDIALOG_SELECTION_LABEL));
     XtUnmanageChild(XmSelectionBoxGetChild(edit_breakpoints_dialog_w,
-					   XmDIALOG_LIST_LABEL));
+                                           XmDIALOG_LIST_LABEL));
 
     breakpoint_list_w = 
-	XmSelectionBoxGetChild(edit_breakpoints_dialog_w, XmDIALOG_LIST);
+        XmSelectionBoxGetChild(edit_breakpoints_dialog_w, XmDIALOG_LIST);
 
     if (app_data.flat_dialog_buttons)
     {
-	for (MMDesc *item = bp_area; item != 0 && item->name != 0; item++)
-	{
-	    if ((item->type & MMTypeMask) == MMPush)
-		item->type = (MMFlatPush | (item->type & ~MMTypeMask));
-	}
+        for (MMDesc *item = bp_area; item != 0 && item->name != 0; item++)
+        {
+            if ((item->type & MMTypeMask) == MMPush)
+                item->type = (MMFlatPush | (item->type & ~MMTypeMask));
+        }
     }
 
     Widget buttons = verify(MMcreateWorkArea(edit_breakpoints_dialog_w, 
-					     "buttons", bp_area));
+                                             "buttons", bp_area));
     XtVaSetValues(buttons,
-		  XmNmarginWidth,     0, 
-		  XmNmarginHeight,    0, 
-		  XmNborderWidth,     0,
-		  XmNshadowThickness, 0, 
-		  XmNspacing,         0,
-		  XtPointer(0));
+                  XmNmarginWidth,     0, 
+                  XmNmarginHeight,    0, 
+                  XmNborderWidth,     0,
+                  XmNshadowThickness, 0, 
+                  XmNspacing,         0,
+                  XtPointer(0));
 
     MMaddCallbacks(bp_area);
     MMaddHelpCallback(bp_area, ImmediateHelpCB);
 
     if (breakpoint_list_w != 0)
     {
-	XtAddCallback(breakpoint_list_w,
-		      XmNsingleSelectionCallback,
-		      UpdateBreakpointButtonsCB,
-		      0);
-	XtAddCallback(breakpoint_list_w,
-		      XmNmultipleSelectionCallback,
-		      UpdateBreakpointButtonsCB,
-		      0);
+        XtAddCallback(breakpoint_list_w,
+                      XmNsingleSelectionCallback,
+                      UpdateBreakpointButtonsCB,
+                      0);
+        XtAddCallback(breakpoint_list_w,
+                      XmNmultipleSelectionCallback,
+                      UpdateBreakpointButtonsCB,
+                      0);
 #if 0
-	XtAddCallback(breakpoint_list_w,
-		      XmNmultipleSelectionCallback,
-		      LookupBreakpointCB,
-		      0);
+        XtAddCallback(breakpoint_list_w,
+                      XmNmultipleSelectionCallback,
+                      LookupBreakpointCB,
+                      0);
 #endif
-	XtAddCallback(breakpoint_list_w,
-		      XmNextendedSelectionCallback,
-		      UpdateBreakpointButtonsCB,
-		      0);
-	XtAddCallback(breakpoint_list_w,
-		      XmNbrowseSelectionCallback,
-		      UpdateBreakpointButtonsCB,
-		      0);
+        XtAddCallback(breakpoint_list_w,
+                      XmNextendedSelectionCallback,
+                      UpdateBreakpointButtonsCB,
+                      0);
+        XtAddCallback(breakpoint_list_w,
+                      XmNbrowseSelectionCallback,
+                      UpdateBreakpointButtonsCB,
+                      0);
     }
 
     if (edit_breakpoints_dialog_w != 0)
     {
-	XtAddCallback(edit_breakpoints_dialog_w,
-		      XmNokCallback,
-		      UnmanageThisCB,
-		      edit_breakpoints_dialog_w);
-	XtAddCallback(edit_breakpoints_dialog_w,
-		      XmNhelpCallback,
-		      ImmediateHelpCB,
-		      0);
+        XtAddCallback(edit_breakpoints_dialog_w,
+                      XmNokCallback,
+                      UnmanageThisCB,
+                      edit_breakpoints_dialog_w);
+        XtAddCallback(edit_breakpoints_dialog_w,
+                      XmNhelpCallback,
+                      ImmediateHelpCB,
+                      0);
     }
 
     // Create stack view
     arg = 0;
     XtSetArg(args[arg], XmNautoUnmanage, False); arg++;
     stack_dialog_w =
-	verify(createTopLevelSelectionDialog(parent, 
-					     "stack_dialog", args, arg));
+        verify(createTopLevelSelectionDialog(parent, 
+                                             "stack_dialog", args, arg));
     Delay::register_shell(stack_dialog_w);
 
     XtUnmanageChild(XmSelectionBoxGetChild(stack_dialog_w, 
-					   XmDIALOG_TEXT));
+                                           XmDIALOG_TEXT));
     XtUnmanageChild(XmSelectionBoxGetChild(stack_dialog_w, 
-					   XmDIALOG_SELECTION_LABEL));
+                                           XmDIALOG_SELECTION_LABEL));
 
     up_w   = XmSelectionBoxGetChild(stack_dialog_w, XmDIALOG_OK_BUTTON);
     down_w = XmSelectionBoxGetChild(stack_dialog_w, XmDIALOG_APPLY_BUTTON);
@@ -3718,31 +3718,31 @@ void SourceView::create_shells()
     arg = 0;
     frame_list_w = XmSelectionBoxGetChild(stack_dialog_w, XmDIALOG_LIST);
     XtVaSetValues(frame_list_w,
-		  XmNselectionPolicy, XmSINGLE_SELECT,
-		  XtPointer(0));
+                  XmNselectionPolicy, XmSINGLE_SELECT,
+                  XtPointer(0));
 
     XtAddCallback(frame_list_w,
-		  XmNsingleSelectionCallback, SelectFrameCB, 0);
+                  XmNsingleSelectionCallback, SelectFrameCB, 0);
     XtAddCallback(frame_list_w,
-		  XmNmultipleSelectionCallback, SelectFrameCB, 0);
+                  XmNmultipleSelectionCallback, SelectFrameCB, 0);
     XtAddCallback(frame_list_w,
-		  XmNextendedSelectionCallback, SelectFrameCB, 0);
+                  XmNextendedSelectionCallback, SelectFrameCB, 0);
     XtAddCallback(frame_list_w,
-		  XmNbrowseSelectionCallback, SelectFrameCB, 0);
+                  XmNbrowseSelectionCallback, SelectFrameCB, 0);
 
     XtAddCallback(stack_dialog_w,
-		  XmNokCallback, gdbCommandCB, XtPointer("up"));
+                  XmNokCallback, gdbCommandCB, XtPointer("up"));
     XtAddCallback(stack_dialog_w,
-		  XmNapplyCallback, gdbCommandCB, XtPointer("down"));
+                  XmNapplyCallback, gdbCommandCB, XtPointer("down"));
     XtAddCallback(stack_dialog_w,
-		  XmNcancelCallback, UnmanageThisCB, stack_dialog_w);
+                  XmNcancelCallback, UnmanageThisCB, stack_dialog_w);
     XtAddCallback(stack_dialog_w,
-		  XmNcancelCallback, StackDialogPoppedDownCB, 0);
+                  XmNcancelCallback, StackDialogPoppedDownCB, 0);
     XtAddCallback(stack_dialog_w,
-		  XmNhelpCallback, ImmediateHelpCB, 0);
+                  XmNhelpCallback, ImmediateHelpCB, 0);
 
     Widget cancel_w = XmSelectionBoxGetChild(stack_dialog_w, 
-					     XmDIALOG_CANCEL_BUTTON);
+                                             XmDIALOG_CANCEL_BUTTON);
 
     XtVaSetValues(stack_dialog_w, XmNdefaultButton, cancel_w, XtPointer(0));
 
@@ -3750,18 +3750,18 @@ void SourceView::create_shells()
     arg = 0;
     XtSetArg(args[arg], XmNautoUnmanage, False); arg++;
     register_dialog_w = 
-	verify(createTopLevelSelectionDialog(parent, 
-					     "register_dialog", args, arg));
+        verify(createTopLevelSelectionDialog(parent, 
+                                             "register_dialog", args, arg));
     Delay::register_shell(register_dialog_w);
 
     XtUnmanageChild(XmSelectionBoxGetChild(register_dialog_w, 
-					   XmDIALOG_TEXT));
+                                           XmDIALOG_TEXT));
     XtUnmanageChild(XmSelectionBoxGetChild(register_dialog_w, 
-					   XmDIALOG_SELECTION_LABEL));
+                                           XmDIALOG_SELECTION_LABEL));
     XtUnmanageChild(XmSelectionBoxGetChild(register_dialog_w, 
-					   XmDIALOG_APPLY_BUTTON));
+                                           XmDIALOG_APPLY_BUTTON));
     XtUnmanageChild(XmSelectionBoxGetChild(register_dialog_w, 
-					   XmDIALOG_CANCEL_BUTTON));
+                                           XmDIALOG_CANCEL_BUTTON));
 
     arg = 0;
     Widget box = XmCreateRadioBox(register_dialog_w, XMST("box"), args, arg);
@@ -3770,89 +3770,89 @@ void SourceView::create_shells()
     arg = 0;
     XtSetArg(args[arg], XmNset, !all_registers); arg++;
     int_registers_w = 
-	XmCreateToggleButton(box, XMST("int_registers"), args, arg);
+        XmCreateToggleButton(box, XMST("int_registers"), args, arg);
     XtManageChild(int_registers_w);
 
     arg = 0;
     XtSetArg(args[arg], XmNset, all_registers); arg++;
     all_registers_w = 
-	XmCreateToggleButton(box, XMST("all_registers"), args, arg);
+        XmCreateToggleButton(box, XMST("all_registers"), args, arg);
     XtManageChild(all_registers_w);
 
     XtAddCallback(int_registers_w, XmNvalueChangedCallback, 
-		  sourceSetIntRegistersCB, XtPointer(0));
+                  sourceSetIntRegistersCB, XtPointer(0));
     XtAddCallback(all_registers_w, XmNvalueChangedCallback, 
-		  sourceSetAllRegistersCB, XtPointer(0));
+                  sourceSetAllRegistersCB, XtPointer(0));
 
     arg = 0;
     register_list_w = XmSelectionBoxGetChild(register_dialog_w, XmDIALOG_LIST);
     XtVaSetValues(register_list_w,
-		  XmNselectionPolicy, XmSINGLE_SELECT,
-		  XtPointer(0));
+                  XmNselectionPolicy, XmSINGLE_SELECT,
+                  XtPointer(0));
 
     XtAddCallback(register_list_w,
-		  XmNsingleSelectionCallback, SelectRegisterCB, 0);
+                  XmNsingleSelectionCallback, SelectRegisterCB, 0);
     XtAddCallback(register_list_w,
-		  XmNmultipleSelectionCallback, SelectRegisterCB, 0);
+                  XmNmultipleSelectionCallback, SelectRegisterCB, 0);
     XtAddCallback(register_list_w,
-		  XmNextendedSelectionCallback, SelectRegisterCB, 0);
+                  XmNextendedSelectionCallback, SelectRegisterCB, 0);
     XtAddCallback(register_list_w,
-		  XmNbrowseSelectionCallback, SelectRegisterCB, 0);
+                  XmNbrowseSelectionCallback, SelectRegisterCB, 0);
 
     XtAddCallback(register_dialog_w,
-		  XmNokCallback, UnmanageThisCB, register_dialog_w);
+                  XmNokCallback, UnmanageThisCB, register_dialog_w);
     XtAddCallback(register_dialog_w,
-		  XmNokCallback, RegisterDialogPoppedDownCB, 0);
+                  XmNokCallback, RegisterDialogPoppedDownCB, 0);
     XtAddCallback(register_dialog_w,
-		  XmNhelpCallback, ImmediateHelpCB, 0);
+                  XmNhelpCallback, ImmediateHelpCB, 0);
 
 
     // Create thread view
     arg = 0;
     XtSetArg(args[arg], XmNautoUnmanage, False); arg++;
     thread_dialog_w = 
-	verify(createTopLevelSelectionDialog(parent, 
-					     "thread_dialog", args, arg));
+        verify(createTopLevelSelectionDialog(parent, 
+                                             "thread_dialog", args, arg));
     Delay::register_shell(thread_dialog_w);
 
     XtUnmanageChild(XmSelectionBoxGetChild(thread_dialog_w, 
-					   XmDIALOG_TEXT));
+                                           XmDIALOG_TEXT));
     XtUnmanageChild(XmSelectionBoxGetChild(thread_dialog_w, 
-					   XmDIALOG_SELECTION_LABEL));
+                                           XmDIALOG_SELECTION_LABEL));
 
     if (gdb->type() != JDB)
     {
-	XtUnmanageChild(XmSelectionBoxGetChild(thread_dialog_w, 
-					       XmDIALOG_OK_BUTTON));
-	XtUnmanageChild(XmSelectionBoxGetChild(thread_dialog_w, 
-					       XmDIALOG_APPLY_BUTTON));
+        XtUnmanageChild(XmSelectionBoxGetChild(thread_dialog_w, 
+                                               XmDIALOG_OK_BUTTON));
+        XtUnmanageChild(XmSelectionBoxGetChild(thread_dialog_w, 
+                                               XmDIALOG_APPLY_BUTTON));
     }
 
     arg = 0;
     thread_list_w = XmSelectionBoxGetChild(thread_dialog_w, XmDIALOG_LIST);
     XtVaSetValues(thread_list_w,
-		  XmNselectionPolicy, XmSINGLE_SELECT,
-		  XtPointer(0));
+                  XmNselectionPolicy, XmSINGLE_SELECT,
+                  XtPointer(0));
 
     XtAddCallback(thread_list_w,
-		  XmNsingleSelectionCallback, SelectThreadCB, 0);
+                  XmNsingleSelectionCallback, SelectThreadCB, 0);
     XtAddCallback(thread_list_w,
-		  XmNmultipleSelectionCallback, SelectThreadCB, 0);
+                  XmNmultipleSelectionCallback, SelectThreadCB, 0);
     XtAddCallback(thread_list_w,
-		  XmNextendedSelectionCallback, SelectThreadCB, 0);
+                  XmNextendedSelectionCallback, SelectThreadCB, 0);
     XtAddCallback(thread_list_w,
-		  XmNbrowseSelectionCallback, SelectThreadCB, 0);
+                  XmNbrowseSelectionCallback, SelectThreadCB, 0);
 
     XtAddCallback(thread_dialog_w,
-		  XmNcancelCallback, UnmanageThisCB, thread_dialog_w);
+                  XmNcancelCallback, UnmanageThisCB, thread_dialog_w);
     XtAddCallback(thread_dialog_w,
-		  XmNcancelCallback, ThreadDialogPoppedDownCB, 0);
+                  XmNcancelCallback, ThreadDialogPoppedDownCB, 0);
     XtAddCallback(thread_dialog_w,
-		  XmNokCallback,     ThreadCommandCB, XtPointer("suspend"));
+                  XmNokCallback,     ThreadCommandCB, XtPointer("suspend"));
     XtAddCallback(thread_dialog_w,
-		  XmNapplyCallback,  ThreadCommandCB, XtPointer("resume"));
+                  XmNapplyCallback,  ThreadCommandCB, XtPointer("resume"));
     XtAddCallback(thread_dialog_w,
-		  XmNhelpCallback, ImmediateHelpCB, 0);
+                  XmNhelpCallback, ImmediateHelpCB, 0);
 
     // Create remaining glyphs in the background
     XtAppAddWorkProc (app_context, CreateGlyphsWorkProc, XtPointer(0));
@@ -3860,14 +3860,14 @@ void SourceView::create_shells()
 
 // Check for modifications
 void SourceView::CheckModificationCB(Widget, XtPointer client_data, 
-				     XtPointer call_data)
+                                     XtPointer call_data)
 {
     bool editable = bool((int)(long)client_data);
     XmTextVerifyCallbackStruct *cbs = (XmTextVerifyCallbackStruct *)call_data;
     if (!editable && cbs != 0 && cbs->event != 0)
     {
-	cbs->doit = False;
-	return;
+        cbs->doit = False;
+        return;
     }
 
     // Follow text modifications here... (FIXME)
@@ -3875,7 +3875,7 @@ void SourceView::CheckModificationCB(Widget, XtPointer client_data,
 
 // Create source or code window
 void SourceView::create_text(Widget parent, const char *base, bool editable,
-			     Widget& form, Widget& text)
+                             Widget& form, Widget& text)
 {
     Arg args[15];
     int arg = 0;
@@ -3908,40 +3908,40 @@ void SourceView::create_text(Widget parent, const char *base, bool editable,
 
     // Set up the scrolled window
     XtVaSetValues(XtParent(text),
-		  XmNspacing,         0,
-		  XmNborderWidth,     0,
-		  XmNshadowThickness, 0,
-		  XtPointer(0));
+                  XmNspacing,         0,
+                  XmNborderWidth,     0,
+                  XmNshadowThickness, 0,
+                  XtPointer(0));
 
     // Give the form the size specified for the text
     set_scrolled_window_size(text, form);
 
     // Set callbacks
     XtAddCallback(text, XmNgainPrimaryCallback, 
-		  set_source_argCB, XtPointer(false));
+                  set_source_argCB, XtPointer(false));
     XtAddCallback(text, XmNmotionVerifyCallback,
-		  set_source_argCB, XtPointer(true));
+                  set_source_argCB, XtPointer(true));
     XtAddCallback(text, XmNmotionVerifyCallback, 
-		  CheckScrollCB, XtPointer(0));
+                  CheckScrollCB, XtPointer(0));
     XtAddCallback(text, XmNmodifyVerifyCallback,
-		  CheckModificationCB, XtPointer(editable));
+                  CheckModificationCB, XtPointer(editable));
     InstallTextTips(text);
 
     // Fetch scrollbar ID and add callbacks
     Widget scrollbar = 0;
     XtVaGetValues(XtParent(text), 
-		  XmNverticalScrollBar, &scrollbar,
-		  XtPointer(0));
+                  XmNverticalScrollBar, &scrollbar,
+                  XtPointer(0));
     if (scrollbar != 0)
     {
-	XtAddCallback(scrollbar, XmNincrementCallback,     CheckScrollCB, 0);
-	XtAddCallback(scrollbar, XmNdecrementCallback,     CheckScrollCB, 0);
-	XtAddCallback(scrollbar, XmNpageIncrementCallback, CheckScrollCB, 0);
-	XtAddCallback(scrollbar, XmNpageDecrementCallback, CheckScrollCB, 0);
-	XtAddCallback(scrollbar, XmNtoTopCallback,         CheckScrollCB, 0);
-	XtAddCallback(scrollbar, XmNtoBottomCallback,      CheckScrollCB, 0);
-	XtAddCallback(scrollbar, XmNdragCallback,          CheckScrollCB, 0);
-	XtAddCallback(scrollbar, XmNvalueChangedCallback,  CheckScrollCB, 0);
+        XtAddCallback(scrollbar, XmNincrementCallback,     CheckScrollCB, 0);
+        XtAddCallback(scrollbar, XmNdecrementCallback,     CheckScrollCB, 0);
+        XtAddCallback(scrollbar, XmNpageIncrementCallback, CheckScrollCB, 0);
+        XtAddCallback(scrollbar, XmNpageDecrementCallback, CheckScrollCB, 0);
+        XtAddCallback(scrollbar, XmNtoTopCallback,         CheckScrollCB, 0);
+        XtAddCallback(scrollbar, XmNtoBottomCallback,      CheckScrollCB, 0);
+        XtAddCallback(scrollbar, XmNdragCallback,          CheckScrollCB, 0);
+        XtAddCallback(scrollbar, XmNvalueChangedCallback,  CheckScrollCB, 0);
     }
 }
 
@@ -3956,44 +3956,44 @@ void SourceView::create_text(Widget parent, const char *base, bool editable,
 // STOPPED indicates that the program just stopped.
 // SIGNALED indicates that the program received a signal.
 void SourceView::show_execution_position (const string& position_,
-					  bool stopped,	bool signaled,
-					  bool silent)
+                                          bool stopped,        bool signaled,
+                                          bool silent)
 {
     if (stopped)
     {
-	at_lowest_frame = true;
-	signal_received = signaled;
+        at_lowest_frame = true;
+        signal_received = signaled;
     }
 
     if (position_.empty())
     {
-	if (!display_glyphs)
-	{
-	    // Remove old marker
-	    int indent = indent_amount(source_text_w);
-	    if (indent > 0)
-	    {
-		static const string no_marker = " ";
-		XmTextReplace (source_text_w,
-			       last_pos + indent - no_marker.length(),
-			       last_pos + indent,
-			       XMST(no_marker.chars()));
-	    }
+        if (!display_glyphs)
+        {
+            // Remove old marker
+            int indent = indent_amount(source_text_w);
+            if (indent > 0)
+            {
+                static const string no_marker = " ";
+                XmTextReplace (source_text_w,
+                               last_pos + indent - no_marker.length(),
+                               last_pos + indent,
+                               XMST(no_marker.chars()));
+            }
 
-	    if (last_start_highlight)
-		XmTextSetHighlight (source_text_w,
-				    last_start_highlight, last_end_highlight,
-				    XmHIGHLIGHT_NORMAL);
+            if (last_start_highlight)
+                XmTextSetHighlight (source_text_w,
+                                    last_start_highlight, last_end_highlight,
+                                    XmHIGHLIGHT_NORMAL);
 
-	}
-	last_pos = last_start_highlight = last_end_highlight = 0;
-	last_execution_file = "";
-	last_execution_line = 0;
-	update_glyphs();
+        }
+        last_pos = last_start_highlight = last_end_highlight = 0;
+        last_execution_file = "";
+        last_execution_line = 0;
+        update_glyphs();
 
-	undo_buffer.remove_position();
-	undo_buffer.add_state();
-	return;
+        undo_buffer.remove_position();
+        undo_buffer.add_state();
+        return;
     }
 
     string file_name = current_file_name;
@@ -4001,41 +4001,41 @@ void SourceView::show_execution_position (const string& position_,
 
     if (position.contains(':'))
     {
-	file_name = position.before(":");
-	position  = position.after(":");
+        file_name = position.before(":");
+        position  = position.after(":");
 
-	/* The Python debugger puts the in <string> when an exec is
-	   done.  There's probably a better place to catch this and
-	   deal with it. The right thing to do is ignore this line
-	   and use the next valid position.
-	 */
-	if (gdb->type() == PYDB && file_name.contains("<string>")) 
-	  return;
+        /* The Python debugger puts the in <string> when an exec is
+           done.  There's probably a better place to catch this and
+           deal with it. The right thing to do is ignore this line
+           and use the next valid position.
+         */
+        if (gdb->type() == PYDB && file_name.contains("<string>")) 
+          return;
     }
 
     int line = get_positive_nr(position);
     if (line < 0)
-	return;
+        return;
 
     if (!is_current_file(file_name))
-	read_file(file_name, line, silent);
+        read_file(file_name, line, silent);
 
     if (is_current_file(file_name))
     {
-	int indent = indent_amount(source_text_w);
+        int indent = indent_amount(source_text_w);
 
-	if (!display_glyphs && indent > 0)
-	{
-	    // Remove old marker
-	    static const string no_marker = " ";
-	    XmTextReplace (source_text_w,
-			   last_pos + indent - no_marker.length(),
-			   last_pos + indent,
-			   XMST(no_marker.chars()));
-	}
+        if (!display_glyphs && indent > 0)
+        {
+            // Remove old marker
+            static const string no_marker = " ";
+            XmTextReplace (source_text_w,
+                           last_pos + indent - no_marker.length(),
+                           last_pos + indent,
+                           XMST(no_marker.chars()));
+        }
 
-	// Show current position
-	_show_execution_position(file_name, line, silent, stopped);
+        // Show current position
+        _show_execution_position(file_name, line, silent, stopped);
     }
 }
 
@@ -4053,16 +4053,16 @@ void SourceView::clear_execution_position()
 
 
 void SourceView::_show_execution_position(const string& file, int line, 
-					  bool silent, bool stopped)
+                                          bool silent, bool stopped)
 {
     last_execution_file = file;
     last_execution_line = line;
 
     if (!is_current_file(file))
-	read_file(file, line, silent);
+        read_file(file, line, silent);
 
     if (!is_current_file(file) || line < 1 || line > line_count)
-	return;
+        return;
 
     add_position_to_history(file, line, stopped);
 
@@ -4073,31 +4073,31 @@ void SourceView::_show_execution_position(const string& file, int line,
     // Mark current line
     if (!display_glyphs && indent > 0)
     {
-	// Set new marker
-	static const string marker = ">";
-	XmTextReplace (source_text_w,
-		       pos + indent - marker.length(),
-		       pos + indent,
-		       XMST(marker.chars()));
+        // Set new marker
+        static const string marker = ">";
+        XmTextReplace (source_text_w,
+                       pos + indent - marker.length(),
+                       pos + indent,
+                       XMST(marker.chars()));
     }
 
     XmTextPosition pos_line_end = 0;
     if (!current_source.empty())
-	pos_line_end = current_source.index('\n', pos) + 1;
+        pos_line_end = current_source.index('\n', pos) + 1;
 
     if (!display_glyphs && 
-	(pos != last_start_highlight || pos_line_end != last_end_highlight))
+        (pos != last_start_highlight || pos_line_end != last_end_highlight))
     {
-	if (last_start_highlight)
-	{
-	    XmTextSetHighlight (source_text_w,
-				last_start_highlight, last_end_highlight,
-				XmHIGHLIGHT_NORMAL);
-	}
+        if (last_start_highlight)
+        {
+            XmTextSetHighlight (source_text_w,
+                                last_start_highlight, last_end_highlight,
+                                XmHIGHLIGHT_NORMAL);
+        }
 
-	XmTextSetHighlight (source_text_w,
-			    pos, pos_line_end,
-			    XmHIGHLIGHT_SELECTED);
+        XmTextSetHighlight (source_text_w,
+                            pos, pos_line_end,
+                            XmHIGHLIGHT_SELECTED);
     }
 
     last_pos             = pos;
@@ -4114,8 +4114,8 @@ void SourceView::show_position(string position, bool silent)
 
     if (position.contains(':'))
     {
-	file_name = position.before(':');
-	position  = position.after(':');
+        file_name = position.before(':');
+        position  = position.after(':');
     }
 
     int line = get_positive_nr(position);
@@ -4124,41 +4124,41 @@ void SourceView::show_position(string position, bool silent)
     // reload the file in this case.
     bool force_reload = (line == 1);
     if (!is_current_file(file_name) || force_reload)
-	read_file(file_name, line, force_reload, silent);
+        read_file(file_name, line, force_reload, silent);
 
     // Have window scroll to correct position
     if (is_current_file(file_name))
     {
-	if (line == 0 && gdb->type() == JDB)
-	{
-	    // Scroll to current class
-	    int pos = java_class_start(current_source, current_source_name());
+        if (line == 0 && gdb->type() == JDB)
+        {
+            // Scroll to current class
+            int pos = java_class_start(current_source, current_source_name());
 
-	    if (pos >= 0)
-	    {
-		int line_nr = 0;
-		bool in_text;
-		int bp_nr;
-		string address;
+            if (pos >= 0)
+            {
+                int line_nr = 0;
+                bool in_text;
+                int bp_nr;
+                string address;
 
-		if (get_line_of_pos(source_text_w, pos, line_nr, address, 
-				    in_text, bp_nr))
-		{
-		    line = line_nr;
-		}
-	    }
-	}
-	   
-	if (line > 0 && line <= line_count)
-	{
- 	    add_position_to_history(file_name, line, false);
+                if (get_line_of_pos(source_text_w, pos, line_nr, address, 
+                                    in_text, bp_nr))
+                {
+                    line = line_nr;
+                }
+            }
+        }
+           
+        if (line > 0 && line <= line_count)
+        {
+             add_position_to_history(file_name, line, false);
     
-	    XmTextPosition pos = pos_of_line(line);
-	    int indent = indent_amount(source_text_w, pos);
-	    SetInsertionPosition(source_text_w, pos + indent, true);
-		
-	    last_pos = pos;
-	}
+            XmTextPosition pos = pos_of_line(line);
+            int indent = indent_amount(source_text_w, pos);
+            SetInsertionPosition(source_text_w, pos + indent, true);
+                
+            last_pos = pos;
+        }
     }
 }
 
@@ -4172,7 +4172,7 @@ void SourceView::show_position(string position, bool silent)
 // Update breakpoints in BP_BAP, adding new ones or deleting existing ones.
 // Update breakpoint display by calling REFRESH_BP_DISP.
 void SourceView::process_info_bp (string& info_output,
-				  const string& break_arg)
+                                  const string& break_arg)
 {
     // DEC DBX issues empty lines, which causes trouble
     info_output.gsub("\n\n", "\n");
@@ -4192,25 +4192,25 @@ void SourceView::process_info_bp (string& info_output,
     case BASH:
     case MAKE:
     case PYDB:
-	// If there is no breakpoint info, process it as GDB message.
-	if (!info_output.contains("Num", 0) && 
-	    !info_output.contains("No breakpoints", 0))
-	    check_remainder(info_output);
-	break;
+        // If there is no breakpoint info, process it as GDB message.
+        if (!info_output.contains("Num", 0) && 
+            !info_output.contains("No breakpoints", 0))
+            check_remainder(info_output);
+        break;
 
     case DBG:
     case DBX:
     case XDB:
     case JDB:
     case PERL:
-	break;
+        break;
     }
-				    
+                                    
     std::vector<int> bps_not_read;
     MapRef ref;
     int i;
     for (i = bp_map.first_key(ref); i != 0; i = bp_map.next_key(ref))
-	bps_not_read.push_back(i);
+        bps_not_read.push_back(i);
 
     bool changed = false;
     bool added   = false;
@@ -4219,156 +4219,156 @@ void SourceView::process_info_bp (string& info_output,
 
     while (!info_output.empty())
     {
-	int bp_nr = -1;
-	switch(gdb->type())
-	{
-	case BASH:
-	case DBG:
-	case GDB:
-	case MAKE:
-	case PYDB:
-	    if (!has_nr(info_output))
-	    {
-		// Skip this line
-		info_output = info_output.after('\n');
-		continue;
-	    }
-	    bp_nr = get_positive_nr (info_output);
-	    break;
+        int bp_nr = -1;
+        switch(gdb->type())
+        {
+        case BASH:
+        case DBG:
+        case GDB:
+        case MAKE:
+        case PYDB:
+            if (!has_nr(info_output))
+            {
+                // Skip this line
+                info_output = info_output.after('\n');
+                continue;
+            }
+            bp_nr = get_positive_nr (info_output);
+            break;
 
-	case DBX:
-	    {
-		// SGI IRIX DBX issues `Process PID: ' 
-		// before status lines.
+        case DBX:
+            {
+                // SGI IRIX DBX issues `Process PID: ' 
+                // before status lines.
 #if RUNTIME_REGEX
-		static regex rxprocess2("Process[ \t]+[0-9]+:");
+                static regex rxprocess2("Process[ \t]+[0-9]+:");
 #endif
-		if (info_output.contains(rxprocess2, 0))
-		    info_output = info_output.after(':');
-		strip_leading_space(info_output);
-		    
-		if (!info_output.contains('(', 0)
-		    && !info_output.contains('[', 0)
-		    && !info_output.contains('#', 0))
-		{
-		    // No breakpoint info - skip this line
-		    info_output = info_output.after('\n');
-		    continue;
-		}
-		string bp_nr_s = info_output.after(0);
-		bp_nr = get_positive_nr (bp_nr_s);
-	    }
-	    break;
+                if (info_output.contains(rxprocess2, 0))
+                    info_output = info_output.after(':');
+                strip_leading_space(info_output);
+                    
+                if (!info_output.contains('(', 0)
+                    && !info_output.contains('[', 0)
+                    && !info_output.contains('#', 0))
+                {
+                    // No breakpoint info - skip this line
+                    info_output = info_output.after('\n');
+                    continue;
+                }
+                string bp_nr_s = info_output.after(0);
+                bp_nr = get_positive_nr (bp_nr_s);
+            }
+            break;
 
 
-	case XDB:
-	    bp_nr = get_positive_nr(info_output);
-	    break;
+        case XDB:
+            bp_nr = get_positive_nr(info_output);
+            break;
 
-	case PERL:
-	case JDB:
-	{
-	    // JDB and Perl have no breakpoint numbers.
-	    // Check if we already have a breakpoint at this location.
-	    bp_nr = breakpoint_number(info_output, file);
-	    if (bp_nr == 0)
-		bp_nr = max_breakpoint_number_seen + 1;	// new breakpoint
-	    if (bp_nr < 0)
-	    {
-		// Not a breakpoint
-		string line = info_output.before('\n');
-		if (!line.contains("Current breakpoints set"))
-		    keep_me += line;
-		
-		// Skip this line
-		info_output = info_output.after('\n');
-		continue;
-	    }
-	    break;
-	}
-	}
+        case PERL:
+        case JDB:
+        {
+            // JDB and Perl have no breakpoint numbers.
+            // Check if we already have a breakpoint at this location.
+            bp_nr = breakpoint_number(info_output, file);
+            if (bp_nr == 0)
+                bp_nr = max_breakpoint_number_seen + 1;        // new breakpoint
+            if (bp_nr < 0)
+            {
+                // Not a breakpoint
+                string line = info_output.before('\n');
+                if (!line.contains("Current breakpoints set"))
+                    keep_me += line;
+                
+                // Skip this line
+                info_output = info_output.after('\n');
+                continue;
+            }
+            break;
+        }
+        }
 
-	if (bp_nr <= 0)
-	{
-	    info_output = info_output.after('\n');
-	    continue;
-	}
+        if (bp_nr <= 0)
+        {
+            info_output = info_output.after('\n');
+            continue;
+        }
 
-	if (bp_map.contains (bp_nr))
-	{
-	    // Update existing breakpoint
-	    //bps_not_read -= bp_nr;
+        if (bp_map.contains (bp_nr))
+        {
+            // Update existing breakpoint
+            //bps_not_read -= bp_nr;
             bps_not_read.erase(std::remove(bps_not_read.begin(), bps_not_read.end(), bp_nr), bps_not_read.end());
-	    BreakPoint *bp = bp_map.get(bp_nr);
+            BreakPoint *bp = bp_map.get(bp_nr);
 
-	    std::ostringstream old_state;
-	    undo_buffer.add_breakpoint_state(old_state, bp);
+            std::ostringstream old_state;
+            undo_buffer.add_breakpoint_state(old_state, bp);
 
-	    std::ostringstream local_commands;
-	    bool need_total_undo = false;
+            std::ostringstream local_commands;
+            bool need_total_undo = false;
 
-	    bool bp_changed = 
-		bp->update(info_output, local_commands, need_total_undo);
+            bool bp_changed = 
+                bp->update(info_output, local_commands, need_total_undo);
 
-	    if (bp_changed)
-	    {
-		if (bp->position_changed() || bp->enabled_changed())
-		{
-		    changed = true;
-		}
+            if (bp_changed)
+            {
+                if (bp->position_changed() || bp->enabled_changed())
+                {
+                    changed = true;
+                }
 
-		if (need_total_undo)
-		{
-		    // To undo this change, we must delete the old
-		    // breakpoint and create a new one.
-		    std::vector<string> delcmds = delete_commands(bp->number());
-		    for (unsigned i = 0; i < delcmds.size(); i++)
-			undo_commands << delcmds[i] << "\n";
-		    undo_commands << string(old_state);
-		}
-		else
-		{
-		    // A simple command suffices to undo this change.
-		    undo_commands << string(local_commands);
-		}
-	    }
-	}
-	else
-	{
-	    // New breakpoint
-	    changed = true;
-	    BreakPoint *new_bp = 
-		new BreakPoint(info_output, break_arg, bp_nr, file);
-	    bp_map.insert(bp_nr, new_bp);
+                if (need_total_undo)
+                {
+                    // To undo this change, we must delete the old
+                    // breakpoint and create a new one.
+                    std::vector<string> delcmds = delete_commands(bp->number());
+                    for (unsigned i = 0; i < delcmds.size(); i++)
+                        undo_commands << delcmds[i] << "\n";
+                    undo_commands << string(old_state);
+                }
+                else
+                {
+                    // A simple command suffices to undo this change.
+                    undo_commands << string(local_commands);
+                }
+            }
+        }
+        else
+        {
+            // New breakpoint
+            changed = true;
+            BreakPoint *new_bp = 
+                new BreakPoint(info_output, break_arg, bp_nr, file);
+            bp_map.insert(bp_nr, new_bp);
 
-	    if (gdb->has_delete_command())
-	    {
-		const string num = "@" + itostring(bp_nr) + "@";
-		undo_commands << gdb->delete_command(num) << '\n';
-	    }
-	    else
-	    {
-		std::vector<string> delcmds = delete_commands(bp_nr);
-		for (unsigned i = 0; i < delcmds.size(); i++)
-		    undo_commands << delcmds[i] << '\n';
-	    }
+            if (gdb->has_delete_command())
+            {
+                const string num = "@" + itostring(bp_nr) + "@";
+                undo_commands << gdb->delete_command(num) << '\n';
+            }
+            else
+            {
+                std::vector<string> delcmds = delete_commands(bp_nr);
+                for (unsigned i = 0; i < delcmds.size(); i++)
+                    undo_commands << delcmds[i] << '\n';
+            }
 
-	    if (!added)
-	    {
-		added = true;
-		// Select this breakpoint only
-		MapRef ref;
-		for (BreakPoint* bp = bp_map.first(ref);
-		     bp != 0;
-		     bp = bp_map.next(ref))
-		{
-		    bp->selected() = false;
-		}
-	    }
-	    new_bp->selected() = true;
-	}
+            if (!added)
+            {
+                added = true;
+                // Select this breakpoint only
+                MapRef ref;
+                for (BreakPoint* bp = bp_map.first(ref);
+                     bp != 0;
+                     bp = bp_map.next(ref))
+                {
+                    bp->selected() = false;
+                }
+            }
+            new_bp->selected() = true;
+        }
 
-	max_breakpoint_number_seen = max(max_breakpoint_number_seen, bp_nr);
+        max_breakpoint_number_seen = max(max_breakpoint_number_seen, bp_nr);
     }
 
     // Keep this stuff for further processing
@@ -4377,22 +4377,22 @@ void SourceView::process_info_bp (string& info_output,
     // Delete all breakpoints not found now
     for (i = 0; i < int(bps_not_read.size()); i++)
     {
-	BreakPoint *bp = bp_map.get(bps_not_read[i]);
+        BreakPoint *bp = bp_map.get(bps_not_read[i]);
 
-	// Older Perl versions only listed breakpoints in the current file
-	if (gdb->type() == PERL && !bp_matches(bp, current_file_name))
-	    continue;
+        // Older Perl versions only listed breakpoints in the current file
+        if (gdb->type() == PERL && !bp_matches(bp, current_file_name))
+            continue;
 
-	// Delete it
-	undo_buffer.add_breakpoint_state(undo_commands, bp);
-	delete bp;
-	bp_map.del(bps_not_read[i]);
+        // Delete it
+        undo_buffer.add_breakpoint_state(undo_commands, bp);
+        delete bp;
+        bp_map.del(bps_not_read[i]);
 
-	changed = true;
+        changed = true;
     }
 
     if (changed)
-	refresh_bp_disp();
+        refresh_bp_disp();
 
     // Set up breakpoint editor contents
     process_breakpoints(last_info_output);
@@ -4417,7 +4417,7 @@ void SourceView::process_info_line_main(string& info_output)
     clear_dbx_lookup_cache();
 
     if (info_output.empty())
-	return;
+        return;
 
     current_file_name = "";
 
@@ -4432,22 +4432,22 @@ void SourceView::process_info_line_main(string& info_output)
     case PYDB:
     case XDB:
     {
-	PosBuffer pos_buffer;
-	pos_buffer.filter(info_output);
-	pos_buffer.answer_ended();
-	if (pos_buffer.pos_found())
-	    show_position(pos_buffer.get_position());
-	if (pos_buffer.pc_found())
-	    show_pc(pos_buffer.get_pc());
-	if (!pos_buffer.pos_found() && !pos_buffer.pc_found())
-	    add_current_to_history();
+        PosBuffer pos_buffer;
+        pos_buffer.filter(info_output);
+        pos_buffer.answer_ended();
+        if (pos_buffer.pos_found())
+            show_position(pos_buffer.get_position());
+        if (pos_buffer.pc_found())
+            show_pc(pos_buffer.get_pc());
+        if (!pos_buffer.pos_found() && !pos_buffer.pc_found())
+            add_current_to_history();
     }
     break;
 
     case DBX:
     {
-	show_position(info_output);
-	info_output = "";
+        show_position(info_output);
+        info_output = "";
     }
     break;
     }
@@ -4458,13 +4458,13 @@ void SourceView::process_info_line_main(string& info_output)
 
     for (int i = 0; i < int(XtNumber(strips)); i++)
     {
-	int line = info_output.index(strips[i]);
-	if (line >= 0)
-	{
-	    int end_line = info_output.index('\n', line);
-	    if (end_line >= 0)
-		info_output.at(line, end_line - line) = "";
-	}
+        int line = info_output.index(strips[i]);
+        if (line >= 0)
+        {
+            int end_line = info_output.index('\n', line);
+            if (end_line >= 0)
+                info_output.at(line, end_line - line) = "";
+        }
     }
 
     check_remainder(info_output);
@@ -4476,11 +4476,11 @@ void SourceView::check_remainder(string& info_output)
     // Strip newlines around the message and post it.
 
     while (info_output.length() > 0 && 
-	   info_output[0] == '\n')
-	info_output = info_output.after(0);
+           info_output[0] == '\n')
+        info_output = info_output.after(0);
     while (info_output.length() > 0 && 
-	   info_output[info_output.length() - 1] == '\n')
-	info_output = info_output.before(int(info_output.length() - 1));
+           info_output[info_output.length() - 1] == '\n')
+        info_output = info_output.before(int(info_output.length() - 1));
 
     post_gdb_message(info_output, true, source_text_w);
 }
@@ -4494,184 +4494,184 @@ void SourceView::check_remainder(string& info_output)
 void SourceView::lookup(string s, bool silent)
 {
     if (!s.empty() && isspace(s[0]))
-	s = s.after(rxwhite);
+        s = s.after(rxwhite);
 
     undo_buffer.start("lookup");
 
     if (s.empty())
     {
-	// Empty argument given
-	if (!last_execution_pc.empty())
-	{
-	    // Show last PC
-	    show_pc(last_execution_pc, XmHIGHLIGHT_SELECTED);
-	}
-	else
-	{
-	    // Show cursor position
-	    SetInsertionPosition(code_text_w,
-				 XmTextGetInsertionPosition(code_text_w));
-	}
+        // Empty argument given
+        if (!last_execution_pc.empty())
+        {
+            // Show last PC
+            show_pc(last_execution_pc, XmHIGHLIGHT_SELECTED);
+        }
+        else
+        {
+            // Show cursor position
+            SetInsertionPosition(code_text_w,
+                                 XmTextGetInsertionPosition(code_text_w));
+        }
 
-	if (!last_execution_file.empty())
-	{
-	    // Show last execution position
-	    _show_execution_position(last_execution_file, 
-				     last_execution_line,
-				     silent, false);
-	}
-	else
-	{
-	    // Show cursor position
-	    SetInsertionPosition(source_text_w,
-				 XmTextGetInsertionPosition(source_text_w));
-	}
+        if (!last_execution_file.empty())
+        {
+            // Show last execution position
+            _show_execution_position(last_execution_file, 
+                                     last_execution_line,
+                                     silent, false);
+        }
+        else
+        {
+            // Show cursor position
+            SetInsertionPosition(source_text_w,
+                                 XmTextGetInsertionPosition(source_text_w));
+        }
     }
     else if (is_file_pos(s))
     {
-	// FILE:LINE given
-	add_current_to_history();
-	if (gdb->type() == GDB)
-	{
-	    Command c("list " + s);
-	    c.verbose = !silent;
-	    c.echo    = !silent;
-	    c.prompt  = !silent;
-	    gdb_command(c);
-	}
-	else
-	{
-	    show_position(s);
-	}
+        // FILE:LINE given
+        add_current_to_history();
+        if (gdb->type() == GDB)
+        {
+            Command c("list " + s);
+            c.verbose = !silent;
+            c.echo    = !silent;
+            c.prompt  = !silent;
+            gdb_command(c);
+        }
+        else
+        {
+            show_position(s);
+        }
     }
     else if (s[0] != '0' && isdigit(s[0]))
     {
-	// Line number given
-	int line = atoi(s.chars());
-	if (line > 0 && line <= line_count)
-	{
-	    add_current_to_history();
+        // Line number given
+        int line = atoi(s.chars());
+        if (line > 0 && line <= line_count)
+        {
+            add_current_to_history();
 
-	    switch (gdb->type())
-	    {
-	    case GDB:
-	    {
-		Command c("list " + current_source_name() + ":" + 
-			  itostring(line));
-		c.verbose = !silent;
-		c.echo    = !silent;
-		c.prompt  = !silent;
-		gdb_command(c);
-		break;
-	    }
-		
-	    case JDB:
-		show_position(current_source_name() + ":" + itostring(line));
-		break;
+            switch (gdb->type())
+            {
+            case GDB:
+            {
+                Command c("list " + current_source_name() + ":" + 
+                          itostring(line));
+                c.verbose = !silent;
+                c.echo    = !silent;
+                c.prompt  = !silent;
+                gdb_command(c);
+                break;
+            }
+                
+            case JDB:
+                show_position(current_source_name() + ":" + itostring(line));
+                break;
 
-	    case BASH:
-	    case DBG: 
-	    case DBX:
-	    case MAKE:
-	    case PERL:
-	    case PYDB:
-	    case XDB:
-		show_position(full_path(current_file_name) 
-			      + ":" + itostring(line));
-		break;
-	    }
-	}
-	else
-	{
-	    if (!silent)
-		post_error("No line " 
-			   + itostring(line) + " in current source.",
-			   "no_such_line_error", source_text_w);
-	}
+            case BASH:
+            case DBG: 
+            case DBX:
+            case MAKE:
+            case PERL:
+            case PYDB:
+            case XDB:
+                show_position(full_path(current_file_name) 
+                              + ":" + itostring(line));
+                break;
+            }
+        }
+        else
+        {
+            if (!silent)
+                post_error("No line " 
+                           + itostring(line) + " in current source.",
+                           "no_such_line_error", source_text_w);
+        }
     }
     else if (s[0] == '#')
     {
-	// Breakpoint given
-	string nr_str = s.after('#');
-	int nr = get_positive_nr(nr_str);
-	if (nr >= 0)
-	{
-	    MapRef ref;
-	    BreakPoint *bp;
-	    for (bp = bp_map.first(ref); bp != 0; bp = bp_map.next(ref))
-	    {
-		if (nr == bp->number())
-		{
-		    add_current_to_history();
-		    show_position(bp->pos());
-		    show_pc(bp->address());
-		    break;
-		}
-	    }
+        // Breakpoint given
+        string nr_str = s.after('#');
+        int nr = get_positive_nr(nr_str);
+        if (nr >= 0)
+        {
+            MapRef ref;
+            BreakPoint *bp;
+            for (bp = bp_map.first(ref); bp != 0; bp = bp_map.next(ref))
+            {
+                if (nr == bp->number())
+                {
+                    add_current_to_history();
+                    show_position(bp->pos());
+                    show_pc(bp->address());
+                    break;
+                }
+            }
 
-	    if (bp == 0 && !silent)
-		post_error("No breakpoint number " + itostring(nr) + ".", 
-			   "no_such_breakpoint_error", source_text_w);
-	}
+            if (bp == 0 && !silent)
+                post_error("No breakpoint number " + itostring(nr) + ".", 
+                           "no_such_breakpoint_error", source_text_w);
+        }
     }
     else
     {
-	// Function or *address given
-	add_current_to_history();
-	switch (gdb->type())
-	{
-	case GDB:
-	case PYDB:
-	{
-	    if (s[0] == '0')	// Address given
-		s.prepend("*");
-	    if (gdb->has_quotes())
-	    {
-		if (s.length() > 0 && s[0] != '\'' && s[0] != '*')
-		    s = string('\'') + s + '\'';
-	    }
+        // Function or *address given
+        add_current_to_history();
+        switch (gdb->type())
+        {
+        case GDB:
+        case PYDB:
+        {
+            if (s[0] == '0')        // Address given
+                s.prepend("*");
+            if (gdb->has_quotes())
+            {
+                if (s.length() > 0 && s[0] != '\'' && s[0] != '*')
+                    s = string('\'') + s + '\'';
+            }
 
-	    Command c("list " + s);
-	    c.verbose = !silent;
-	    c.echo    = !silent;
-	    c.prompt  = !silent;
-	    gdb_command(c);
-	    break;
-	}
+            Command c("list " + s);
+            c.verbose = !silent;
+            c.echo    = !silent;
+            c.prompt  = !silent;
+            gdb_command(c);
+            break;
+        }
 
-	case BASH:
-	case DBG:
-	case PERL:
-	{
-	    Command c("l " + s);
-	    c.verbose = !silent;
-	    c.echo    = !silent;
-	    c.prompt  = !silent;
-	    gdb_command(c);
-	    break;
-	}
+        case BASH:
+        case DBG:
+        case PERL:
+        {
+            Command c("l " + s);
+            c.verbose = !silent;
+            c.echo    = !silent;
+            c.prompt  = !silent;
+            gdb_command(c);
+            break;
+        }
 
-	case MAKE: break;  // Not implimented yet.
-	  
-	case DBX:
-	case JDB:
-	{
-	    string pos = dbx_lookup(s, silent);
-	    if (!pos.empty())
-		show_position(pos);
-	    break;
-	}
+        case MAKE: break;  // Not implimented yet.
+          
+        case DBX:
+        case JDB:
+        {
+            string pos = dbx_lookup(s, silent);
+            if (!pos.empty())
+                show_position(pos);
+            break;
+        }
 
-	case XDB:
-	{
-	    Command c("v " + s);
-	    c.verbose = !silent;
-	    c.echo    = !silent;
-	    c.prompt  = !silent;
-	    gdb_command(c);
-	    break;
-	}
-	}
+        case XDB:
+        {
+            Command c("v " + s);
+            c.verbose = !silent;
+            c.echo    = !silent;
+            c.prompt  = !silent;
+            gdb_command(c);
+            break;
+        }
+        }
     }
 }
 
@@ -4694,21 +4694,21 @@ void SourceView::add_current_to_history()
     // Get position in source code
     pos = XmTextGetInsertionPosition(source_text_w);
     pos_found = get_line_of_pos(source_text_w, pos, line_nr, address, 
-				in_text, bp_nr);
+                                in_text, bp_nr);
     if (pos_found)
-	add_position_to_history(current_source_name(), line_nr, false);
+        add_position_to_history(current_source_name(), line_nr, false);
 
     // Get position in machine code
     pos = XmTextGetInsertionPosition(code_text_w);
     pos_found = get_line_of_pos(code_text_w, pos, line_nr, address, 
-				in_text, bp_nr);
+                                in_text, bp_nr);
     if (pos_found && !address.empty())
-	undo_buffer.add_address(address, false);
+        undo_buffer.add_address(address, false);
 }
 
 // Add position to history
 void SourceView::add_position_to_history(const string& file_name, int line, 
-					 bool stopped)
+                                         bool stopped)
 {
     string source_name = file_name;
     switch (gdb->type())
@@ -4716,10 +4716,10 @@ void SourceView::add_position_to_history(const string& file_name, int line,
     case GDB:
     case JDB:
     case PYDB:
-	// Use source names instead.
-	if (source_name_cache.has(file_name))
-	    source_name = source_name_cache[file_name];
-	break;
+        // Use source names instead.
+        if (source_name_cache.has(file_name))
+            source_name = source_name_cache[file_name];
+        break;
 
     case BASH:
     case DBG:
@@ -4727,7 +4727,7 @@ void SourceView::add_position_to_history(const string& file_name, int line,
     case MAKE:
     case PERL:
     case XDB:
-	break;
+        break;
     }
 
     undo_buffer.add_position(source_name, line, stopped);
@@ -4736,61 +4736,61 @@ void SourceView::add_position_to_history(const string& file_name, int line,
 
 // Lookup entry from position history
 void SourceView::goto_entry(const string& file_name, int line, 
-			    const string& address, bool exec_pos)
+                            const string& address, bool exec_pos)
 {
 #if 0
     // Show position in status line
     string msg = "";
     if (!file_name.empty())
-	msg = "File " + quote(file_name);
+        msg = "File " + quote(file_name);
     if (line != 0)
     {
-	if (msg.empty())
-	    msg = "Line ";
-	else
-	    msg += ", line ";
-	msg += itostring(line);
+        if (msg.empty())
+            msg = "Line ";
+        else
+            msg += ", line ";
+        msg += itostring(line);
     }
     if (!address.empty())
     {
-	if (msg.empty())
-	    msg = "Address ";
-	else
-	    msg += ", address ";
-	msg += address;
+        if (msg.empty())
+            msg = "Address ";
+        else
+            msg += ", address ";
+        msg += address;
     }
     set_status(msg);
 #endif
 
     if (!file_name.empty())
     {
-	// Lookup source
-	if (!is_current_file(file_name))
-	{
-	    read_file(file_name, line);
-	}
+        // Lookup source
+        if (!is_current_file(file_name))
+        {
+            read_file(file_name, line);
+        }
 
-	if (is_current_file(file_name) && line > 0 && line <= line_count)
-	{
-	    if (exec_pos)
-	    {
-		_show_execution_position(file_name, line, true, true);
-	    }
-	    else
-	    {
-		XmTextPosition pos = pos_of_line(line);
-		int indent = indent_amount(source_text_w, pos);
-		SetInsertionPosition(source_text_w, pos + indent, true);
-	    }
-	}
+        if (is_current_file(file_name) && line > 0 && line <= line_count)
+        {
+            if (exec_pos)
+            {
+                _show_execution_position(file_name, line, true, true);
+            }
+            else
+            {
+                XmTextPosition pos = pos_of_line(line);
+                int indent = indent_amount(source_text_w, pos);
+                SetInsertionPosition(source_text_w, pos + indent, true);
+            }
+        }
     }
 
     if (!address.empty())
     {
-	// Lookup address
-	show_pc(address, 
-		(exec_pos || address == last_execution_pc) ? 
-		XmHIGHLIGHT_SELECTED : XmHIGHLIGHT_NORMAL);
+        // Lookup address
+        show_pc(address, 
+                (exec_pos || address == last_execution_pc) ? 
+                XmHIGHLIGHT_SELECTED : XmHIGHLIGHT_NORMAL);
     }
 }
 
@@ -4806,44 +4806,44 @@ void SourceView::process_pwd(string& pwd_output)
 
     while (!pwd_output.empty())
     {
-	string pwd;
-	if (pwd_output.contains('\n'))
-	{
-	    pwd        = pwd_output.before('\n');
-	    pwd_output = pwd_output.after('\n');
-	}
-	else
-	{
-	    pwd        = pwd_output;
-	    pwd_output = "";
-	}
+        string pwd;
+        if (pwd_output.contains('\n'))
+        {
+            pwd        = pwd_output.before('\n');
+            pwd_output = pwd_output.after('\n');
+        }
+        else
+        {
+            pwd        = pwd_output;
+            pwd_output = "";
+        }
 
-	switch (gdb->type())
-	{
-	case BASH:              // 'Working directory PATH.'
-	case GDB:
-	case MAKE:
-	case PYDB:
-	    if (pwd.contains("Working directory", 0))
-	    {
-		pwd = pwd.before('.', -1);
-		pwd = pwd.after(' ', -1);
-	    }
-	    // FALL THROUGH
+        switch (gdb->type())
+        {
+        case BASH:              // 'Working directory PATH.'
+        case GDB:
+        case MAKE:
+        case PYDB:
+            if (pwd.contains("Working directory", 0))
+            {
+                pwd = pwd.before('.', -1);
+                pwd = pwd.after(' ', -1);
+            }
+            // FALL THROUGH
 
-	case DBG:
-	case DBX:		// 'PATH'
-	case JDB:
-	case PERL:
-	case XDB:
-	    if (pwd.contains('/', 0) && !pwd.contains(" "))
-	    {
-		current_pwd = pwd;
-		process_cd(current_pwd);
-		return;
-	    }
-	    break;
-	}
+        case DBG:
+        case DBX:                // 'PATH'
+        case JDB:
+        case PERL:
+        case XDB:
+            if (pwd.contains('/', 0) && !pwd.contains(" "))
+            {
+                current_pwd = pwd;
+                process_cd(current_pwd);
+                return;
+            }
+            break;
+        }
     }
 }
 
@@ -4855,22 +4855,22 @@ void SourceView::process_pwd(string& pwd_output)
 void SourceView::process_use(string& use_output)
 {
     if (use_output == NO_GDB_ANSWER)
-	return;
+        return;
 
     strip_space(use_output);
 
     string path_prefix = "";
     const char *p = getenv("CLASSPATH");
     if (p != 0)
-	path_prefix = string(p) + ":";
+        path_prefix = string(p) + ":";
     if (!use_output.contains(path_prefix, 0))
-	use_output.prepend(path_prefix);
+        use_output.prepend(path_prefix);
 
     if (current_class_path != use_output)
     {
-	current_class_path = use_output;
-	clear_file_cache();
-	reload();
+        current_class_path = use_output;
+        clear_file_cache();
+        reload();
     }
 }
 
@@ -4878,14 +4878,14 @@ string SourceView::class_path()
 {
     if (gdb->type() == JDB && current_class_path == NO_GDB_ANSWER)
     {
-	string use = gdb_question("use");
-	process_use(use);
+        string use = gdb_question("use");
+        process_use(use);
     }
 
     if (current_class_path == NO_GDB_ANSWER)
     {
-	const char *p = getenv("CLASSPATH");
-	return p ? p : ".";
+        const char *p = getenv("CLASSPATH");
+        return p ? p : ".";
     }
 
     return current_class_path;
@@ -4897,10 +4897,10 @@ string SourceView::class_path()
 //-----------------------------------------------------------------------
 
 void SourceView::find(const string& s, 
-		      SourceView::SearchDirection direction,
-		      bool words_only,
-		      bool case_sensitive,
-		      Time time)
+                      SourceView::SearchDirection direction,
+                      bool words_only,
+                      bool case_sensitive,
+                      Time time)
 {
     int matchlen = s.length();
     int pos = -1;
@@ -4910,17 +4910,17 @@ void SourceView::find(const string& s,
 
     if (!have_source())
     {
-	post_error("No source.", "no_source_error", source_text_w);
-	return;
+        post_error("No source.", "no_source_error", source_text_w);
+        return;
     }
 
     string key  = s;
     string text = current_source;
     if (!case_sensitive)
     {
-	// FIXME: This should be done according to the current locale
-	key.downcase();
-	text.downcase();
+        // FIXME: This should be done according to the current locale
+        key.downcase();
+        text.downcase();
     }
 
     // Make sure we don't re-find the currently found word
@@ -4929,117 +4929,117 @@ void SourceView::find(const string& s,
 
     if (XmTextGetSelectionPosition(source_text_w, &startpos, &endpos))
     {
-	switch (direction)
-	{
-	case forward:
-	    if (cursor == startpos
-		&& cursor < XmTextPosition(text.length()))
-		cursor++;
-	    break;
-	case backward:
-	    if (cursor == endpos && cursor > 0)
-		cursor--;
-	    break;
-	}
+        switch (direction)
+        {
+        case forward:
+            if (cursor == startpos
+                && cursor < XmTextPosition(text.length()))
+                cursor++;
+            break;
+        case backward:
+            if (cursor == endpos && cursor > 0)
+                cursor--;
+            break;
+        }
     }
 
     // Go and find the word
     for (;;) {
-	switch (direction)
-	{
-	case forward:
-	    pos = text.index(key, cursor);
-	    if (pos < 0)
-	    {
-		if (wraps++)
-		    break;
-		pos = text.index(key, 0);
-	    }
-	    break;
-	case backward:
-	    pos = text.index(key, cursor - text.length() - 1);
-	    if (pos < 0)
-	    {
-		if (wraps++)
-		    break;
-		pos = text.index(key, -1);
-	    }
-	    break;
-	}
+        switch (direction)
+        {
+        case forward:
+            pos = text.index(key, cursor);
+            if (pos < 0)
+            {
+                if (wraps++)
+                    break;
+                pos = text.index(key, 0);
+            }
+            break;
+        case backward:
+            pos = text.index(key, cursor - text.length() - 1);
+            if (pos < 0)
+            {
+                if (wraps++)
+                    break;
+                pos = text.index(key, -1);
+            }
+            break;
+        }
 
-	if (pos < 0)
-	    break;		// String not found or double wrap
+        if (pos < 0)
+            break;                // String not found or double wrap
 
-	// Set the cursor to the appropriate position
-	switch (direction)
-	{
-	case forward:
-	    cursor = pos + matchlen;
-	    break;
-	case backward:
-	    cursor = pos;
-	    break;
-	}
+        // Set the cursor to the appropriate position
+        switch (direction)
+        {
+        case forward:
+            cursor = pos + matchlen;
+            break;
+        case backward:
+            cursor = pos;
+            break;
+        }
 
-	if (words_only)
-	{
-	    // Make sure the occurrence is not part of a larger word
-	    if (pos > 0 && pos < int(text.length()))
-	    {
-		if (isid(text[pos]) && isid(text[pos - 1]))
-		    continue;
-	    }
+        if (words_only)
+        {
+            // Make sure the occurrence is not part of a larger word
+            if (pos > 0 && pos < int(text.length()))
+            {
+                if (isid(text[pos]) && isid(text[pos - 1]))
+                    continue;
+            }
 
-	    if (pos + matchlen < int(text.length()))
-	    {
-		if (isid(text[pos + matchlen - 1]) && 
-		    isid(text[pos + matchlen]))
-		    continue;
-	    }
-	}
+            if (pos + matchlen < int(text.length()))
+            {
+                if (isid(text[pos + matchlen - 1]) && 
+                    isid(text[pos + matchlen]))
+                    continue;
+            }
+        }
 
-	// We got it!
-	break;
+        // We got it!
+        break;
     }
 
     string msg;
 
     if (pos < 0)
     {
-	// Clear selection
-	XmTextClearSelection(source_text_w, time);
+        // Clear selection
+        XmTextClearSelection(source_text_w, time);
 
-	msg = quote(s) + " not found";
+        msg = quote(s) + " not found";
     }
     else
     {
-	// Highlight occurrence
-	TextSetSelection(source_text_w, pos, pos + matchlen, time);
+        // Highlight occurrence
+        TextSetSelection(source_text_w, pos, pos + matchlen, time);
 
-	// Set position
-	SetInsertionPosition(source_text_w, cursor, false);
+        // Set position
+        SetInsertionPosition(source_text_w, cursor, false);
 
-	if (cursor == initial_cursor)
-	{
-	    // Unchanged position
-	    msg = "No other occurrences of " + quote(s) + ".";
-	}
-	else
-	{
-	    int line_nr;
-	    bool in_text;
-	    int bp_nr;
-	    string address;
+        if (cursor == initial_cursor)
+        {
+            // Unchanged position
+            msg = "No other occurrences of " + quote(s) + ".";
+        }
+        else
+        {
+            int line_nr;
+            bool in_text;
+            int bp_nr;
+            string address;
 
-	    if (!get_line_of_pos(source_text_w, pos, line_nr, 
-				 address, in_text, bp_nr))
-		line_nr = line_count;
+            if (!get_line_of_pos(source_text_w, pos, line_nr, 
+                                 address, in_text, bp_nr))
+                line_nr = line_count;
 
-	    string occurrence = current_source.at(pos, matchlen);
-	    msg = "Found " + quote(occurrence) + " in " + line_of_cursor();
-	    if (wraps)
-		msg += " (wrapped)";
-	}
+            string occurrence = current_source.at(pos, matchlen);
+            msg = "Found " + quote(occurrence) + " in " + line_of_cursor();
+            if (wraps)
+                msg += " (wrapped)";
+        }
     }
 
     set_status(msg);
@@ -5063,77 +5063,77 @@ string SourceView::get_source_name(string filename)
     switch (gdb->type())
     {
     case GDB:
-	// GDB internally recognizes only `source names', i.e., the
-	// source file name as compiled into the executable.
-	if (source_name_cache[filename].empty())
-	{
-	    // Try the current source.
-	    string ans = gdb_question("info source");
-	    if (ans != NO_GDB_ANSWER)
-	    {
-		ans = ans.before('\n');
-		ans = ans.after(' ', -1);
+        // GDB internally recognizes only `source names', i.e., the
+        // source file name as compiled into the executable.
+        if (source_name_cache[filename].empty())
+        {
+            // Try the current source.
+            string ans = gdb_question("info source");
+            if (ans != NO_GDB_ANSWER)
+            {
+                ans = ans.before('\n');
+                ans = ans.after(' ', -1);
 
-		if (base_matches(ans, filename))
-		{
-		    // For security, we request that source and current
-		    // file have the same basename.
-		    source_name_cache[filename] = ans;
-		}
-		else
-		{
-		    // The current source does not match the current file.
-		    // Try all sources.
-		    static const string all_sources = "<ALL SOURCES>";
+                if (base_matches(ans, filename))
+                {
+                    // For security, we request that source and current
+                    // file have the same basename.
+                    source_name_cache[filename] = ans;
+                }
+                else
+                {
+                    // The current source does not match the current file.
+                    // Try all sources.
+                    static const string all_sources = "<ALL SOURCES>";
 
-		    if (source_name_cache[all_sources].empty())
-		    {
-			std::vector<string> sources;
-			get_gdb_sources(sources);
+                    if (source_name_cache[all_sources].empty())
+                    {
+                        std::vector<string> sources;
+                        get_gdb_sources(sources);
 
-			if (sources.size() > 0)
-			{
-			    ans = "";
-			    for (int i = 0; i < int(sources.size()); i++)
-				ans += sources[i] + '\n';
+                        if (sources.size() > 0)
+                        {
+                            ans = "";
+                            for (int i = 0; i < int(sources.size()); i++)
+                                ans += sources[i] + '\n';
 
-			    source_name_cache[all_sources] = ans;
-			}
-		    }
+                            source_name_cache[all_sources] = ans;
+                        }
+                    }
 
-		    ans = source_name_cache[all_sources];
-		    if (!ans.empty())
-		    {
-			int n = ans.freq('\n');
-			string *sources = new string[n + 1];
-			split(ans, sources, n + 1, '\n');
+                    ans = source_name_cache[all_sources];
+                    if (!ans.empty())
+                    {
+                        int n = ans.freq('\n');
+                        string *sources = new string[n + 1];
+                        split(ans, sources, n + 1, '\n');
 
-			for (int i = 0; i < n + 1; i++)
-			{
-			    if (base_matches(sources[i], filename))
-			    {
-				const string& src = sources[i];
-				source_name_cache[filename] = src;
-				break;
-			    }
-			}
-			
-			delete[] sources;
+                        for (int i = 0; i < n + 1; i++)
+                        {
+                            if (base_matches(sources[i], filename))
+                            {
+                                const string& src = sources[i];
+                                source_name_cache[filename] = src;
+                                break;
+                            }
+                        }
+                        
+                        delete[] sources;
 
-			if (source_name_cache[filename].empty())
-			{
-			    // No such source text.  Store the base name
-			    // such that GDB is not asked again.
-			    string base = basename(filename.chars());
-			    source_name_cache[filename] = base;
-			}
-		    }
-		}
-	    }
-	}
+                        if (source_name_cache[filename].empty())
+                        {
+                            // No such source text.  Store the base name
+                            // such that GDB is not asked again.
+                            string base = basename(filename.chars());
+                            source_name_cache[filename] = base;
+                        }
+                    }
+                }
+            }
+        }
 
-	source = source_name_cache[filename];
-	break;
+        source = source_name_cache[filename];
+        break;
 
     case BASH:
     case DBG:
@@ -5142,30 +5142,30 @@ string SourceView::get_source_name(string filename)
     case PERL:
     case PYDB:
     case XDB:
-	if (app_data.use_source_path)
-	{
-	    // These debuggers use full file names.
-	    source = full_path(filename);
-	}
-	break;
+        if (app_data.use_source_path)
+        {
+            // These debuggers use full file names.
+            source = full_path(filename);
+        }
+        break;
 
     case JDB:
-	if (source_name_cache.has(filename))
-	{
-	    // Use the source name as stored by read_class()
-	    source = source_name_cache[filename];
-	}
-	if (source.empty())
-	{
-	    source = basename(filename.chars());
-	    strip_java_suffix(source);
-	}
-	break;
+        if (source_name_cache.has(filename))
+        {
+            // Use the source name as stored by read_class()
+            source = source_name_cache[filename];
+        }
+        if (source.empty())
+        {
+            source = basename(filename.chars());
+            strip_java_suffix(source);
+        }
+        break;
     }
 
     // In case this does not work, use the current base name.
     if (source.empty())
-	source = basename(filename.chars());
+        source = basename(filename.chars());
 
     return source;
 }
@@ -5182,7 +5182,7 @@ string SourceView::line_of_cursor()
 
     string s = current_source_name();
     if (s.empty())
-	return "";		// No source
+        return "";                // No source
 
     int line_nr;
     bool in_text;
@@ -5190,9 +5190,9 @@ string SourceView::line_of_cursor()
     string address;
 
     if (get_line_of_pos(source_text_w, pos, line_nr, address, in_text, bp_nr))
-	return s + ":" + itostring(line_nr);    // Cursor within source
+        return s + ":" + itostring(line_nr);    // Cursor within source
     else
-	return s + ":" + itostring(line_count);	// Cursor in last line
+        return s + ":" + itostring(line_count);        // Cursor in last line
 }
 
 string SourceView::file_of_cursor()
@@ -5213,13 +5213,13 @@ void SourceView::setSelection(XtPointer client_data, XtIntervalId *)
     assert(XmIsText(w));
 
     TextSetSelection(w, selection_startpos, selection_endpos, 
-		     selection_time);
+                     selection_time);
     selection_time = 0;
     set_source_argCB(w, XtPointer(false), 0);
 }
 
 void SourceView::startSelectWordAct (Widget text_w, XEvent* e, 
-				     String *params, Cardinal *num_params)
+                                     String *params, Cardinal *num_params)
 {
 #if XtSpecificationRelease < 6
     selection_event = *e;
@@ -5228,7 +5228,7 @@ void SourceView::startSelectWordAct (Widget text_w, XEvent* e,
     XtCallActionProc(text_w, "grab-focus", e, params, *num_params);
 
     if (e->type != ButtonPress && e->type != ButtonRelease)
-	return;
+        return;
 
     XButtonEvent *event = &e->xbutton;
 
@@ -5236,9 +5236,9 @@ void SourceView::startSelectWordAct (Widget text_w, XEvent* e,
 
     XmTextPosition startpos, endpos;
     if (app_data.source_editing)
-	startpos = endpos = pos;
+        startpos = endpos = pos;
     else
-	find_word_bounds(text_w, pos, startpos, endpos);
+        find_word_bounds(text_w, pos, startpos, endpos);
 
     selection_click    = true;
     selection_startpos = startpos;
@@ -5246,11 +5246,11 @@ void SourceView::startSelectWordAct (Widget text_w, XEvent* e,
     selection_time     = time(e);
 
     XtAppAddTimeOut(XtWidgetToApplicationContext(text_w), 0, setSelection, 
-		    (XtPointer)text_w);
+                    (XtPointer)text_w);
 }
 
 void SourceView::endSelectWordAct (Widget text_w, XEvent* e, 
-				   String *params, Cardinal *num_params)
+                                   String *params, Cardinal *num_params)
 {
 #if XtSpecificationRelease < 6
     selection_event = *e;
@@ -5260,19 +5260,19 @@ void SourceView::endSelectWordAct (Widget text_w, XEvent* e,
     XtCallActionProc(text_w, "extend-end", e, params, *num_params);
 
     if (e->type != ButtonPress && e->type != ButtonRelease)
-	return;
+        return;
 
     XmTextPosition startpos, endpos;
     if (XmTextGetSelectionPosition(text_w, &startpos, &endpos))
     {
-	selection_startpos = startpos;
-	selection_endpos   = endpos;
+        selection_startpos = startpos;
+        selection_endpos   = endpos;
     }
 
     selection_time = time(e);
 
     XtAppAddTimeOut(XtWidgetToApplicationContext(text_w), 0, setSelection,
-		   (XtPointer)text_w);
+                   (XtPointer)text_w);
 }
 
 
@@ -5295,8 +5295,8 @@ void SourceView::translate_glyph_pos(Widget glyph, Widget text, int& x, int& y)
     int dest_x, dest_y;
     Window child;
     XTranslateCoordinates(XtDisplay(glyph), 
-			  XtWindow(glyph), XtWindow(text), 
-			  x, y, &dest_x, &dest_y, &child);
+                          XtWindow(glyph), XtWindow(text), 
+                          x, y, &dest_x, &dest_y, &child);
 
     x = dest_x;
     y = dest_y;
@@ -5306,15 +5306,15 @@ void SourceView::translate_glyph_pos(Widget glyph, Widget text, int& x, int& y)
 void SourceView::srcpopupAct (Widget w, XEvent* e, String *, Cardinal *)
 {
     if (e->type != ButtonPress && e->type != ButtonRelease)
-	return;
+        return;
 
     Widget text_w;
     if (is_source_widget(w))
-	text_w = source_text_w;
+        text_w = source_text_w;
     else if (is_code_widget(w))
-	text_w = code_text_w;
+        text_w = code_text_w;
     else
-	return;
+        return;
 
     XButtonEvent* event = &e->xbutton;
 
@@ -5323,8 +5323,8 @@ void SourceView::srcpopupAct (Widget w, XEvent* e, String *, Cardinal *)
 
     if (w != source_text_w && w != code_text_w)
     {
-	// Called from a glyph: translate glyph position to text position
-	translate_glyph_pos(w, text_w, x, y);
+        // Called from a glyph: translate glyph position to text position
+        translate_glyph_pos(w, text_w, x, y);
     }
 
     // Get the position
@@ -5336,15 +5336,15 @@ void SourceView::srcpopupAct (Widget w, XEvent* e, String *, Cardinal *)
     Boolean have_selection = XmTextGetSelectionPosition(text_w, &left, &right);
     if (have_selection && pos >= left && pos <= right)
     {
-	// Do not scroll here.  Do not use SetInsertionPosition().
-	XmTextSetInsertionPosition(text_w, pos);
-	TextSetSelection(text_w, left, right, time(e));
+        // Do not scroll here.  Do not use SetInsertionPosition().
+        XmTextSetInsertionPosition(text_w, pos);
+        TextSetSelection(text_w, left, right, time(e));
     }
     else
     {
-	// Do not scroll here.  Do not use SetInsertionPosition().
-	XmTextClearSelection(text_w, time(e));
-	XmTextSetInsertionPosition(text_w, pos);
+        // Do not scroll here.  Do not use SetInsertionPosition().
+        XmTextClearSelection(text_w, time(e));
+        XmTextSetInsertionPosition(text_w, pos);
     }
 
     int line_nr;
@@ -5354,136 +5354,136 @@ void SourceView::srcpopupAct (Widget w, XEvent* e, String *, Cardinal *)
     bool pos_found = get_line_of_pos(w, pos, line_nr, address, in_text, bp_nr);
 
     bool right_of_text = 
-	pos < XmTextPosition(current_text(w).length()) 
-	&& current_text(w)[pos] == '\n';
+        pos < XmTextPosition(current_text(w).length()) 
+        && current_text(w)[pos] == '\n';
 
     if (pos_found && bp_nr != 0)
     {
-	// Clicked on breakpoint: create breakpoint menu
-	static Widget bp_popup_w      = 0;
+        // Clicked on breakpoint: create breakpoint menu
+        static Widget bp_popup_w      = 0;
 
-	if (bp_popup_w == 0)
-	{
-	    bp_popup_w = MMcreatePopupMenu(w, "bp_popup", bp_popup);
-	    MMaddCallbacks (bp_popup, XtPointer(&bp_nr));
-	    MMaddHelpCallback(bp_popup, ImmediateHelpCB);
-	    InstallButtonTips(bp_popup_w);
-	}
+        if (bp_popup_w == 0)
+        {
+            bp_popup_w = MMcreatePopupMenu(w, "bp_popup", bp_popup);
+            MMaddCallbacks (bp_popup, XtPointer(&bp_nr));
+            MMaddHelpCallback(bp_popup, ImmediateHelpCB);
+            InstallButtonTips(bp_popup_w);
+        }
 
-	// Grey out unsupported functions
-	set_sensitive(bp_popup[BPItms::Disable].widget, gdb->can_disable());
-	set_sensitive(bp_popup[BPItms::SetPC].widget,
-		       gdb->has_jump_command() || gdb->has_assign_command());
+        // Grey out unsupported functions
+        set_sensitive(bp_popup[BPItms::Disable].widget, gdb->can_disable());
+        set_sensitive(bp_popup[BPItms::SetPC].widget,
+                       gdb->has_jump_command() || gdb->has_assign_command());
 
-	MString label(bp_map.get(bp_nr)->enabled() ? 
-		      "Disable Breakpoint" : "Enable Breakpoint");
-	XtVaSetValues(bp_popup[BPItms::Disable].widget,
-		      XmNlabelString, label.xmstring(),
-		      XtPointer(0));
+        MString label(bp_map.get(bp_nr)->enabled() ? 
+                      "Disable Breakpoint" : "Enable Breakpoint");
+        XtVaSetValues(bp_popup[BPItms::Disable].widget,
+                      XmNlabelString, label.xmstring(),
+                      XtPointer(0));
 
-	XmMenuPosition(bp_popup_w, event);
-	XtManageChild(bp_popup_w);
+        XmMenuPosition(bp_popup_w, event);
+        XtManageChild(bp_popup_w);
     }
     else if (pos_found 
-	     && (line_nr > 0 || !address.empty()) 
-	     && (!in_text || right_of_text))
+             && (line_nr > 0 || !address.empty()) 
+             && (!in_text || right_of_text))
     {
-	// Create popup menu for selected line
-	static Widget line_popup_w = 0;
-	if (line_popup_w == 0)
-	{
-	    line_popup_w = MMcreatePopupMenu (w, "line_popup", line_popup);
-	    MMaddCallbacks(line_popup, XtPointer(&address));
-	    MMaddHelpCallback(line_popup, ImmediateHelpCB);
-	    InstallButtonTips(line_popup_w);
+        // Create popup menu for selected line
+        static Widget line_popup_w = 0;
+        if (line_popup_w == 0)
+        {
+            line_popup_w = MMcreatePopupMenu (w, "line_popup", line_popup);
+            MMaddCallbacks(line_popup, XtPointer(&address));
+            MMaddHelpCallback(line_popup, ImmediateHelpCB);
+            InstallButtonTips(line_popup_w);
 
-	    set_sensitive(line_popup[LineItms::SetTempBP].widget, 
-			   gdb->has_temporary_breakpoints());
-	    set_sensitive(line_popup[LineItms::SetPC].widget,
-			   gdb->has_jump_command() || 
-			   gdb->has_assign_command());
-	}
+            set_sensitive(line_popup[LineItms::SetTempBP].widget, 
+                           gdb->has_temporary_breakpoints());
+            set_sensitive(line_popup[LineItms::SetPC].widget,
+                           gdb->has_jump_command() || 
+                           gdb->has_assign_command());
+        }
 
-	if (is_source_widget(w))
-	    address = current_source_name() + ":" + itostring(line_nr);
-	else
-	    address = string('*') + address;
-	XmMenuPosition (line_popup_w, event);
-	XtManageChild (line_popup_w);
+        if (is_source_widget(w))
+            address = current_source_name() + ":" + itostring(line_nr);
+        else
+            address = string('*') + address;
+        XmMenuPosition (line_popup_w, event);
+        XtManageChild (line_popup_w);
     }
     else
     {
-	// Determine surrounding token (or selection) and create popup
-	static string word;
+        // Determine surrounding token (or selection) and create popup
+        static string word;
 
-	XmTextPosition startpos = 0;
-	XmTextPosition endpos   = 0;
+        XmTextPosition startpos = 0;
+        XmTextPosition endpos   = 0;
 
-	if (pos_found)
-	    word = get_word_at_pos(text_w, pos, startpos, endpos);
+        if (pos_found)
+            word = get_word_at_pos(text_w, pos, startpos, endpos);
 
-	// Popup specific word menu
-	string current_arg = word;
-	shorten(current_arg, max_popup_expr_length);
-	string current_ref_arg = deref(current_arg);
+        // Popup specific word menu
+        string current_arg = word;
+        shorten(current_arg, max_popup_expr_length);
+        string current_ref_arg = deref(current_arg);
 
-	Widget text_popup_w = 
-	    MMcreatePopupMenu(text_w, "text_popup", text_popup);
-	MMaddCallbacks(text_popup, XtPointer(&word));
-	MMaddHelpCallback(text_popup, ImmediateHelpCB);
-	InstallButtonTips(text_popup_w);
+        Widget text_popup_w = 
+            MMcreatePopupMenu(text_w, "text_popup", text_popup);
+        MMaddCallbacks(text_popup, XtPointer(&word));
+        MMaddHelpCallback(text_popup, ImmediateHelpCB);
+        InstallButtonTips(text_popup_w);
 
-	// The popup menu is destroyed immediately after having popped down.
-	Widget shell = XtParent(text_popup_w);
-	XtAddCallback(shell, XtNpopdownCallback, DestroyThisCB, shell);
+        // The popup menu is destroyed immediately after having popped down.
+        Widget shell = XtParent(text_popup_w);
+        XtAddCallback(shell, XtNpopdownCallback, DestroyThisCB, shell);
 
-	bool has_arg = (word.length() > 0);
-	bool has_watch = has_arg && gdb->has_watch_command();
-	set_text_popup_label(TextItms::Print,    current_arg, has_arg);
-	set_text_popup_label(TextItms::Disp,     current_arg, has_arg);
-	set_text_popup_label(TextItms::Watch,    current_arg, has_watch);
-	set_text_popup_label(TextItms::PrintRef, current_ref_arg, has_arg);
-	set_text_popup_label(TextItms::DispRef,  current_ref_arg, has_arg);
-	set_text_popup_label(TextItms::WatchRef, current_ref_arg, has_watch);
-	set_text_popup_label(TextItms::Whatis,   current_arg, has_arg);
-	set_text_popup_label(TextItms::Lookup,   current_arg, has_arg);
-	set_text_popup_label(TextItms::Break,    current_arg, has_arg);
-	set_text_popup_label(TextItms::Clear,    current_arg, has_arg);
+        bool has_arg = (word.length() > 0);
+        bool has_watch = has_arg && gdb->has_watch_command();
+        set_text_popup_label(TextItms::Print,    current_arg, has_arg);
+        set_text_popup_label(TextItms::Disp,     current_arg, has_arg);
+        set_text_popup_label(TextItms::Watch,    current_arg, has_watch);
+        set_text_popup_label(TextItms::PrintRef, current_ref_arg, has_arg);
+        set_text_popup_label(TextItms::DispRef,  current_ref_arg, has_arg);
+        set_text_popup_label(TextItms::WatchRef, current_ref_arg, has_watch);
+        set_text_popup_label(TextItms::Whatis,   current_arg, has_arg);
+        set_text_popup_label(TextItms::Lookup,   current_arg, has_arg);
+        set_text_popup_label(TextItms::Break,    current_arg, has_arg);
+        set_text_popup_label(TextItms::Clear,    current_arg, has_arg);
 
-	if (current_arg != current_ref_arg)
-	{
-	    XtManageChild(text_popup[TextItms::Sep1].widget);
-	    XtManageChild(text_popup[TextItms::PrintRef].widget);
-	    XtManageChild(text_popup[TextItms::DispRef].widget);
-	    // XtManageChild(text_popup[TextItms::WatchRef].widget);
-	}
-	else
-	{
-	    XtUnmanageChild(text_popup[TextItms::Sep1].widget);
-	    XtUnmanageChild(text_popup[TextItms::PrintRef].widget);
-	    XtUnmanageChild(text_popup[TextItms::DispRef].widget);
-	    XtUnmanageChild(text_popup[TextItms::WatchRef].widget);
-	}
+        if (current_arg != current_ref_arg)
+        {
+            XtManageChild(text_popup[TextItms::Sep1].widget);
+            XtManageChild(text_popup[TextItms::PrintRef].widget);
+            XtManageChild(text_popup[TextItms::DispRef].widget);
+            // XtManageChild(text_popup[TextItms::WatchRef].widget);
+        }
+        else
+        {
+            XtUnmanageChild(text_popup[TextItms::Sep1].widget);
+            XtUnmanageChild(text_popup[TextItms::PrintRef].widget);
+            XtUnmanageChild(text_popup[TextItms::DispRef].widget);
+            XtUnmanageChild(text_popup[TextItms::WatchRef].widget);
+        }
 
-	XmMenuPosition (text_popup_w, event);
-	XtManageChild (text_popup_w);
+        XmMenuPosition (text_popup_w, event);
+        XtManageChild (text_popup_w);
     }
 }
 
 
 void SourceView::doubleClickAct(Widget w, XEvent *e, String *params, 
-				Cardinal *num_params)
+                                Cardinal *num_params)
 {
     if (e->type != ButtonPress && e->type != ButtonRelease)
-	return;
+        return;
 
     Widget text_w;
     if (is_source_widget(w))
-	text_w = source_text_w;
+        text_w = source_text_w;
     else if (is_code_widget(w))
-	text_w = code_text_w;
+        text_w = code_text_w;
     else
-	return;
+        return;
 
     XButtonEvent* event = &e->xbutton;
 
@@ -5493,28 +5493,28 @@ void SourceView::doubleClickAct(Widget w, XEvent *e, String *params,
 
     if (w != source_text_w && w != code_text_w)
     {
-	// Called from a glyph: translate glyph position to text position
-	translate_glyph_pos(w, text_w, x, y);
+        // Called from a glyph: translate glyph position to text position
+        translate_glyph_pos(w, text_w, x, y);
     }
 
     if (w == source_text_w || w == code_text_w)
     {
-	// Called from text: check for double click
-	Time selection_time = time(e);
-	static Time last_selection_time = 0;
+        // Called from text: check for double click
+        Time selection_time = time(e);
+        static Time last_selection_time = 0;
 
-	bool double_click = 
-	    last_selection_time != 0 &&
-	    (Time(selection_time - last_selection_time) <= 
-	     Time(XtGetMultiClickTime(XtDisplay(text_w))));
+        bool double_click = 
+            last_selection_time != 0 &&
+            (Time(selection_time - last_selection_time) <= 
+             Time(XtGetMultiClickTime(XtDisplay(text_w))));
 
-	if (double_click)
-	    last_selection_time = 0;
-	else
-	    last_selection_time = selection_time;
+        if (double_click)
+            last_selection_time = 0;
+        else
+            last_selection_time = selection_time;
 
-	if (!double_click)
-	    return;
+        if (!double_click)
+            return;
     }
 
     // Get the position
@@ -5527,16 +5527,16 @@ void SourceView::doubleClickAct(Widget w, XEvent *e, String *params,
     bool pos_found = get_line_of_pos(w, pos, line_nr, address, in_text, bp_nr);
 
     if (!pos_found)
-	return;
+        return;
 
     if (bp_nr != 0)
     {
-	// Clicked on breakpoint
-	if (control)
-	    delete_bp(bp_nr, text_w);
-	else
-	    edit_bp(bp_nr, text_w);
-	return;
+        // Clicked on breakpoint
+        if (control)
+            delete_bp(bp_nr, text_w);
+        else
+            edit_bp(bp_nr, text_w);
+        return;
     }
 
     XmTextPosition startpos = 0;
@@ -5547,81 +5547,81 @@ void SourceView::doubleClickAct(Widget w, XEvent *e, String *params,
 
     if (in_text && arg == word)
     {
-	// In text: do some action on current word
-	if (text_w == source_text_w)
-	{
-	    // Check for function call
-	    int p = endpos;
-	    while (p < (int)current_source.length() && 
-		   isspace(current_source[p]))
-		p++;
+        // In text: do some action on current word
+        if (text_w == source_text_w)
+        {
+            // Check for function call
+            int p = endpos;
+            while (p < (int)current_source.length() && 
+                   isspace(current_source[p]))
+                p++;
 
-	    if (control || current_source.contains('(', p))
-	    {
-		if (*num_params >= 3)
-		    gdb_button_command(params[2]);
-		else
-		    gdb_button_command("list ()");
-		return;
-	    }
-	}
+            if (control || current_source.contains('(', p))
+            {
+                if (*num_params >= 3)
+                    gdb_button_command(params[2]);
+                else
+                    gdb_button_command("list ()");
+                return;
+            }
+        }
 
-	if (*num_params >= 1)
-	    gdb_button_command(params[0]);
-	else
-	    gdb_button_command("graph display ()");
-	return;
+        if (*num_params >= 1)
+            gdb_button_command(params[0]);
+        else
+            gdb_button_command("graph display ()");
+        return;
     }
 
     if (!in_text)
     {
-	// In breakpoint area
-	std::vector<int> bps;
-	if (text_w == source_text_w)
-	{
-	    MapRef ref;
-	    for (BreakPoint* bp = bp_map.first(ref);
-		 bp != 0;
-		 bp = bp_map.next(ref))
-	    {
-		if (bp_matches(bp, line_nr))
-		    bps.push_back(bp->number());
-	    }
-	}
-	else
-	{
-	    MapRef ref;
-	    for (BreakPoint* bp = bp_map.first(ref);
-		 bp != 0;
-		 bp = bp_map.next(ref))
-	    {
-		for (int i = 0; i < bp->n_locations(); i++) {
-		    BreakPointLocn &locn = bp->get_location(i);
-		    if (bp->type() == BREAKPOINT && 
-			compare_address(address, locn.address()) == 0)
-			bps.push_back(bp->number());
-		}
-	    }
-	}
+        // In breakpoint area
+        std::vector<int> bps;
+        if (text_w == source_text_w)
+        {
+            MapRef ref;
+            for (BreakPoint* bp = bp_map.first(ref);
+                 bp != 0;
+                 bp = bp_map.next(ref))
+            {
+                if (bp_matches(bp, line_nr))
+                    bps.push_back(bp->number());
+            }
+        }
+        else
+        {
+            MapRef ref;
+            for (BreakPoint* bp = bp_map.first(ref);
+                 bp != 0;
+                 bp = bp_map.next(ref))
+            {
+                for (int i = 0; i < bp->n_locations(); i++) {
+                    BreakPointLocn &locn = bp->get_location(i);
+                    if (bp->type() == BREAKPOINT && 
+                        compare_address(address, locn.address()) == 0)
+                        bps.push_back(bp->number());
+                }
+            }
+        }
 
-	if (bps.size() > 0)
-	{
-	    // In breakpoint area, and we already have a breakpoint.
-	    if (control)
-		delete_bps(bps, text_w);
-	    else
-		edit_bps(bps, text_w);
-	}
-	else
-	{
-	    // In breakpoint area, and we have no breakpoint: create a new one
-	    if (*num_params >= 2)
-		gdb_button_command(params[1]);
-	    else if (control)
-		create_temp_bp(source_arg->get_string(), w);
-	    else
-		create_bp(source_arg->get_string(), w);
-	}
+        if (bps.size() > 0)
+        {
+            // In breakpoint area, and we already have a breakpoint.
+            if (control)
+                delete_bps(bps, text_w);
+            else
+                edit_bps(bps, text_w);
+        }
+        else
+        {
+            // In breakpoint area, and we have no breakpoint: create a new one
+            if (*num_params >= 2)
+                gdb_button_command(params[1]);
+            else if (control)
+                create_temp_bp(source_arg->get_string(), w);
+            else
+                create_bp(source_arg->get_string(), w);
+        }
     }
 }
 
@@ -5629,14 +5629,14 @@ void SourceView::setArgAct(Widget w, XEvent *, String *, Cardinal *)
 {
     String s = 0;
     if (XmIsText(w))
-	s = XmTextGetSelection(w);
+        s = XmTextGetSelection(w);
     else if (XmIsTextField(w))
-	s = XmTextFieldGetSelection(w);
+        s = XmTextFieldGetSelection(w);
 
     if (s != 0)
     {
-	source_arg->set_string(s);
-	XtFree(s);
+        source_arg->set_string(s);
+        XtFree(s);
     }
 }
 
@@ -5652,7 +5652,7 @@ void SourceView::NewBreakpointDCB(Widget w, XtPointer client_data, XtPointer)
     string input(_input);
     XtFree(_input);
     if (input.empty())
-	return;
+        return;
 
     create_bp(input, w);
 }
@@ -5662,35 +5662,35 @@ void SourceView::NewBreakpointCB(Widget w, XtPointer, XtPointer)
     static Widget dialog = 0;
     if (dialog == 0)
     {
-	Arg args[10];
-	Cardinal arg = 0;
-	dialog = verify(XmCreatePromptDialog(find_shell(w),
-					     XMST("new_breakpoint_dialog"),
-					     args, arg));
-	Delay::register_shell(dialog);
+        Arg args[10];
+        Cardinal arg = 0;
+        dialog = verify(XmCreatePromptDialog(find_shell(w),
+                                             XMST("new_breakpoint_dialog"),
+                                             args, arg));
+        Delay::register_shell(dialog);
 
-	XtUnmanageChild(XmSelectionBoxGetChild(dialog, 
-					       XmDIALOG_SELECTION_LABEL));
-	XtUnmanageChild(XmSelectionBoxGetChild(dialog, XmDIALOG_TEXT));
+        XtUnmanageChild(XmSelectionBoxGetChild(dialog, 
+                                               XmDIALOG_SELECTION_LABEL));
+        XtUnmanageChild(XmSelectionBoxGetChild(dialog, XmDIALOG_TEXT));
 
-	arg = 0;
-	XtSetArg(args[arg], XmNmarginWidth,  0); arg++;
-	XtSetArg(args[arg], XmNmarginHeight, 0); arg++;
-	XtSetArg(args[arg], XmNborderWidth,  0); arg++;
-	Widget box = XmCreateRowColumn(dialog, XMST("box"), args, arg);
-	XtManageChild(box);
+        arg = 0;
+        XtSetArg(args[arg], XmNmarginWidth,  0); arg++;
+        XtSetArg(args[arg], XmNmarginHeight, 0); arg++;
+        XtSetArg(args[arg], XmNborderWidth,  0); arg++;
+        Widget box = XmCreateRowColumn(dialog, XMST("box"), args, arg);
+        XtManageChild(box);
 
-	Widget label = XmCreateLabel(box, XMST("label"), args, arg);
-	XtManageChild(label);
+        Widget label = XmCreateLabel(box, XMST("label"), args, arg);
+        XtManageChild(label);
 
-	arg = 0;
-	Widget text = CreateComboBox(box, "text", args, arg);
-	tie_combo_box_to_history(text, break_history_filter);
+        arg = 0;
+        Widget text = CreateComboBox(box, "text", args, arg);
+        tie_combo_box_to_history(text, break_history_filter);
 
-	XtAddCallback(dialog, XmNhelpCallback, ImmediateHelpCB, 
-		      XtPointer(0));
-	XtAddCallback(dialog, XmNokCallback, NewBreakpointDCB, 
-		      XtPointer(text));
+        XtAddCallback(dialog, XmNhelpCallback, ImmediateHelpCB, 
+                      XtPointer(0));
+        XtAddCallback(dialog, XmNokCallback, NewBreakpointDCB, 
+                      XtPointer(text));
     }
 
     manage_and_raise(dialog);
@@ -5699,13 +5699,13 @@ void SourceView::NewBreakpointCB(Widget w, XtPointer, XtPointer)
 WatchMode SourceView::selected_watch_mode = WATCH_CHANGE;
 
 void SourceView::SetWatchModeCB(Widget, XtPointer client_data, 
-				XtPointer call_data)
+                                XtPointer call_data)
 {
     XmToggleButtonCallbackStruct *info = 
-	(XmToggleButtonCallbackStruct *)call_data;
+        (XmToggleButtonCallbackStruct *)call_data;
 
     if (info->set)
-	selected_watch_mode = WatchMode((int)(long)client_data);
+        selected_watch_mode = WatchMode((int)(long)client_data);
 }
 
 void SourceView::NewWatchpointDCB(Widget w, XtPointer client_data, XtPointer)
@@ -5717,7 +5717,7 @@ void SourceView::NewWatchpointDCB(Widget w, XtPointer client_data, XtPointer)
 
     strip_space(input);
     if (input.empty())
-	return;
+        return;
 
     gdb_command(gdb->watch_command(input, selected_watch_mode), w);
 }
@@ -5727,76 +5727,76 @@ void SourceView::NewWatchpointCB(Widget w, XtPointer, XtPointer)
     static Widget dialog = 0;
     if (dialog == 0)
     {
-	static Widget cwatch_w, rwatch_w, awatch_w;
+        static Widget cwatch_w, rwatch_w, awatch_w;
 
-	static MMDesc wp_modes[] =
-	{
-	    { "cwatch",  MMPush, { SetWatchModeCB, XtPointer(WATCH_CHANGE) }, 
-	      0, &cwatch_w, 0, 0 },
-	    { "rwatch",  MMPush, { SetWatchModeCB, XtPointer(WATCH_READ) }, 
-	      0, &rwatch_w, 0, 0 },
-	    { "awatch", MMPush, { SetWatchModeCB, XtPointer(WATCH_ACCESS)},
-	      0, &awatch_w, 0, 0 },
-	    MMEnd
-	};
+        static MMDesc wp_modes[] =
+        {
+            { "cwatch",  MMPush, { SetWatchModeCB, XtPointer(WATCH_CHANGE) }, 
+              0, &cwatch_w, 0, 0 },
+            { "rwatch",  MMPush, { SetWatchModeCB, XtPointer(WATCH_READ) }, 
+              0, &rwatch_w, 0, 0 },
+            { "awatch", MMPush, { SetWatchModeCB, XtPointer(WATCH_ACCESS)},
+              0, &awatch_w, 0, 0 },
+            MMEnd
+        };
 
-	static MMDesc wp_menu[] = 
-	{
-	    { "set",      MMLabel, MMNoCB, 0, 0, 0, 0 },
-	    { "method",   MMOptionMenu, MMNoCB, wp_modes, 0, 0, 0 },
-	    { "on",       MMLabel, MMNoCB, 0, 0, 0, 0 },
-	    MMEnd
-	};
+        static MMDesc wp_menu[] = 
+        {
+            { "set",      MMLabel, MMNoCB, 0, 0, 0, 0 },
+            { "method",   MMOptionMenu, MMNoCB, wp_modes, 0, 0, 0 },
+            { "on",       MMLabel, MMNoCB, 0, 0, 0, 0 },
+            MMEnd
+        };
 
-	Arg args[10];
-	Cardinal arg = 0;
-	dialog = verify(XmCreatePromptDialog(find_shell(w),
-					     XMST("new_watchpoint_dialog"),
-					     args, arg));
-	Delay::register_shell(dialog);
+        Arg args[10];
+        Cardinal arg = 0;
+        dialog = verify(XmCreatePromptDialog(find_shell(w),
+                                             XMST("new_watchpoint_dialog"),
+                                             args, arg));
+        Delay::register_shell(dialog);
 
-	XtUnmanageChild(XmSelectionBoxGetChild(dialog, 
-					       XmDIALOG_SELECTION_LABEL));
-	XtUnmanageChild(XmSelectionBoxGetChild(dialog, XmDIALOG_TEXT));
+        XtUnmanageChild(XmSelectionBoxGetChild(dialog, 
+                                               XmDIALOG_SELECTION_LABEL));
+        XtUnmanageChild(XmSelectionBoxGetChild(dialog, XmDIALOG_TEXT));
 
-	arg = 0;
-	XtSetArg(args[arg], XmNmarginWidth,  0); arg++;
-	XtSetArg(args[arg], XmNmarginHeight, 0); arg++;
-	XtSetArg(args[arg], XmNborderWidth,  0); arg++;
-	Widget box = XmCreateRowColumn(dialog, XMST("box"), args, arg);
-	XtManageChild(box);
+        arg = 0;
+        XtSetArg(args[arg], XmNmarginWidth,  0); arg++;
+        XtSetArg(args[arg], XmNmarginHeight, 0); arg++;
+        XtSetArg(args[arg], XmNborderWidth,  0); arg++;
+        Widget box = XmCreateRowColumn(dialog, XMST("box"), args, arg);
+        XtManageChild(box);
 
-	arg = 0;
-	XtSetArg(args[arg], XmNorientation, XmHORIZONTAL); arg++;
-	XtSetArg(args[arg], XmNborderWidth,  0); arg++;
-	XtSetArg(args[arg], XmNentryBorder,  0); arg++;
-	XtSetArg(args[arg], XmNspacing,      0); arg++;
-	XtSetArg(args[arg], XmNmarginWidth,  0); arg++;
-	XtSetArg(args[arg], XmNmarginHeight, 0); arg++;
-	Widget panel = MMcreateButtonPanel(box, "panel", wp_menu, args, arg);
-	(void) panel;
-	MMaddCallbacks(wp_menu);
-	MMaddHelpCallback(wp_menu, ImmediateHelpCB);
+        arg = 0;
+        XtSetArg(args[arg], XmNorientation, XmHORIZONTAL); arg++;
+        XtSetArg(args[arg], XmNborderWidth,  0); arg++;
+        XtSetArg(args[arg], XmNentryBorder,  0); arg++;
+        XtSetArg(args[arg], XmNspacing,      0); arg++;
+        XtSetArg(args[arg], XmNmarginWidth,  0); arg++;
+        XtSetArg(args[arg], XmNmarginHeight, 0); arg++;
+        Widget panel = MMcreateButtonPanel(box, "panel", wp_menu, args, arg);
+        (void) panel;
+        MMaddCallbacks(wp_menu);
+        MMaddHelpCallback(wp_menu, ImmediateHelpCB);
 
-	set_sensitive(cwatch_w, (gdb->has_watch_command() & WATCH_CHANGE) 
-		       == WATCH_CHANGE);
-	set_sensitive(rwatch_w, (gdb->has_watch_command() & WATCH_READ) 
-		       == WATCH_READ);
-	set_sensitive(awatch_w, (gdb->has_watch_command() & WATCH_ACCESS) 
-		       == WATCH_ACCESS);
+        set_sensitive(cwatch_w, (gdb->has_watch_command() & WATCH_CHANGE) 
+                       == WATCH_CHANGE);
+        set_sensitive(rwatch_w, (gdb->has_watch_command() & WATCH_READ) 
+                       == WATCH_READ);
+        set_sensitive(awatch_w, (gdb->has_watch_command() & WATCH_ACCESS) 
+                       == WATCH_ACCESS);
 
-	// Initialize: use CWATCH as default menu item
-	XtCallActionProc(cwatch_w, "ArmAndActivate", 
-			 (XEvent *)0, (String *)0, 0);
+        // Initialize: use CWATCH as default menu item
+        XtCallActionProc(cwatch_w, "ArmAndActivate", 
+                         (XEvent *)0, (String *)0, 0);
 
-	arg = 0;
-	Widget text = CreateComboBox(box, "text", args, arg);
-	tie_combo_box_to_history(text, watch_history_filter);
+        arg = 0;
+        Widget text = CreateComboBox(box, "text", args, arg);
+        tie_combo_box_to_history(text, watch_history_filter);
 
-	XtAddCallback(dialog, XmNhelpCallback, ImmediateHelpCB, 
-		      XtPointer(0));
-	XtAddCallback(dialog, XmNokCallback, NewWatchpointDCB, 
-		      XtPointer(text));
+        XtAddCallback(dialog, XmNhelpCallback, ImmediateHelpCB, 
+                      XtPointer(0));
+        XtAddCallback(dialog, XmNokCallback, NewWatchpointDCB, 
+                      XtPointer(text));
 
     }
 
@@ -5809,9 +5809,9 @@ void SourceView::NewWatchpointCB(Widget w, XtPointer, XtPointer)
 //----------------------------------------------------------------------------
 
 struct BreakpointPropertiesInfo {
-    std::vector<int> nrs;		// The affected breakpoints
+    std::vector<int> nrs;                // The affected breakpoints
 
-    Widget dialog;		// The widgets of the properties panel
+    Widget dialog;                // The widgets of the properties panel
     Widget title;
     Widget lookup;
     Widget print;
@@ -5826,38 +5826,38 @@ struct BreakpointPropertiesInfo {
     Widget edit;
     Widget editor;
 
-    XtIntervalId timer;		// The spinbox timer
-    bool spin_locked;		// If true, don't invoke spinbox callbacks
-    int ignore_spin_update;	// If > 0, don't update spinbox from bp info
-    bool sync_commands;		// If true, propagate cmd to other breakpoints
+    XtIntervalId timer;                // The spinbox timer
+    bool spin_locked;                // If true, don't invoke spinbox callbacks
+    int ignore_spin_update;        // If > 0, don't update spinbox from bp info
+    bool sync_commands;                // If true, propagate cmd to other breakpoints
     BreakpointPropertiesInfo *next; // Next info in list
 
     static BreakpointPropertiesInfo *all; // List of all infos
 
     BreakpointPropertiesInfo()
-	: nrs(),
-	  dialog(0), title(0), lookup(0), print(0),
-	  enable(0), disable(0), temp(0), del(0),
-	  ignore(0), condition(0), record(0), end(0), edit(0), editor(0),
-	  timer(0), spin_locked(false), ignore_spin_update(0),
-	  sync_commands(false), next(all)
+        : nrs(),
+          dialog(0), title(0), lookup(0), print(0),
+          enable(0), disable(0), temp(0), del(0),
+          ignore(0), condition(0), record(0), end(0), edit(0), editor(0),
+          timer(0), spin_locked(false), ignore_spin_update(0),
+          sync_commands(false), next(all)
     {
-	all = this;
+        all = this;
     }
 
     ~BreakpointPropertiesInfo()
     {
-	if (all == this)
-	{
-	    all = next;
-	}
-	else
-	{
-	    BreakpointPropertiesInfo *info = all;
-	    while (info->next != this)
-		info = info->next;
-	    info->next = next;
-	}
+        if (all == this)
+        {
+            all = next;
+        }
+        else
+        {
+            BreakpointPropertiesInfo *info = all;
+            while (info->next != this)
+                info = info->next;
+            info->next = next;
+        }
     }
 
 private:
@@ -5868,23 +5868,23 @@ private:
 BreakpointPropertiesInfo *BreakpointPropertiesInfo::all = 0;
 
 void SourceView::DeleteInfoCB(Widget, XtPointer client_data, 
-			      XtPointer call_data)
+                              XtPointer call_data)
 {
     BreakpointPropertiesInfo *info = 
-	(BreakpointPropertiesInfo *)client_data;
+        (BreakpointPropertiesInfo *)client_data;
 
     gdb->removeHandler(Recording, RecordingHP, (void *)info);
     if (gdb->recording())
-	gdb_command("\003");	// Abort recording
+        gdb_command("\003");        // Abort recording
 
     if (XtIsManaged(XtParent(info->editor)))
     {
-	// Finish entering commands.  Since W is being destroyed, pass
-	// SOURCE_TEXT_W as reference.
-	EditBreakpointCommandsCB(source_text_w, client_data, call_data);
+        // Finish entering commands.  Since W is being destroyed, pass
+        // SOURCE_TEXT_W as reference.
+        EditBreakpointCommandsCB(source_text_w, client_data, call_data);
 
-	// Update all remaining panels in the next run
-	gdb->addHandler(Recording, RecordingHP, XtPointer(0));
+        // Update all remaining panels in the next run
+        gdb->addHandler(Recording, RecordingHP, XtPointer(0));
     }
 
     delete info;
@@ -5896,8 +5896,8 @@ void SourceView::update_properties_panels()
     BreakpointPropertiesInfo *info = BreakpointPropertiesInfo::all;
     while (info != 0)
     {
-	update_properties_panel(info);
-	info = info->next;
+        update_properties_panel(info);
+        info = info->next;
     }
 }
 
@@ -5908,24 +5908,24 @@ void SourceView::move_breakpoint_properties(int old_bp, int new_bp)
     BreakpointPropertiesInfo *info = BreakpointPropertiesInfo::all;
     while (info != 0)
     {
-	bool changed = false;
-	for (int i = 0; i < int(info->nrs.size()); i++)
-	{
-	    if (info->nrs[i] == old_bp)
-	    {
-		info->nrs[i] = new_bp;
-		update = changed = true;
-	    }
-	}
+        bool changed = false;
+        for (int i = 0; i < int(info->nrs.size()); i++)
+        {
+            if (info->nrs[i] == old_bp)
+            {
+                info->nrs[i] = new_bp;
+                update = changed = true;
+            }
+        }
 
-	if (changed)
-	    sort(info->nrs);	// Sort again
+        if (changed)
+            sort(info->nrs);        // Sort again
 
-	info = info->next;
+        info = info->next;
     }
 
     if (update)
-	update_properties_panels();
+        update_properties_panels();
 }
 
 void SourceView::copy_breakpoint_properties(int old_bp, int new_bp)
@@ -5935,21 +5935,21 @@ void SourceView::copy_breakpoint_properties(int old_bp, int new_bp)
     BreakpointPropertiesInfo *info = BreakpointPropertiesInfo::all;
     while (info != 0)
     {
-	for (int i = 0; i < int(info->nrs.size()); i++)
-	{
-	    if (info->nrs[i] == old_bp)
-	    {
-		info->nrs.push_back(new_bp);
-		update = true;
-		break;
-	    }
-	}
+        for (int i = 0; i < int(info->nrs.size()); i++)
+        {
+            if (info->nrs[i] == old_bp)
+            {
+                info->nrs.push_back(new_bp);
+                update = true;
+                break;
+            }
+        }
 
-	info = info->next;
+        info = info->next;
     }
 
     if (update)
-	update_properties_panels();
+        update_properties_panels();
 }
 
 void SourceView::update_properties_panel(BreakpointPropertiesInfo *info)
@@ -5959,39 +5959,39 @@ void SourceView::update_properties_panel(BreakpointPropertiesInfo *info)
     int i;
     for (i = 0; i < int(info->nrs.size()); i++)
     {
-	if (info->nrs[i] >= next_breakpoint_number())
-	{
-	    // Panel for future (renamed) breakpoint
-	    future = true;
-	    continue;
-	}
+        if (info->nrs[i] >= next_breakpoint_number())
+        {
+            // Panel for future (renamed) breakpoint
+            future = true;
+            continue;
+        }
 
-	BreakPoint *bp = bp_map.get(info->nrs[i]);
-	if (bp == 0)
-	{
-	    // Breakpoint not found -- mark as deleted
-	    info->nrs[i] = 0;
-	}
+        BreakPoint *bp = bp_map.get(info->nrs[i]);
+        if (bp == 0)
+        {
+            // Breakpoint not found -- mark as deleted
+            info->nrs[i] = 0;
+        }
     }
     std::vector<int> new_nrs;
 
     for (i = 0; i < int(info->nrs.size()); i++)
     {
-	if (info->nrs[i] != 0)
-	    new_nrs.push_back(info->nrs[i]);
+        if (info->nrs[i] != 0)
+            new_nrs.push_back(info->nrs[i]);
     }
 
     info->nrs = new_nrs;
 
     if (info->nrs.size() == 0)
     {
-	// No breakpoint left -- destroy dialog shell
-	XtUnmanageChild(info->dialog);
-	return;
+        // No breakpoint left -- destroy dialog shell
+        XtUnmanageChild(info->dialog);
+        return;
     }
 
     if (future)
-	return;			// We cannot update yet
+        return;                        // We cannot update yet
 
     // Use first breakpoint for getting values
     BreakPoint *bp = bp_map.get(info->nrs[0]);
@@ -6003,72 +6003,72 @@ void SourceView::update_properties_panel(BreakpointPropertiesInfo *info)
     string label;
     if (info->nrs.size() == 1)
     {
-	label = what + " " + itostring(info->nrs[0]);
+        label = what + " " + itostring(info->nrs[0]);
     }
     else
     {
-	label = what + "s ";
-	for (i = 0; i < int(info->nrs.size()); i++)
-	{
-	    if (i > 0)
-	    {
-		if (info->nrs.size() == 2)
-		    label += " and ";
-		else if (i == int(info->nrs.size()) - 1)
-		    label += ", and ";
-		else
-		    label += ", ";
-	    }
-	    label += itostring(info->nrs[i]);
-	}
+        label = what + "s ";
+        for (i = 0; i < int(info->nrs.size()); i++)
+        {
+            if (i > 0)
+            {
+                if (info->nrs.size() == 2)
+                    label += " and ";
+                else if (i == int(info->nrs.size()) - 1)
+                    label += ", and ";
+                else
+                    label += ", ";
+            }
+            label += itostring(info->nrs[i]);
+        }
     }
 
     set_label(info->title, label);
 
     MString title = string(DDD_NAME) + ": Properties: " + label;
     XtVaSetValues(info->dialog, XmNdialogTitle,
-		  title.xmstring(), XtPointer(0));
+                  title.xmstring(), XtPointer(0));
 
     // Set values
     string commands = "";
     for (i = 0; i < int(bp->commands().size()); i++)
     {
-	string cmd = bp->commands()[i];
-	strip_auto_command_prefix(cmd);
-	commands += cmd + "\n";
+        string cmd = bp->commands()[i];
+        strip_auto_command_prefix(cmd);
+        commands += cmd + "\n";
     }
 
     XmTextSetString(info->editor, XMST(commands.chars()));
 
     if (info->ignore_spin_update > 0)
     {
-	info->ignore_spin_update--;
+        info->ignore_spin_update--;
     }
     else
     {
-	bool lock = info->spin_locked;
-	info->spin_locked = true;
+        bool lock = info->spin_locked;
+        info->spin_locked = true;
 #if XmVersion >= 2000
-	if (XmIsSpinBox(XtParent(info->ignore)))
-	{
-	    XtVaSetValues(info->ignore, XmNposition,
-			  bp->ignore_count(), XtPointer(0));
-	}
-	else
+        if (XmIsSpinBox(XtParent(info->ignore)))
+        {
+            XtVaSetValues(info->ignore, XmNposition,
+                          bp->ignore_count(), XtPointer(0));
+        }
+        else
 #endif
-	{
-	    String old_ignore = XmTextFieldGetString(info->ignore);
-	    if (atoi(old_ignore) != bp->ignore_count())
-	    {
-		string ignore = itostring(bp->ignore_count());
-		if (ignore == "0")
-		    ignore = "";
+        {
+            String old_ignore = XmTextFieldGetString(info->ignore);
+            if (atoi(old_ignore) != bp->ignore_count())
+            {
+                string ignore = itostring(bp->ignore_count());
+                if (ignore == "0")
+                    ignore = "";
 
-		XmTextFieldSetString(info->ignore, XMST(ignore.chars()));
-	    }
-	    XtFree(old_ignore);
-	}
-	info->spin_locked = lock;
+                XmTextFieldSetString(info->ignore, XMST(ignore.chars()));
+            }
+            XtFree(old_ignore);
+        }
+        info->spin_locked = lock;
     }
 
     // Don't update unchanged condition to prevent OSF/Motif 2.0
@@ -6077,7 +6077,7 @@ void SourceView::update_properties_panel(BreakpointPropertiesInfo *info)
     if (bp->condition() != old_condition)
     {
         const string s1 = bp->condition();
-	XmTextFieldSetString(info->condition, XMST(s1.chars()));
+        XmTextFieldSetString(info->condition, XMST(s1.chars()));
     }
     XtFree(old_condition);
 
@@ -6088,23 +6088,23 @@ void SourceView::update_properties_panel(BreakpointPropertiesInfo *info)
 
     for (i = 0; i < int(info->nrs.size()); i++)
     {
-	BreakPoint *bp = bp_map.get(info->nrs[i]);
-	if (bp->enabled())
-	    can_disable = gdb->can_disable();
-	else
-	    can_enable  = gdb->can_enable();
+        BreakPoint *bp = bp_map.get(info->nrs[i]);
+        if (bp->enabled())
+            can_disable = gdb->can_disable();
+        else
+            can_enable  = gdb->can_enable();
 
-	if (bp->dispo() != BPDEL)
-	    can_maketemp = (gdb->type() == GDB || gdb->type() == PYDB);
+        if (bp->dispo() != BPDEL)
+            can_maketemp = (gdb->type() == GDB || gdb->type() == PYDB);
 
-	if (bp->type() == WATCHPOINT)
-	    can_print = true;
+        if (bp->type() == WATCHPOINT)
+            can_print = true;
     }
 
     if (can_print)
-	XtManageChild(info->print);
+        XtManageChild(info->print);
     else
-	XtUnmanageChild(info->print);
+        XtUnmanageChild(info->print);
 
     set_sensitive(info->enable,  can_enable);
     set_sensitive(info->disable, can_disable);
@@ -6117,8 +6117,8 @@ void SourceView::update_properties_panel(BreakpointPropertiesInfo *info)
     set_sensitive(XtParent(info->condition), gdb->has_breakpoint_conditions());
 
     bool can_record = ((gdb->type() == GDB 
-			|| gdb->type() == PYDB || gdb->type() == BASH)
-		       && !gdb->recording());
+                        || gdb->type() == PYDB || gdb->type() == BASH)
+                       && !gdb->recording());
     bool can_edit   = gdb->has_breakpoint_commands() && !gdb->recording();
     set_sensitive(info->record,    can_record);
     set_sensitive(info->end,       gdb->recording());
@@ -6127,9 +6127,9 @@ void SourceView::update_properties_panel(BreakpointPropertiesInfo *info)
 
     if (info->sync_commands)
     {
-	for (i = 1; i < int(info->nrs.size()); i++)
-	    set_bp_commands(info->nrs[i], bp->commands());
-	info->sync_commands = false;
+        for (i = 1; i < int(info->nrs.size()); i++)
+            set_bp_commands(info->nrs[i], bp->commands());
+        info->sync_commands = false;
     }
 }
 
@@ -6139,54 +6139,54 @@ static string cond_filter(const string& cmd)
     {
     case GDB:
     case PYDB:
-	if (cmd.contains("cond", 0))
-	{
-	    // Skip command
-	    string arg = cmd.after(rxwhite);
+        if (cmd.contains("cond", 0))
+        {
+            // Skip command
+            string arg = cmd.after(rxwhite);
 
-	    // Skip breakpoint number
-	    arg = arg.after(rxwhite);
+            // Skip breakpoint number
+            arg = arg.after(rxwhite);
 
-	    strip_space(arg);
-	    return arg;
-	}
-	break;
+            strip_space(arg);
+            return arg;
+        }
+        break;
 
     case DBX:
-	if (cmd.contains("if "))
-	{
-	    string arg = cmd.after("if ");
-	    strip_space(arg);
-	    return arg;
-	}
-	break;
+        if (cmd.contains("if "))
+        {
+            string arg = cmd.after("if ");
+            strip_space(arg);
+            return arg;
+        }
+        break;
 
     case XDB:
-	if (cmd.contains("{if "))
-	{
-	    string arg = cmd.after("if ");
-	    if (arg.contains("{}"))
-		arg = arg.before("{}");
-	    strip_space(arg);
-	    return arg;
-	}
-	break;
+        if (cmd.contains("{if "))
+        {
+            string arg = cmd.after("if ");
+            if (arg.contains("{}"))
+                arg = arg.before("{}");
+            strip_space(arg);
+            return arg;
+        }
+        break;
 
     case JDB:
-	// No conditions in JDB
-	break;
+        // No conditions in JDB
+        break;
 
     case DBG:
     case BASH:
     case MAKE:
     case PERL:
     {
-	// FIXME
-	break;
+        // FIXME
+        break;
     }
     }
 
-    return "";			// No condition
+    return "";                        // No condition
 }
 
 
@@ -6194,7 +6194,7 @@ static string cond_filter(const string& cmd)
 void SourceView::getBreakpointNumbers(std::vector<int>& breakpoint_nrs)
 {
     if (breakpoint_list_w == 0)
-	return;
+        return;
 
     std::vector<int> numbers;
     getItemNumbers(breakpoint_list_w, numbers);
@@ -6203,26 +6203,26 @@ void SourceView::getBreakpointNumbers(std::vector<int>& breakpoint_nrs)
     // as breakpoint numbers and cause DDD to crash.
     for (int i = 0; i < int(numbers.size()); i++)
     {
-	BreakPoint *bp = bp_map.get(numbers[i]);
-	if (bp != 0)
-	    breakpoint_nrs.push_back(numbers[i]);
+        BreakPoint *bp = bp_map.get(numbers[i]);
+        if (bp != 0)
+            breakpoint_nrs.push_back(numbers[i]);
     }
 }
 
 
 // Edit breakpoint properties
 void SourceView::EditBreakpointPropertiesCB(Widget, 
-					    XtPointer client_data, 
-					    XtPointer)
+                                            XtPointer client_data, 
+                                            XtPointer)
 {
     std::vector<int> breakpoint_nrs;
     if (client_data == 0)
     {
-	getBreakpointNumbers(breakpoint_nrs);
+        getBreakpointNumbers(breakpoint_nrs);
     }
     else
     {
-	breakpoint_nrs.push_back(*((int *)client_data));
+        breakpoint_nrs.push_back(*((int *)client_data));
     }
 
     edit_bps(breakpoint_nrs);
@@ -6231,14 +6231,14 @@ void SourceView::EditBreakpointPropertiesCB(Widget,
 void SourceView::edit_bps(std::vector<int>& breakpoint_nrs, Widget /* origin */)
 {
     if (breakpoint_nrs.size() == 0)
-	return;			// No breakpoints given
+        return;                        // No breakpoints given
 
     sort(breakpoint_nrs);
 
     // Check for first breakpoint
     BreakPoint *bp = bp_map.get(breakpoint_nrs[0]);
     if (bp == 0)
-	return;			// No such breakpoint
+        return;                        // No such breakpoint
 
     BreakpointPropertiesInfo *info = new BreakpointPropertiesInfo;
     info->spin_locked = true;
@@ -6248,9 +6248,9 @@ void SourceView::edit_bps(std::vector<int>& breakpoint_nrs, Widget /* origin */)
     int arg = 0;
     XtSetArg(args[arg], XmNautoUnmanage, False); arg++;
     info->dialog = 
-	verify(XmCreatePromptDialog(source_text_w,
-				    XMST("breakpoint_properties"),
-				    args, arg));
+        verify(XmCreatePromptDialog(source_text_w,
+                                    XMST("breakpoint_properties"),
+                                    args, arg));
 
     Widget apply = XmSelectionBoxGetChild(info->dialog, XmDIALOG_APPLY_BUTTON);
     XtVaSetValues(info->dialog, XmNdefaultButton, apply, XtPointer(0));
@@ -6262,62 +6262,62 @@ void SourceView::edit_bps(std::vector<int>& breakpoint_nrs, Widget /* origin */)
     Widget text = XmSelectionBoxGetChild(info->dialog, XmDIALOG_TEXT);
     XtUnmanageChild(text);
     Widget old_label = 
-	XmSelectionBoxGetChild(info->dialog, XmDIALOG_SELECTION_LABEL);
+        XmSelectionBoxGetChild(info->dialog, XmDIALOG_SELECTION_LABEL);
     XtUnmanageChild(old_label);
 
     Delay::register_shell(info->dialog);
 
     MMDesc commands_menu[] =
     {
-	{ "record", MMPush,
-	  { RecordBreakpointCommandsCB, XtPointer(info) }, 
-	  0, &info->record, 0, 0 },
-	{ "end",    MMPush | MMInsensitive,
-	  { EndBreakpointCommandsCB, XtPointer(info) }, 
-	  0, &info->end, 0, 0 },
-	{ "edit",   MMPush | MMInsensitive,
-	  { EditBreakpointCommandsCB, XtPointer(info) }, 
-	  0, &info->edit, 0, 0 },
-	MMEnd
+        { "record", MMPush,
+          { RecordBreakpointCommandsCB, XtPointer(info) }, 
+          0, &info->record, 0, 0 },
+        { "end",    MMPush | MMInsensitive,
+          { EndBreakpointCommandsCB, XtPointer(info) }, 
+          0, &info->end, 0, 0 },
+        { "edit",   MMPush | MMInsensitive,
+          { EditBreakpointCommandsCB, XtPointer(info) }, 
+          0, &info->edit, 0, 0 },
+        MMEnd
     };
 
     MMDesc enabled_menu[] = 
     {
-	{ "lookup",    MMPush,
-	  { LookupBreakpointCB,    XtPointer(info) }, 0, &info->lookup, 0, 0 },
-	{ "print",     MMPush,
-	  { PrintWatchpointCB,     XtPointer(info) }, 0, &info->print, 0, 0 },
-	{ "enable",    MMPush,
-	  { EnableBreakpointsCB,   XtPointer(info) }, 0, &info->enable, 0, 0 },
-	{ "disable",   MMPush,
-	  { DisableBreakpointsCB,  XtPointer(info) }, 0, &info->disable, 0, 0},
-	{ "temporary", MMPush,
-	  { MakeBreakpointsTempCB, XtPointer(info) }, 0, &info->temp, 0, 0 },
-	{ "delete",    MMPush | MMHelp,
-	  { DeleteBreakpointsCB,   XtPointer(info) }, 0, &info->del, 0, 0 },
-	MMEnd
+        { "lookup",    MMPush,
+          { LookupBreakpointCB,    XtPointer(info) }, 0, &info->lookup, 0, 0 },
+        { "print",     MMPush,
+          { PrintWatchpointCB,     XtPointer(info) }, 0, &info->print, 0, 0 },
+        { "enable",    MMPush,
+          { EnableBreakpointsCB,   XtPointer(info) }, 0, &info->enable, 0, 0 },
+        { "disable",   MMPush,
+          { DisableBreakpointsCB,  XtPointer(info) }, 0, &info->disable, 0, 0},
+        { "temporary", MMPush,
+          { MakeBreakpointsTempCB, XtPointer(info) }, 0, &info->temp, 0, 0 },
+        { "delete",    MMPush | MMHelp,
+          { DeleteBreakpointsCB,   XtPointer(info) }, 0, &info->del, 0, 0 },
+        MMEnd
     };
 
     if (app_data.flat_dialog_buttons)
     {
-	for (MMDesc *item = enabled_menu; item != 0 && item->name != 0; item++)
-	{
-	    if ((item->type & MMTypeMask) == MMPush)
-		item->type = (MMFlatPush | (item->type & ~MMTypeMask));
-	}
+        for (MMDesc *item = enabled_menu; item != 0 && item->name != 0; item++)
+        {
+            if ((item->type & MMTypeMask) == MMPush)
+                item->type = (MMFlatPush | (item->type & ~MMTypeMask));
+        }
     }
 
     MMDesc panel_menu[] = 
     {
-	{ "title", MMButtonPanel, MMNoCB, enabled_menu, 0, 0, 0 },
-	{ "condition", MMComboBox,
-	  { SetBreakpointConditionCB, XtPointer(info) }, 
-	  0, &info->condition, 0, 0 },
-	{ "ignore", MMSpinBox,
-	  { SetBreakpointIgnoreCountCB, XtPointer(info) }, 
-	  0, &info->ignore, 0, 0 },
-	{ "commands", MMButtonPanel, MMNoCB, commands_menu, 0, 0, 0 },
-	MMEnd
+        { "title", MMButtonPanel, MMNoCB, enabled_menu, 0, 0, 0 },
+        { "condition", MMComboBox,
+          { SetBreakpointConditionCB, XtPointer(info) }, 
+          0, &info->condition, 0, 0 },
+        { "ignore", MMSpinBox,
+          { SetBreakpointIgnoreCountCB, XtPointer(info) }, 
+          0, &info->ignore, 0, 0 },
+        { "commands", MMButtonPanel, MMNoCB, commands_menu, 0, 0, 0 },
+        MMEnd
     };
 
     arg = 0;
@@ -6328,18 +6328,18 @@ void SourceView::edit_bps(std::vector<int>& breakpoint_nrs, Widget /* origin */)
     Widget panel = MMcreatePanel(form, "panel", panel_menu);
 
     XtVaSetValues(panel,
-		  XmNmarginWidth,    0,
-		  XmNmarginHeight,   0,
-		  XtPointer(0));
+                  XmNmarginWidth,    0,
+                  XmNmarginHeight,   0,
+                  XtPointer(0));
 
     Widget buttons = XtParent(info->lookup);
     XtVaSetValues(buttons,
-		  XmNmarginWidth,     0, 
-		  XmNmarginHeight,    0, 
-		  XmNborderWidth,     0,
-		  XmNshadowThickness, 0, 
-		  XmNspacing,         0,
-		  XtPointer(0));
+                  XmNmarginWidth,     0, 
+                  XmNmarginHeight,    0, 
+                  XmNborderWidth,     0,
+                  XmNshadowThickness, 0, 
+                  XmNspacing,         0,
+                  XtPointer(0));
 
     arg = 0;
     XtSetArg(args[arg], XmNeditMode, XmMULTI_LINE_EDIT); arg++;
@@ -6356,23 +6356,23 @@ void SourceView::edit_bps(std::vector<int>& breakpoint_nrs, Widget /* origin */)
     MMadjustPanel(panel_menu);
 
     XtAddCallback(info->dialog, XmNokCallback,
-		  ApplyBreakpointPropertiesCB, XtPointer(info));
+                  ApplyBreakpointPropertiesCB, XtPointer(info));
     XtAddCallback(info->dialog, XmNokCallback,
-		  UnmanageThisCB, XtPointer(info->dialog));
+                  UnmanageThisCB, XtPointer(info->dialog));
 
     XtAddCallback(info->dialog, XmNapplyCallback,
-		  ApplyBreakpointPropertiesCB, XtPointer(info));
+                  ApplyBreakpointPropertiesCB, XtPointer(info));
 
     XtAddCallback(info->dialog, XmNcancelCallback,
-		  UnmanageThisCB, XtPointer(info->dialog));
+                  UnmanageThisCB, XtPointer(info->dialog));
 
     XtAddCallback(info->dialog, XmNhelpCallback,    
-		  ImmediateHelpCB, XtPointer(0));
+                  ImmediateHelpCB, XtPointer(0));
 
     XtAddCallback(info->dialog, XmNunmapCallback,
-		  DestroyThisCB, XtParent(info->dialog));
+                  DestroyThisCB, XtParent(info->dialog));
     XtAddCallback(info->dialog, XmNdestroyCallback,
-		  DeleteInfoCB,  XtPointer(info));
+                  DeleteInfoCB,  XtPointer(info));
 
     tie_combo_box_to_history(info->condition, cond_filter);
 
@@ -6382,30 +6382,30 @@ void SourceView::edit_bps(std::vector<int>& breakpoint_nrs, Widget /* origin */)
 
 // Set breakpoint condition
 void SourceView::SetBreakpointConditionCB(Widget w,
-					  XtPointer client_data, 
-					  XtPointer call_data)
+                                          XtPointer client_data, 
+                                          XtPointer call_data)
 {
     XmAnyCallbackStruct *cbs = (XmAnyCallbackStruct *)call_data;
     switch (cbs->reason)
     {
-    case XmCR_OK:		// OK button
-    case XmCR_APPLY:		// Apply button
+    case XmCR_OK:                // OK button
+    case XmCR_APPLY:                // Apply button
 
-    case XmCR_SINGLE_SELECT:	// Selection from ComboBox
+    case XmCR_SINGLE_SELECT:        // Selection from ComboBox
     case XmCR_MULTIPLE_SELECT:
     case XmCR_EXTENDED_SELECT:
     case XmCR_BROWSE_SELECT:
-	break;
+        break;
 
-    case XmCR_ACTIVATE:		// Return Key
-	return;			// Already handled by Apply button
+    case XmCR_ACTIVATE:                // Return Key
+        return;                        // Already handled by Apply button
 
     default:
-	return;			// Value changed
+        return;                        // Value changed
     }
 
     BreakpointPropertiesInfo *info = 
-	(BreakpointPropertiesInfo *)client_data;
+        (BreakpointPropertiesInfo *)client_data;
 
     String cond = XmTextFieldGetString(info->condition);
     set_bps_cond(info->nrs, cond, w);
@@ -6414,15 +6414,15 @@ void SourceView::SetBreakpointConditionCB(Widget w,
 
 // Apply all property changes
 void SourceView::ApplyBreakpointPropertiesCB(Widget w,
-					    XtPointer client_data, 
-					    XtPointer call_data)
+                                            XtPointer client_data, 
+                                            XtPointer call_data)
 { 
     BreakpointPropertiesInfo *info = 
-	(BreakpointPropertiesInfo *)client_data;
+        (BreakpointPropertiesInfo *)client_data;
 
     // End recording
     if (gdb->recording())
-	EndBreakpointCommandsCB(w, client_data, call_data);
+        EndBreakpointCommandsCB(w, client_data, call_data);
 
     // Apply condition
     String cond = XmTextFieldGetString(info->condition);
@@ -6431,49 +6431,49 @@ void SourceView::ApplyBreakpointPropertiesCB(Widget w,
 
     if (XtIsManaged(XtParent(info->editor)))
     {
-	// Apply commands
-	EditBreakpointCommandsCB(w, client_data, call_data);
+        // Apply commands
+        EditBreakpointCommandsCB(w, client_data, call_data);
     }
 }
 
 // Set breakpoint ignore count
 void SourceView::SetBreakpointIgnoreCountCB(Widget w,
-					    XtPointer client_data, 
-					    XtPointer call_data)
+                                            XtPointer client_data, 
+                                            XtPointer call_data)
 {
     XmAnyCallbackStruct *cbs = (XmAnyCallbackStruct *)call_data;
     BreakpointPropertiesInfo *info = 
-	(BreakpointPropertiesInfo *)client_data;
+        (BreakpointPropertiesInfo *)client_data;
 
     if (info->spin_locked)
-	return;			// Ignore the SetValue change
+        return;                        // Ignore the SetValue change
 
-    int delay = 500;		// Wait until the SpinBox stops spinning
+    int delay = 500;                // Wait until the SpinBox stops spinning
     if (cbs->reason == XmCR_ACTIVATE)
-	delay = 0;
+        delay = 0;
 
     if (info->timer != 0)
     {
-	XtRemoveTimeOut(info->timer);
-	info->timer = 0;
+        XtRemoveTimeOut(info->timer);
+        info->timer = 0;
     }
 
     info->timer = XtAppAddTimeOut(XtWidgetToApplicationContext(w),
-				  delay,
-				  SetBreakpointIgnoreCountNowCB, 
-				  client_data);
+                                  delay,
+                                  SetBreakpointIgnoreCountNowCB, 
+                                  client_data);
 }
 
 void SourceView::SetBreakpointIgnoreCountNowCB(XtPointer client_data, 
-					       XtIntervalId *id)
+                                               XtIntervalId *id)
 {
     CommandGroup cg;
 
     BreakpointPropertiesInfo *info = 
-	(BreakpointPropertiesInfo *)client_data;
+        (BreakpointPropertiesInfo *)client_data;
 
     assert (info->timer == *id);
-    (void) id;			// Use it
+    (void) id;                        // Use it
     info->timer = 0;
 
     String _count = XmTextFieldGetString(info->ignore);
@@ -6482,18 +6482,18 @@ void SourceView::SetBreakpointIgnoreCountNowCB(XtPointer client_data,
 
     for (int i = 0; i < int(info->nrs.size()); i++)
     {
-	gdb_command(gdb->ignore_command(itostring(info->nrs[i]), count));
-	info->ignore_spin_update++;
+        gdb_command(gdb->ignore_command(itostring(info->nrs[i]), count));
+        info->ignore_spin_update++;
     }
 }
 
 
 // Make breakpoint temporary
 void SourceView::MakeBreakpointsTempCB(Widget, XtPointer client_data, 
-				       XtPointer)
+                                       XtPointer)
 {
     BreakpointPropertiesInfo *info = 
-	(BreakpointPropertiesInfo *)client_data;
+        (BreakpointPropertiesInfo *)client_data;
 
     gdb_command("enable delete " + numbers(info->nrs));
 }
@@ -6501,20 +6501,20 @@ void SourceView::MakeBreakpointsTempCB(Widget, XtPointer client_data,
 
 // Delete Breakpoint
 void SourceView::DeleteBreakpointsCB(Widget w, XtPointer client_data, 
-				     XtPointer)
+                                     XtPointer)
 {
     BreakpointPropertiesInfo *info = 
-	(BreakpointPropertiesInfo *)client_data;
+        (BreakpointPropertiesInfo *)client_data;
 
     delete_bps(info->nrs, w);
 }
 
 // Enable Breakpoints
 void SourceView::EnableBreakpointsCB(Widget w, XtPointer client_data,
-				     XtPointer)
+                                     XtPointer)
 {
     BreakpointPropertiesInfo *info = 
-	(BreakpointPropertiesInfo *)client_data;
+        (BreakpointPropertiesInfo *)client_data;
 
     enable_bps(info->nrs, w);
 }
@@ -6523,18 +6523,18 @@ void SourceView::EnableBreakpointsCB(Widget w, XtPointer client_data,
 void SourceView::DisableBreakpointsCB(Widget, XtPointer client_data, XtPointer)
 {
     BreakpointPropertiesInfo *info = 
-	(BreakpointPropertiesInfo *)client_data;
+        (BreakpointPropertiesInfo *)client_data;
 
     disable_bps(info->nrs);
 }
 
 // Record breakpoint commands
 void SourceView::RecordBreakpointCommandsCB(Widget w,
-					    XtPointer client_data, 
-					    XtPointer)
+                                            XtPointer client_data, 
+                                            XtPointer)
 {
     BreakpointPropertiesInfo *info = 
-	(BreakpointPropertiesInfo *)client_data;
+        (BreakpointPropertiesInfo *)client_data;
 
     gdb->removeHandler(Recording, RecordingHP, (void *)info);
     gdb->addHandler(Recording, RecordingHP, (void *)info);
@@ -6552,19 +6552,19 @@ void SourceView::RefreshBreakpointsHP(Agent *, void *, void *call_data)
     bool gdb_ready = bool(call_data);
     if (gdb_ready && !gdb->recording())
     {
-	// Don't get called recursively
-	gdb->removeHandler(ReadyForQuestion, RefreshBreakpointsHP);
+        // Don't get called recursively
+        gdb->removeHandler(ReadyForQuestion, RefreshBreakpointsHP);
 
-	string breakpoints = gdb_question("info breakpoints");
-	if (breakpoints == NO_GDB_ANSWER)
-	{
-	    // Try again next time
-	    gdb->addHandler(ReadyForQuestion, RefreshBreakpointsHP);
-	}
-	else
-	{
-	    process_info_bp(breakpoints);
-	}
+        string breakpoints = gdb_question("info breakpoints");
+        if (breakpoints == NO_GDB_ANSWER)
+        {
+            // Try again next time
+            gdb->addHandler(ReadyForQuestion, RefreshBreakpointsHP);
+        }
+        else
+        {
+            process_info_bp(breakpoints);
+        }
     }
 }
 
@@ -6572,197 +6572,197 @@ void SourceView::RefreshBreakpointsHP(Agent *, void *, void *call_data)
 void SourceView::RecordingHP(Agent *, void *client_data, void *call_data)
 {
     BreakpointPropertiesInfo *info = 
-	(BreakpointPropertiesInfo *)client_data;
+        (BreakpointPropertiesInfo *)client_data;
     bool recording = bool(call_data);
 
     // Refresh buttons
     if (info == 0)
-	update_properties_panels();
+        update_properties_panels();
     else
-	update_properties_panel(info);
+        update_properties_panel(info);
 
     if (!recording)
     {
-	// Recording is over.  Don't get called again.
-	gdb->removeHandler(Recording, RecordingHP, (void *)info);
+        // Recording is over.  Don't get called again.
+        gdb->removeHandler(Recording, RecordingHP, (void *)info);
 
-	// Update breakpoints
-	gdb->addHandler(ReadyForQuestion, RefreshBreakpointsHP);
+        // Update breakpoints
+        gdb->addHandler(ReadyForQuestion, RefreshBreakpointsHP);
 
-	if (info != 0)
-	{
-	    // Upon next panel update, propagate command to other breakpoints
-	    info->sync_commands = true;
-	}
+        if (info != 0)
+        {
+            // Upon next panel update, propagate command to other breakpoints
+            info->sync_commands = true;
+        }
     }
 }
 
 // Set breakpoint commands
 void SourceView::set_bp_commands(std::vector<int>& nrs, const std::vector<string>& commands,
-				 Widget origin)
+                                 Widget origin)
 {
     CommandGroup cg;
 
     for (int i = 0; i < int(nrs.size()); i++)
     {
-	// Check for breakpoint
-	MapRef ref;
-	BreakPoint *bp = 0;
-	for (bp = bp_map.first(ref); bp != 0; bp = bp_map.next(ref))
-	{
-	    if (bp->number() == nrs[i])
-		break;
-	}
-	if (bp == 0)
-	    continue;		// No such breakpoint
+        // Check for breakpoint
+        MapRef ref;
+        BreakPoint *bp = 0;
+        for (bp = bp_map.first(ref); bp != 0; bp = bp_map.next(ref))
+        {
+            if (bp->number() == nrs[i])
+                break;
+        }
+        if (bp == 0)
+            continue;                // No such breakpoint
 
-	if (commands.size() == bp->commands().size())
-	{
-	    bool same_commands = true;
-	    for (int j = 0; same_commands && j < int(bp->commands().size()); j++)
-	    {
-		string c1 = bp->commands()[j];
-		strip_auto_command_prefix(c1);
-		string c2 = commands[j];
-		strip_auto_command_prefix(c2);
+        if (commands.size() == bp->commands().size())
+        {
+            bool same_commands = true;
+            for (int j = 0; same_commands && j < int(bp->commands().size()); j++)
+            {
+                string c1 = bp->commands()[j];
+                strip_auto_command_prefix(c1);
+                string c2 = commands[j];
+                strip_auto_command_prefix(c2);
 
-		if (c1 != c2)
-		    same_commands = false;
-	    }
+                if (c1 != c2)
+                    same_commands = false;
+            }
 
-	    if (same_commands)
-		continue;	// Commands unchanged
-	}
+            if (same_commands)
+                continue;        // Commands unchanged
+        }
 
-	string action = "";
-	if (gdb->type() != GDB)
-	{
-	    // Get action for non-GDB types - a semicolon-separated
-	    // list of commands
-	    for (int j = 0; j < int(commands.size()); j++)
-	    {
-		if (j > 0 && 
-		    !action.contains(";", -1) && !action.contains("; ", -1))
-		{
-		    action += "; ";
-		}
+        string action = "";
+        if (gdb->type() != GDB)
+        {
+            // Get action for non-GDB types - a semicolon-separated
+            // list of commands
+            for (int j = 0; j < int(commands.size()); j++)
+            {
+                if (j > 0 && 
+                    !action.contains(";", -1) && !action.contains("; ", -1))
+                {
+                    action += "; ";
+                }
 
-		string command = commands[j];
+                string command = commands[j];
 
-		if (is_graph_cmd(command) || is_running_cmd(command) ||
-		    (gdb->type() == PERL && command.contains(' ', 1)))
-		{
-		    // If:
-		    // - this is a DDD command, or
-		    // - this is a running command, or
-		    // - this is a Perl debugger command,
-		    // make this a DDD auto-command.
-		    add_auto_command_prefix(command);
-		}
+                if (is_graph_cmd(command) || is_running_cmd(command) ||
+                    (gdb->type() == PERL && command.contains(' ', 1)))
+                {
+                    // If:
+                    // - this is a DDD command, or
+                    // - this is a running command, or
+                    // - this is a Perl debugger command,
+                    // make this a DDD auto-command.
+                    add_auto_command_prefix(command);
+                }
 
-		action += command;
-	    }
-	}
+                action += command;
+            }
+        }
 
-	switch (gdb->type())
-	{
-	case GDB:
-	{
-	    gdb_command("commands " + itostring(nrs[i]), origin);
-	    for (int j = 0; j < int(commands.size()); j++)
-		gdb_command(commands[j], origin);
-	    gdb_command("end", origin);
-	    break;
-	}
+        switch (gdb->type())
+        {
+        case GDB:
+        {
+            gdb_command("commands " + itostring(nrs[i]), origin);
+            for (int j = 0; j < int(commands.size()); j++)
+                gdb_command(commands[j], origin);
+            gdb_command("end", origin);
+            break;
+        }
 
-	case DBX:
-	{
-	    // Use `when' to set breakpoint commands.
-	    if (gdb->has_when_semicolon())
-		action += "; ";
+        case DBX:
+        {
+            // Use `when' to set breakpoint commands.
+            if (gdb->has_when_semicolon())
+                action += "; ";
 
-	    string cmd;
-	    if (!bp->func().empty())
-		cmd = "when in " + bp->func();
-	    else
-	    {
-		gdb_command("file " + bp->file_name());
-		cmd = "when at " + itostring(bp->line_nr());
-	    }
+            string cmd;
+            if (!bp->func().empty())
+                cmd = "when in " + bp->func();
+            else
+            {
+                gdb_command("file " + bp->file_name());
+                cmd = "when at " + itostring(bp->line_nr());
+            }
 
-	    cmd += " { " + action + " }";
-	    gdb_command(cmd, origin);
-	    break;
-	}
+            cmd += " { " + action + " }";
+            gdb_command(cmd, origin);
+            break;
+        }
 
-	case XDB:
-	{
-	    // Replace breakpoint by new one with command.
-	    const string cmd = "b " + 
-		bp->file_name() + ":" + 
-		itostring(bp->line_nr()) + 
-		" {" + action + "}";
-	    gdb_command(cmd, origin);
-	    delete_bp(bp->number(), origin);
-	    break;
-	}
+        case XDB:
+        {
+            // Replace breakpoint by new one with command.
+            const string cmd = "b " + 
+                bp->file_name() + ":" + 
+                itostring(bp->line_nr()) + 
+                " {" + action + "}";
+            gdb_command(cmd, origin);
+            delete_bp(bp->number(), origin);
+            break;
+        }
 
-	case PERL:
-	{
-	    // Just set an action.
-	    gdb_command("f " + bp->file_name(), origin);
-	    const string cmd = "a " + itostring(bp->line_nr()) + " " + action;
-	    gdb_command(cmd, origin);
-	    break;
-	}
+        case PERL:
+        {
+            // Just set an action.
+            gdb_command("f " + bp->file_name(), origin);
+            const string cmd = "a " + itostring(bp->line_nr()) + " " + action;
+            gdb_command(cmd, origin);
+            break;
+        }
 
-	default:
-	    assert(!gdb->has_breakpoint_commands());
-	}
+        default:
+            assert(!gdb->has_breakpoint_commands());
+        }
     }
 }
 
 
 // Edit breakpoint commands
 void SourceView::EditBreakpointCommandsCB(Widget w,
-					  XtPointer client_data, 
-					  XtPointer)
+                                          XtPointer client_data, 
+                                          XtPointer)
 {
     BreakpointPropertiesInfo *info = 
-	(BreakpointPropertiesInfo *)client_data;
+        (BreakpointPropertiesInfo *)client_data;
 
     if (XtIsManaged(XtParent(info->editor)))
     {
-	XtUnmanageChild(XtParent(info->editor));
-	MString label = "Edit " + MString(">>", CHARSET_SMALL);
-	set_label(info->edit, label);
+        XtUnmanageChild(XtParent(info->editor));
+        MString label = "Edit " + MString(">>", CHARSET_SMALL);
+        set_label(info->edit, label);
 
-	String _commands = XmTextGetString(info->editor);
-	string cmd = _commands;
-	XtFree(_commands);
+        String _commands = XmTextGetString(info->editor);
+        string cmd = _commands;
+        XtFree(_commands);
 
-	if (!cmd.contains('\n', -1))
-	    cmd += '\n';
-	std::vector<string> commands;
+        if (!cmd.contains('\n', -1))
+            cmd += '\n';
+        std::vector<string> commands;
 
-	while (!cmd.empty())
-	{
-	    string c = cmd.before('\n');
-	    if (!c.empty())
-		commands.push_back(c);
-	    cmd = cmd.after('\n');
-	}
+        while (!cmd.empty())
+        {
+            string c = cmd.before('\n');
+            if (!c.empty())
+                commands.push_back(c);
+            cmd = cmd.after('\n');
+        }
 
-	set_bp_commands(info->nrs, commands, w);
+        set_bp_commands(info->nrs, commands, w);
 
-	// Update all panels in the next run
-	gdb->addHandler(Recording, RecordingHP, (void *)0);
+        // Update all panels in the next run
+        gdb->addHandler(Recording, RecordingHP, (void *)0);
     }
     else
     {
-	XtManageChild(XtParent(info->editor));
-	MString label = "Edit " + MString("<<", CHARSET_SMALL);
-	set_label(info->edit, label);
+        XtManageChild(XtParent(info->editor));
+        MString label = "Edit " + MString("<<", CHARSET_SMALL);
+        set_label(info->edit, label);
     }
 }
 
@@ -6782,11 +6782,11 @@ void SourceView::edit_breakpoint_properties(int bp_nr)
 //----------------------------------------------------------------------------
 
 void SourceView::BreakpointCmdCB(Widget,
-				 XtPointer client_data,
-				 XtPointer)
+                                 XtPointer client_data,
+                                 XtPointer)
 {
     if (breakpoint_list_w == 0)
-	return;
+        return;
 
     std::vector<int> nrs;
     getBreakpointNumbers(nrs);
@@ -6799,84 +6799,84 @@ void SourceView::BreakpointCmdCB(Widget,
     if (cmd == "delete")
         delete_bps(nrs);
     else if (cmd == "enable")
-	enable_bps(nrs);
+        enable_bps(nrs);
     else if (cmd == "disable")
-	disable_bps(nrs);
+        disable_bps(nrs);
 }
 
 void SourceView::LookupBreakpointCB(Widget, XtPointer client_data, XtPointer)
 {
     if (breakpoint_list_w == 0)
-	return;
+        return;
 
     std::vector<int> breakpoint_nrs;
 
     if (client_data == 0)
     {
-	getBreakpointNumbers(breakpoint_nrs);
+        getBreakpointNumbers(breakpoint_nrs);
     }
     else
     {
-	BreakpointPropertiesInfo *info = 
-	    (BreakpointPropertiesInfo *)client_data;
-	breakpoint_nrs = info->nrs;
+        BreakpointPropertiesInfo *info = 
+            (BreakpointPropertiesInfo *)client_data;
+        breakpoint_nrs = info->nrs;
     }
     if (breakpoint_nrs.size() == 0)
-	return;
+        return;
 
     BreakPoint *bp = bp_map.get(breakpoint_nrs[0]);
     if (bp == 0)
-	return;
+        return;
 
     switch (bp->type())
     {
     case BREAKPOINT:
     case TRACEPOINT:
     case ACTIONPOINT:
-	lookup("#" + itostring(breakpoint_nrs[0]));
-	break;
+        lookup("#" + itostring(breakpoint_nrs[0]));
+        break;
 
     case WATCHPOINT:
-	lookup(bp->expr());
-	break;
+        lookup(bp->expr());
+        break;
     }
 }
 
 void SourceView::PrintWatchpointCB(Widget w, XtPointer client_data, XtPointer)
 {
     if (breakpoint_list_w == 0)
-	return;
+        return;
 
     std::vector<int> breakpoint_nrs;
 
     if (client_data == 0)
     {
-	getBreakpointNumbers(breakpoint_nrs);
+        getBreakpointNumbers(breakpoint_nrs);
     }
     else
     {
-	BreakpointPropertiesInfo *info = 
-	    (BreakpointPropertiesInfo *)client_data;
-	breakpoint_nrs = info->nrs;
+        BreakpointPropertiesInfo *info = 
+            (BreakpointPropertiesInfo *)client_data;
+        breakpoint_nrs = info->nrs;
     }
     if (breakpoint_nrs.size() < 1)
-	return;
+        return;
 
     BreakPoint *bp = bp_map.get(breakpoint_nrs[0]);
     if (bp == 0)
-	return;
+        return;
 
     switch (bp->type())
     {
     case BREAKPOINT:
     case TRACEPOINT:
     case ACTIONPOINT:
-	// How should we print a breakpoint?  (FIXME)
-	break;
+        // How should we print a breakpoint?  (FIXME)
+        break;
 
     case WATCHPOINT:
-	gdb_command(gdb->print_command(bp->expr(), false), w);
-	break;
+        gdb_command(gdb->print_command(bp->expr(), false), w);
+        break;
     }
 }
 
@@ -6892,57 +6892,57 @@ int SourceView::breakpoint_number(const string& bp_info, string& file)
     case JDB:
     {
         int colon = bp_info.index(':');
-	if (colon < 0)
-	    return -1;		// No breakpoint
+        if (colon < 0)
+            return -1;                // No breakpoint
 
-	file = bp_info.before(colon);
-	line = get_positive_nr(bp_info.after(colon));
-	break;
+        file = bp_info.before(colon);
+        line = get_positive_nr(bp_info.after(colon));
+        break;
     }
     case PERL:
     {
-	string info_output = bp_info;
+        string info_output = bp_info;
 
-	// Check for `FILE:' at the beginning
-	if (!info_output.contains(' ', 0))
-	{
-	    string first_line;
-	    if (info_output.contains('\n'))
-		first_line = info_output.before('\n');
-	    else
-		first_line = info_output;
+        // Check for `FILE:' at the beginning
+        if (!info_output.contains(' ', 0))
+        {
+            string first_line;
+            if (info_output.contains('\n'))
+                first_line = info_output.before('\n');
+            else
+                first_line = info_output;
 
-	    if (first_line.contains(':', -1))
-	    {
-		// Get leading file name
-		file = first_line.before(':');
-		info_output = info_output.after('\n');
-	    }
-	}
+            if (first_line.contains(':', -1))
+            {
+                // Get leading file name
+                file = first_line.before(':');
+                info_output = info_output.after('\n');
+            }
+        }
 
-	line = get_positive_nr(info_output);
-	break;
+        line = get_positive_nr(info_output);
+        break;
     }
 
     default:
-	return -1;			// Never reached
+        return -1;                        // Never reached
     }
 
     if (line <= 0)
-	return -1;		// No breakpoint
+        return -1;                // No breakpoint
 
     // Strip JDB 1.2 info like `breakpoint', etc.
     strip_space(file);
     int last_space = file.index(" ", -1);
     if (last_space > 0)
-	file = file.after(last_space);
+        file = file.after(last_space);
 
     MapRef ref;
     for (BreakPoint* bp = bp_map.first(ref); bp != 0; bp = bp_map.next(ref))
-	if (bp_matches(bp, file, line))
-	    return bp->number(); // Existing breakpoint
+        if (bp_matches(bp, file, line))
+            return bp->number(); // Existing breakpoint
 
-    return 0;		       // New breakpoint
+    return 0;                       // New breakpoint
 }
 
 
@@ -6950,16 +6950,16 @@ int SourceView::breakpoint_number(const string& bp_info, string& file)
 void SourceView::process_breakpoints(string& info_breakpoints_output)
 {
     if (breakpoint_list_w == 0)
-	return;
+        return;
 
     strip_space(info_breakpoints_output);
     info_breakpoints_output.gsub("\t", "        ");
     if (info_breakpoints_output.empty())
     {
-	if (gdb->has_watch_command())
-	    info_breakpoints_output = "No breakpoints or watchpoints.";
-	else
-	    info_breakpoints_output = "No breakpoints.";
+        if (gdb->has_watch_command())
+            info_breakpoints_output = "No breakpoints or watchpoints.";
+        else
+            info_breakpoints_output = "No breakpoints.";
     }
 
     int count = info_breakpoints_output.freq('\n') + 1;
@@ -6970,51 +6970,51 @@ void SourceView::process_breakpoints(string& info_breakpoints_output)
     split(info_breakpoints_output, breakpoint_list, count, '\n');
 
     while (count > 0 && breakpoint_list[count - 1].empty())
-	count--;
+        count--;
 
     bool select = false;
     string file = current_source_name();
 
     for (int i = 0; i < count; i++)
     {
-	string& bp_info = breakpoint_list[i];
-	if (!gdb->has_numbered_breakpoints())
-	{
-	    // JDB and Perl have no breakpoint numbers -- insert our own
-	    int bp_nr = breakpoint_number(bp_info, file);
-	    if (bp_nr > 0)
-	    {
-		string s = itostring(bp_nr) + "    ";
-		bp_info.prepend(s.at(0, 4));
-	    }
-	}
+        string& bp_info = breakpoint_list[i];
+        if (!gdb->has_numbered_breakpoints())
+        {
+            // JDB and Perl have no breakpoint numbers -- insert our own
+            int bp_nr = breakpoint_number(bp_info, file);
+            if (bp_nr > 0)
+            {
+                string s = itostring(bp_nr) + "    ";
+                bp_info.prepend(s.at(0, 4));
+            }
+        }
 
-	// Select number
-	int bp_number = get_positive_nr(bp_info);
-	if (bp_number > 0)
-	{
-	    MapRef ref;
-	    for (BreakPoint* bp = bp_map.first(ref);
-		 bp != 0;
-		 bp = bp_map.next(ref))
-	    {
-		if (bp->number() == bp_number)
-		{
-		    select = bp->selected();
-		    break;
-		}
-	    }
-	}
+        // Select number
+        int bp_number = get_positive_nr(bp_info);
+        if (bp_number > 0)
+        {
+            MapRef ref;
+            for (BreakPoint* bp = bp_map.first(ref);
+                 bp != 0;
+                 bp = bp_map.next(ref))
+            {
+                if (bp->number() == bp_number)
+                {
+                    select = bp->selected();
+                    break;
+                }
+            }
+        }
 
-	selected[i] = select;
-	strip_auto_command_prefix(bp_info);
-	setup_where_line(bp_info);
+        selected[i] = select;
+        strip_auto_command_prefix(bp_info);
+        setup_where_line(bp_info);
     }
 
     setLabelList(breakpoint_list_w, breakpoint_list, selected, count,
-		 (gdb->type() == GDB || 
-		  gdb->type() == DBG || 
-		  gdb->type() == PYDB) && count > 1, false);
+                 (gdb->type() == GDB || 
+                  gdb->type() == DBG || 
+                  gdb->type() == PYDB) && count > 1, false);
 
     UpdateBreakpointButtonsCB(breakpoint_list_w, XtPointer(0), XtPointer(0));
 
@@ -7023,12 +7023,12 @@ void SourceView::process_breakpoints(string& info_breakpoints_output)
 }
 
 void SourceView::UpdateBreakpointButtonsCB(Widget, XtPointer, 
-					   XtPointer call_data)
+                                           XtPointer call_data)
 {
-    (void) call_data;		// Use it
+    (void) call_data;                // Use it
 
     if (edit_breakpoints_dialog_w == 0)
-	return;
+        return;
 
     std::vector<int> breakpoint_nrs;
     getBreakpointNumbers(breakpoint_nrs);
@@ -7037,29 +7037,29 @@ void SourceView::UpdateBreakpointButtonsCB(Widget, XtPointer,
     MapRef ref;
     BreakPoint *bp;
     for (bp = bp_map.first(ref); bp != 0; bp = bp_map.next(ref))
-	bp->selected() = false;
+        bp->selected() = false;
 
     for (int i = 0; i < int(breakpoint_nrs.size()); i++)
     {
-	int bp_number = breakpoint_nrs[i];
-	for (bp = bp_map.first(ref); bp != 0; bp = bp_map.next(ref))
-	{
-	    if (bp->number() == bp_number)
-	    {
-		bp->selected() = true;
-		break;
-	    }
-	}
+        int bp_number = breakpoint_nrs[i];
+        for (bp = bp_map.first(ref); bp != 0; bp = bp_map.next(ref))
+        {
+            if (bp->number() == bp_number)
+            {
+                bp->selected() = true;
+                break;
+            }
+        }
     }
 
 #if 0
     if (call_data != 0)
     {
-	// Update status line
-	if (breakpoint_nrs.size() == 1)
-	    set_status_mstring(help_on_bp(breakpoint_nrs[0], true));
-	else
-	    set_status("");
+        // Update status line
+        if (breakpoint_nrs.size() == 1)
+            set_status_mstring(help_on_bp(breakpoint_nrs[0], true));
+        else
+            set_status("");
     }
 #endif
 
@@ -7070,27 +7070,27 @@ void SourceView::UpdateBreakpointButtonsCB(Widget, XtPointer,
     int selected_disabled = 0;
     for (bp = bp_map.first(ref); bp != 0; bp = bp_map.next(ref))
     {
-	if (bp->selected())
-	{
-	    selected_bp = bp;
-	    selected++;
+        if (bp->selected())
+        {
+            selected_bp = bp;
+            selected++;
 
-	    if (bp->enabled())
-		selected_enabled++;
-	    else
-		selected_disabled++;
-	}
+            if (bp->enabled())
+                selected_enabled++;
+            else
+                selected_disabled++;
+        }
     }
 
     // Update buttons
     set_sensitive(bp_area[BPButtons::NewWP].widget, gdb->has_watch_command());
     set_sensitive(bp_area[BPButtons::Lookup].widget, selected == 1);
     set_sensitive(bp_area[BPButtons::Print].widget, 
-		   selected == 1 && selected_bp->type() == WATCHPOINT);
+                   selected == 1 && selected_bp->type() == WATCHPOINT);
     set_sensitive(bp_area[BPButtons::Enable].widget,
-		   gdb->can_enable() && selected_disabled > 0);
+                   gdb->can_enable() && selected_disabled > 0);
     set_sensitive(bp_area[BPButtons::Disable].widget,
-		   gdb->can_disable() && selected_enabled > 0);
+                   gdb->can_disable() && selected_enabled > 0);
     set_sensitive(bp_area[BPButtons::Properties].widget, selected > 0);
     set_sensitive(bp_area[BPButtons::Delete].widget, selected > 0);
 }
@@ -7118,8 +7118,8 @@ void SourceView::SelectFrameCB (Widget w, XtPointer, XtPointer call_data)
 
     int count = 0;
     XtVaGetValues(w,
-		  XmNitemCount, &count,
-		  XtPointer(0));
+                  XmNitemCount, &count,
+                  XtPointer(0));
 
     set_sensitive(up_w,   cbs->item_position > 1);
     set_sensitive(down_w, cbs->item_position < count);
@@ -7132,39 +7132,39 @@ void SourceView::SelectFrameCB (Widget w, XtPointer, XtPointer call_data)
     case GDB:
     case MAKE:
     case PYDB:
-	// GDB frame output is caught by our routines.
-	gdb_command(gdb->frame_command(count - cbs->item_position));
-	break;
+        // GDB frame output is caught by our routines.
+        gdb_command(gdb->frame_command(count - cbs->item_position));
+        break;
     
     case XDB:
-	// XDB frame output is caught by our routines.
-	gdb_command(gdb->frame_command(cbs->item_position - 1));
-	break;
+        // XDB frame output is caught by our routines.
+        gdb_command(gdb->frame_command(cbs->item_position - 1));
+        break;
 
     case DBX:
     case JDB:
     case PERL:
-	if (gdb->has_frame_command())
-	{
-	    // Issue `frame' command
-	    gdb_command(gdb->frame_command(count - cbs->item_position + 1));
-	}
-	else
-	{
-	    // JDB, and some DBXes lack a `frame' command.
-	    // Use `up N'/`down N' instead.
-	    int offset = cbs->item_position - last_frame_pos;
-	    if (offset != 0)
-		gdb_command(gdb->relative_frame_command(-offset));
+        if (gdb->has_frame_command())
+        {
+            // Issue `frame' command
+            gdb_command(gdb->frame_command(count - cbs->item_position + 1));
+        }
+        else
+        {
+            // JDB, and some DBXes lack a `frame' command.
+            // Use `up N'/`down N' instead.
+            int offset = cbs->item_position - last_frame_pos;
+            if (offset != 0)
+                gdb_command(gdb->relative_frame_command(-offset));
 
-	    // Call `set_frame_pos' now.
-	    frame_pos_locked = false;
-	    set_frame_pos(0, cbs->item_position);
+            // Call `set_frame_pos' now.
+            frame_pos_locked = false;
+            set_frame_pos(0, cbs->item_position);
 
-	    // Ignore the `up'/`down' reply.
-	    frame_pos_locked = (offset != 0);
-	}
-	break;
+            // Ignore the `up'/`down' reply.
+            frame_pos_locked = (offset != 0);
+        }
+        break;
     }
 }
 
@@ -7173,13 +7173,13 @@ void SourceView::refresh_stack_frames()
     // Allow unlimited time to find out where we are
     string where_s = gdb_question(gdb->where_command(), -1, true);
     if (where_s == NO_GDB_ANSWER)
-	where_s = "No stack.";
+        where_s = "No stack.";
     process_where(where_s);
 
     if (gdb->has_frame_command())
     {
-	string frame = gdb_question(gdb->frame_command());
-	process_frame(frame);
+        string frame = gdb_question(gdb->frame_command());
+        process_frame(frame);
     }
 }
 
@@ -7196,32 +7196,32 @@ void SourceView::setup_where_line(string& line)
 {
     if (gdb->type() != JDB)
     {
-	// Remove file paths (otherwise line can be too long for DBX)
-	//   ... n.b. with templates, line can still be rather long
+        // Remove file paths (otherwise line can be too long for DBX)
+        //   ... n.b. with templates, line can still be rather long
 #if RUNTIME_REGEX
-	static regex rxfilepath("[^\"\'` /]*/");
+        static regex rxfilepath("[^\"\'` /]*/");
 #endif
-	line.gsub(rxfilepath, "");
+        line.gsub(rxfilepath, "");
     }
 
     if (gdb->type() != JDB)
     {
-	// Shorten argument lists `(a = 1, b = 2, ...)' to `()'
+        // Shorten argument lists `(a = 1, b = 2, ...)' to `()'
 #if RUNTIME_REGEX
-	static regex rxarglist("[(][^0-9][^)]*[)]");
+        static regex rxarglist("[(][^0-9][^)]*[)]");
 #endif
-	int start = index(line, rxarglist, "(", -1); // fix bug #33350: Threads window discards function name
-	if (start > 0)
-	{
-	    int end = line.index(')', -1);
-	    if (end > start)
-		line = line.through(start) + line.from(end);
-	}
+        int start = index(line, rxarglist, "(", -1); // fix bug #33350: Threads window discards function name
+        if (start > 0)
+        {
+            int end = line.index(')', -1);
+            if (end > start)
+                line = line.through(start) + line.from(end);
+        }
     }
 
     const int min_width = 40;
     if (int(line.length()) < min_width)
-	line += replicate(' ', min_width - line.length());
+        line += replicate(' ', min_width - line.length());
 }
 
 // Return current JDB frame; 0 if none
@@ -7240,7 +7240,7 @@ inline string jdb_thread()
 void SourceView::process_where(const string& where_output)
 {
     if (!where_output.contains("No ", 0))
-	undo_buffer.add_where(where_output);
+        undo_buffer.add_where(where_output);
 
     int count          = where_output.freq('\n') + 1;
     string *frame_list = new string[count];
@@ -7252,13 +7252,13 @@ void SourceView::process_where(const string& where_output)
     int i;
     for (i = 0; i < count; i++)
     {
-	const string& frame = frame_list[i];
-	if (frame.empty())
-	    continue;		// Skip empty lines
-	if (frame.contains("Reading ", 0))
-	    continue;		// Skip GDB `Reading in symbols' messages
+        const string& frame = frame_list[i];
+        if (frame.empty())
+            continue;                // Skip empty lines
+        if (frame.contains("Reading ", 0))
+            continue;                // Skip GDB `Reading in symbols' messages
 
-	frames.push_back(frame);
+        frames.push_back(frame);
     }
     delete[] frame_list;
     frame_list = frames.data();
@@ -7266,28 +7266,28 @@ void SourceView::process_where(const string& where_output)
 
     if (gdb->type() != XDB)
     {
-	// Invert list such that `Up' and `Down' make sense
-	for (i = 0; i < count / 2; i++)
-	{
-	    string tmp = frame_list[i];
-	    frame_list[i] = frame_list[count - i - 1];
-	    frame_list[count - i - 1] = tmp;
-	}
+        // Invert list such that `Up' and `Down' make sense
+        for (i = 0; i < count / 2; i++)
+        {
+            string tmp = frame_list[i];
+            frame_list[i] = frame_list[count - i - 1];
+            frame_list[count - i - 1] = tmp;
+        }
     }
 
     // Make sure we have a minimum width
     for (i = 0; i < count; i++)
     {
-	selected[i] = false;
-	setup_where_line(frame_list[i]);
+        selected[i] = false;
+        setup_where_line(frame_list[i]);
     }
 
     // JDB does not report frames above the current one.  Hence, we
     // only update the reported frames and others unchanged.
     if (gdb->type() == JDB && jdb_frame() != 1)
-	updateLabelList(frame_list_w, frame_list, count);
+        updateLabelList(frame_list_w, frame_list, count);
     else
-	setLabelList(frame_list_w, frame_list, selected, count, false, false);
+        setLabelList(frame_list_w, frame_list, selected, count, false, false);
     set_frame_pos(0, 0);
 
     delete[] selected;
@@ -7307,16 +7307,16 @@ void SourceView::showing_earlier_state(bool set)
 
     if (set)
     {
-	up_state   = XtIsSensitive(up_w);
-	down_state = XtIsSensitive(down_w);
+        up_state   = XtIsSensitive(up_w);
+        down_state = XtIsSensitive(down_w);
 
-	set_sensitive(up_w, False);
-	set_sensitive(down_w, False);
+        set_sensitive(up_w, False);
+        set_sensitive(down_w, False);
     }
     else
     {
-	set_sensitive(up_w, up_state);
-	set_sensitive(down_w, down_state);
+        set_sensitive(up_w, up_state);
+        set_sensitive(down_w, down_state);
     }
     set_sensitive(all_registers_w, !set);
     set_sensitive(int_registers_w, !set);
@@ -7329,54 +7329,54 @@ void SourceView::showing_earlier_state(bool set)
 void SourceView::process_frame(string& frame_output)
 {
     if (!frame_output.empty() 
-	&& (frame_output[0] == '#' || gdb->type() != GDB))
+        && (frame_output[0] == '#' || gdb->type() != GDB))
     {
-	string frame_nr;
+        string frame_nr;
 
-	switch (gdb->type())
-	{
-	case BASH:
- 	case DBG:
-	case GDB:
-	case MAKE:
-	case PYDB:
-	    frame_nr = frame_output.after(0);
-	    break;
+        switch (gdb->type())
+        {
+        case BASH:
+         case DBG:
+        case GDB:
+        case MAKE:
+        case PYDB:
+            frame_nr = frame_output.after(0);
+            break;
 
-	case DBX:
-	    frame_nr = frame_output;
+        case DBX:
+            frame_nr = frame_output;
 
-	    // Sun DBX 4.0 issues `=>' before current frame
-	    if (frame_nr.contains("=>", 0))
-		frame_nr = frame_nr.after("=>");
-	    break;
+            // Sun DBX 4.0 issues `=>' before current frame
+            if (frame_nr.contains("=>", 0))
+                frame_nr = frame_nr.after("=>");
+            break;
 
-	case XDB:
-	    frame_nr = frame_output.after(" = ", -1);
-	    break;
+        case XDB:
+            frame_nr = frame_output.after(" = ", -1);
+            break;
 
-	case JDB:
-	    frame_nr = frame_output.after("[");
-	    break;
+        case JDB:
+            frame_nr = frame_output.after("[");
+            break;
 
-	case PERL:
-	{
-	    // FIXME
-	    break;
-	}
-	}
+        case PERL:
+        {
+            // FIXME
+            break;
+        }
+        }
 
-	int frame = get_positive_nr(frame_nr);
+        int frame = get_positive_nr(frame_nr);
 
-	// In GDB, the lowest frame is #0, in DBX and JDB, it is #1
-	if (gdb->type() == DBX || gdb->type() == JDB)
-	    frame--;
+        // In GDB, the lowest frame is #0, in DBX and JDB, it is #1
+        if (gdb->type() == DBX || gdb->type() == JDB)
+            frame--;
 
-	process_frame(frame);
+        process_frame(frame);
     }
     else
     {
-	process_frame(-1);	// No frame
+        process_frame(-1);        // No frame
     }
 }
 
@@ -7385,69 +7385,69 @@ void SourceView::process_frame(int frame)
 {
     if (frame >= 0)
     {
-	at_lowest_frame = (frame == 0);
+        at_lowest_frame = (frame == 0);
 
-	if (current_frame < 0)
-	{
-	    // We have not seen a `frame' output yet - assume we're at
-	    // the lowest frame.
-	    current_frame = 0;
-	}
+        if (current_frame < 0)
+        {
+            // We have not seen a `frame' output yet - assume we're at
+            // the lowest frame.
+            current_frame = 0;
+        }
 
-	// Save undoing command
-	string c;
-	if (gdb->has_frame_command())
-	    c = gdb->frame_command(current_frame);
-	else
-	    c = gdb->relative_frame_command(current_frame - frame);
-	undo_buffer.add_command(c, true);
+        // Save undoing command
+        string c;
+        if (gdb->has_frame_command())
+            c = gdb->frame_command(current_frame);
+        else
+            c = gdb->relative_frame_command(current_frame - frame);
+        undo_buffer.add_command(c, true);
 
-	// Save state
-	undo_buffer.add_frame(itostring(frame));
+        // Save state
+        undo_buffer.add_frame(itostring(frame));
 
-	int count         = 0;
-	int top_item      = 0;
-	int visible_items = 0;
-	XtVaGetValues(frame_list_w,
-		      XmNitemCount, &count,
-		      XmNtopItemPosition, &top_item,
-		      XmNvisibleItemCount, &visible_items,
-		      XtPointer(0));
+        int count         = 0;
+        int top_item      = 0;
+        int visible_items = 0;
+        XtVaGetValues(frame_list_w,
+                      XmNitemCount, &count,
+                      XmNtopItemPosition, &top_item,
+                      XmNvisibleItemCount, &visible_items,
+                      XtPointer(0));
 
-	int pos = 1;
-	switch (gdb->type())
-	{
-	case BASH:
-	case DBG:
-	case DBX:
-	case GDB:
-	case JDB:
-	case MAKE:
-	case PYDB:
-	case PERL:
-	    pos = count - frame;
-	    break;
+        int pos = 1;
+        switch (gdb->type())
+        {
+        case BASH:
+        case DBG:
+        case DBX:
+        case GDB:
+        case JDB:
+        case MAKE:
+        case PYDB:
+        case PERL:
+            pos = count - frame;
+            break;
 
-	case XDB:
-	    pos = frame + 1;
-	    break;
-	}
+        case XDB:
+            pos = frame + 1;
+            break;
+        }
 
-	ListSetAndSelectPos(frame_list_w, pos);
+        ListSetAndSelectPos(frame_list_w, pos);
 
-	set_sensitive(up_w,   pos > 1);
-	set_sensitive(down_w, pos < count);
-	refresh_buttons();
+        set_sensitive(up_w,   pos > 1);
+        set_sensitive(down_w, pos < count);
+        refresh_buttons();
 
-	update_glyphs();
-	current_frame = frame;
+        update_glyphs();
+        current_frame = frame;
     }
     else
     {
-	set_sensitive(up_w,   False);
-	set_sensitive(down_w, False);
-	refresh_buttons();
-	current_frame = -1;
+        set_sensitive(up_w,   False);
+        set_sensitive(down_w, False);
+        refresh_buttons();
+        current_frame = -1;
     }
 }
 
@@ -7458,26 +7458,26 @@ bool SourceView::set_frame_func(const string& func)
     XmStringTable items;
 
     XtVaGetValues(frame_list_w,
-		  XmNitemCount, &count,
-		  XmNitems, &items,
-		  XtPointer(0));
+                  XmNitemCount, &count,
+                  XmNitems, &items,
+                  XtPointer(0));
 
     for (int i = count - 1; i >= 0; i--)
     {
-	String _item;
-	XmStringGetLtoR(items[i], LIST_CHARSET, &_item);
-	string item(_item);
-	XtFree(_item);
+        String _item;
+        XmStringGetLtoR(items[i], LIST_CHARSET, &_item);
+        string item(_item);
+        XtFree(_item);
 
-	int func_index  = item.index(func);
-	int paren_index = item.index('(');
+        int func_index  = item.index(func);
+        int paren_index = item.index('(');
 
-	if (func_index >= 0 &&
-	    (func_index < paren_index || paren_index < 0))
-	{
-	    set_frame_pos(0, i + 1);
-	    return true;
-	}
+        if (func_index >= 0 &&
+            (func_index < paren_index || paren_index < 0))
+        {
+            set_frame_pos(0, i + 1);
+            return true;
+        }
     }
 
     return false;
@@ -7488,29 +7488,29 @@ void SourceView::set_frame_pos(int arg, int pos)
 {
     if (frame_pos_locked)
     {
-	frame_pos_locked = false;
-	return;
+        frame_pos_locked = false;
+        return;
     }
 
     int items = 0;
     XtVaGetValues(frame_list_w, XmNitemCount, &items, XtPointer(0));
 
     if (pos == 0)
-	pos = items;
+        pos = items;
     if (arg != 0)
     {
-	int *position_list;
-	int position_count;
-	if (XmListGetSelectedPos(frame_list_w,
-				 &position_list, &position_count))
-	{
-	    if (position_count == 1)
-		pos = position_list[0] + arg;
-	    XtFree((char *)position_list);
-	} else
-	    return;
-	if (position_count != 1 || pos < 1 || pos > items)
-	    return;
+        int *position_list;
+        int position_count;
+        if (XmListGetSelectedPos(frame_list_w,
+                                 &position_list, &position_count))
+        {
+            if (position_count == 1)
+                pos = position_list[0] + arg;
+            XtFree((char *)position_list);
+        } else
+            return;
+        if (position_count != 1 || pos < 1 || pos > items)
+            return;
     }
 
     ListSetAndSelectPos(frame_list_w, pos);
@@ -7529,13 +7529,13 @@ bool SourceView::thread_required()   { return thread_dialog_popped_up; }
 bool SourceView::can_go_up()
 {
     return !gdb->relative_frame_command(1).empty() && 
-	(!where_required() || XtIsSensitive(up_w));
+        (!where_required() || XtIsSensitive(up_w));
 }
 
 bool SourceView::can_go_down()
 {
     return !gdb->relative_frame_command(-1).empty() && 
-	(!where_required() || XtIsSensitive(down_w));
+        (!where_required() || XtIsSensitive(down_w));
 }
 
 
@@ -7551,7 +7551,7 @@ void SourceView::process_registers(string& register_output)
     register_output.gsub("\n\n", "\n");
 
     if (!register_output.contains("No ", 0))
-	undo_buffer.add_registers(register_output);
+        undo_buffer.add_registers(register_output);
 
     int count             = register_output.freq('\n') + 1;
     string *register_list = new string[count];
@@ -7560,17 +7560,17 @@ void SourceView::process_registers(string& register_output)
     split(register_output, register_list, count, '\n');
 
     while (count > 0 && register_list[count - 1].empty())
-	count--;
+        count--;
 
     for (int i = 0; i < count; i++)
     {
-	tabto(register_list[i], 26);
-	untabify(register_list[i]);
-	selected[i] = false;
+        tabto(register_list[i], 26);
+        untabify(register_list[i]);
+        selected[i] = false;
     }
 
     setLabelList(register_list_w, register_list, selected, count,
-		 false, false);
+                 false, false);
 
     delete[] register_list;
     delete[] selected;
@@ -7580,7 +7580,7 @@ void SourceView::refresh_registers()
 {
     string registers = gdb_question(refresh_registers_command());
     if (registers == NO_GDB_ANSWER)
-	registers = "No registers.";
+        registers = "No registers.";
     process_registers(registers);
 }
 
@@ -7613,10 +7613,10 @@ void SourceView::SelectRegisterCB (Widget, XtPointer, XtPointer call_data)
 
     if (!item.empty() && item[item.length() - 1] != '.')
     {
-	string regname = item.through(rxidentifier);
-	strip_space(regname);
-	item = "$" + regname;
-	source_arg->set_string(item);
+        string regname = item.through(rxidentifier);
+        strip_space(regname);
+        item = "$" + regname;
+        source_arg->set_string(item);
     }
 }
 
@@ -7631,16 +7631,16 @@ void SourceView::process_threads(string& threads_output)
     bool valid_threads_output = true;
 
     if (threads_output == NO_GDB_ANSWER 
-	|| threads_output.empty()
-	|| threads_output.contains("No ", 0)
-	|| threads_output.matches(rxwhite))
+        || threads_output.empty()
+        || threads_output.contains("No ", 0)
+        || threads_output.matches(rxwhite))
     {
-	valid_threads_output = false;
-	threads_output = "No threads.\n";
+        valid_threads_output = false;
+        threads_output = "No threads.\n";
     }
 
     if (valid_threads_output)
-	undo_buffer.add_threads(threads_output);
+        undo_buffer.add_threads(threads_output);
 
     int count           = threads_output.freq('\n') + 1;
     string *thread_list = new string[count];
@@ -7649,87 +7649,87 @@ void SourceView::process_threads(string& threads_output)
     split(threads_output, thread_list, count, '\n');
 
     while (count > 0 && thread_list[count - 1].empty())
-	count--;
+        count--;
 
     switch (gdb->type())
     {
     case GDB:
     {
-	for (int i = 0; i < count; i++)
-	{
-	    selected[i] = thread_list[i].contains('*', 0);
-	    if (selected[i])
-		thread_list[i] = thread_list[i].after(0);
-	    strip_leading_space(thread_list[i]);
-	    setup_where_line(thread_list[i]);
-	}
-	break;
+        for (int i = 0; i < count; i++)
+        {
+            selected[i] = thread_list[i].contains('*', 0);
+            if (selected[i])
+                thread_list[i] = thread_list[i].after(0);
+            strip_leading_space(thread_list[i]);
+            setup_where_line(thread_list[i]);
+        }
+        break;
     }
 
     case JDB:
     {
-	string current_thread = jdb_thread();
-	current_threadgroup = "";
-	for (int i = 0; i < count; i++)
-	{
-	    selected[i] = false;
-	    string& item = thread_list[i];
+        string current_thread = jdb_thread();
+        current_threadgroup = "";
+        for (int i = 0; i < count; i++)
+        {
+            selected[i] = false;
+            string& item = thread_list[i];
 
-	    if (item.contains("Group ", 0))
-	    {
-		// Format is: `Group THREADGROUP:'
+            if (item.contains("Group ", 0))
+            {
+                // Format is: `Group THREADGROUP:'
 
-		if (!current_threadgroup.empty())
-		{
-		    // Multiple threadgroups are shown
-		    current_threadgroup = "system";
-		}
-		else
-		{
-		    current_threadgroup = item.after(" ");
-		    strip_leading_space(current_threadgroup);
-		    current_threadgroup = current_threadgroup.before(":");
-		}
-	    }
-	    else
-	    {
-		// Format is: ` NUMBER. (CLASS)ADDRESS NAME STATE'
+                if (!current_threadgroup.empty())
+                {
+                    // Multiple threadgroups are shown
+                    current_threadgroup = "system";
+                }
+                else
+                {
+                    current_threadgroup = item.after(" ");
+                    strip_leading_space(current_threadgroup);
+                    current_threadgroup = current_threadgroup.before(":");
+                }
+            }
+            else
+            {
+                // Format is: ` NUMBER. (CLASS)ADDRESS NAME STATE'
 
-		int addr_index = item.index("(");
-		if (addr_index < 0)
-		    addr_index = item.index("0x");
+                int addr_index = item.index("(");
+                if (addr_index < 0)
+                    addr_index = item.index("0x");
 
-		if (addr_index >= 0)
-		{
-		    // If is the current thread, select it
-		    string thread = item.after("(");
-		    thread = thread.after(" ");
-		    strip_leading_space(thread);
+                if (addr_index >= 0)
+                {
+                    // If is the current thread, select it
+                    string thread = item.after("(");
+                    thread = thread.after(" ");
+                    strip_leading_space(thread);
 
-		    if (thread.contains(current_thread + " ", 0))
-			selected[i] = true;
+                    if (thread.contains(current_thread + " ", 0))
+                        selected[i] = true;
 
-		    // Leave only ` NUMBER. NAME STATE'
-		    int info_index = addr_index;
-		    while (info_index < int(item.length()) &&
-			   item[info_index] != ' ')
-			info_index++;
-		    while (info_index < int(item.length()) &&
-			   item[info_index] == ' ')
-			info_index++;
-		    item = item.before(addr_index) + item.from(info_index);
+                    // Leave only ` NUMBER. NAME STATE'
+                    int info_index = addr_index;
+                    while (info_index < int(item.length()) &&
+                           item[info_index] != ' ')
+                        info_index++;
+                    while (info_index < int(item.length()) &&
+                           item[info_index] == ' ')
+                        info_index++;
+                    item = item.before(addr_index) + item.from(info_index);
 
-		    // Give more verbose output on system threads
-		    if (item.contains("runni", -1))
-			item += "ng";
-		    else if (item.contains("suspe", -1))
-			item += "nded";
-		    else if (item.contains("cond.", -1))
-			item += " waiting";
-		}
-	    }
-	}
-	break;
+                    // Give more verbose output on system threads
+                    if (item.contains("runni", -1))
+                        item += "ng";
+                    else if (item.contains("suspe", -1))
+                        item += "nded";
+                    else if (item.contains("cond.", -1))
+                        item += " waiting";
+                }
+            }
+        }
+        break;
     }
 
     case BASH:
@@ -7742,14 +7742,14 @@ void SourceView::process_threads(string& threads_output)
     {
         if (gdb->type() == DBX && gdb->isSunDBX())
         {
-	    for (int i = 0; i < count; i++)
-	      selected[i] = thread_list[i].contains('>', 1);
+            for (int i = 0; i < count; i++)
+              selected[i] = thread_list[i].contains('>', 1);
         } else
-	{
-	    for (int i = 0; i < count; i++)
-	      selected[i] = false;
-	}
-	break;
+        {
+            for (int i = 0; i < count; i++)
+              selected[i] = false;
+        }
+        break;
     }
     }
 
@@ -7765,32 +7765,32 @@ void SourceView::refresh_threads(bool all_threadgroups)
     {
     case GDB:
     {
-	string threads = gdb_question("info threads");
-	process_threads(threads);
-	break;
+        string threads = gdb_question("info threads");
+        process_threads(threads);
+        break;
     }
     case JDB:
     {
-	if (all_threadgroups)
-	{
-	    // In JDB, `threadgroup system' seems to make `threads' list
-	    // the threads of *all* threadgroups, not only system threads.
-	    // This command will also automatically trigger an update.
-	    gdb_command("threadgroup system");
-	    syncCommandQueue();
-	}
+        if (all_threadgroups)
+        {
+            // In JDB, `threadgroup system' seems to make `threads' list
+            // the threads of *all* threadgroups, not only system threads.
+            // This command will also automatically trigger an update.
+            gdb_command("threadgroup system");
+            syncCommandQueue();
+        }
 
-	string threads = gdb_question("threads");
-	process_threads(threads);
-	break;
+        string threads = gdb_question("threads");
+        process_threads(threads);
+        break;
     }
 
     case DBX:
     {
         if (gdb->isSunDBX())
         {
-	    string threads = gdb_question("threads");
-	    process_threads(threads);
+            string threads = gdb_question("threads");
+            process_threads(threads);
         }
         break;
     }
@@ -7800,8 +7800,8 @@ void SourceView::refresh_threads(bool all_threadgroups)
     case PERL:
     case PYDB:
     case XDB:
-	// No threads.
-	break;
+        // No threads.
+        break;
     }
 }
 
@@ -7826,7 +7826,7 @@ void SourceView::ThreadCommandCB(Widget w, XtPointer client_data, XtPointer)
     getItemNumbers(thread_list_w, threads);
 
     for (int i = 0; i < int(threads.size()); i++)
-	command += " " + itostring(threads[i]);
+        command += " " + itostring(threads[i]);
 
     gdb_command(command, w);
 }
@@ -7839,50 +7839,50 @@ void SourceView::SelectThreadCB(Widget w, XtPointer, XtPointer)
 
     if (threads.size() == 1)
     {
-	// Make single thread the default thread.
-	gdb_command("thread " + itostring(threads[0]), w);
+        // Make single thread the default thread.
+        gdb_command("thread " + itostring(threads[0]), w);
     }
     else if (threads.size() == 0 &&
-	     ( gdb->type() == JDB || (gdb->type() == DBX && gdb->isSunDBX()) )
-	     )
+             ( gdb->type() == JDB || (gdb->type() == DBX && gdb->isSunDBX()) )
+             )
     {
-	// Check if we have selected a threadgroup
-	XmStringTable selected_items;
-	int selected_items_count = 0;
+        // Check if we have selected a threadgroup
+        XmStringTable selected_items;
+        int selected_items_count = 0;
 
-	XtVaGetValues(thread_list_w,
-		      XmNselectedItemCount, &selected_items_count,
-		      XmNselectedItems, &selected_items,
-		      XtPointer(0));
+        XtVaGetValues(thread_list_w,
+                      XmNselectedItemCount, &selected_items_count,
+                      XmNselectedItems, &selected_items,
+                      XtPointer(0));
 
-	if (selected_items_count == 1)
-	{
-	    String _item;
-	    XmStringGetLtoR(selected_items[0], LIST_CHARSET, &_item);
-	    string item(_item);
-	    XtFree(_item);
+        if (selected_items_count == 1)
+        {
+            String _item;
+            XmStringGetLtoR(selected_items[0], LIST_CHARSET, &_item);
+            string item(_item);
+            XtFree(_item);
 
-	    // Output has the form `Group jtest.main:'
-	    if (gdb->type() == JDB)
-	    {
-	        if (item.contains("Group ", 0))
-	        {
-		  string threadgroup = item.after(" ");
-		  strip_leading_space(threadgroup);
-		  threadgroup = threadgroup.before(":");
-
-		  if (threadgroup == current_threadgroup)
-		    threadgroup = "system"; // show all threadgroups
-
-		  gdb_command("threadgroup " + threadgroup, w);
-	        }
-	    } else
+            // Output has the form `Group jtest.main:'
+            if (gdb->type() == JDB)
             {
-		string thread = item.after("t@");
-		thread = thread.before(" ");
-		gdb_command("thread t@" + thread, w);
-	    }
-	}
+                if (item.contains("Group ", 0))
+                {
+                  string threadgroup = item.after(" ");
+                  strip_leading_space(threadgroup);
+                  threadgroup = threadgroup.before(":");
+
+                  if (threadgroup == current_threadgroup)
+                    threadgroup = "system"; // show all threadgroups
+
+                  gdb_command("threadgroup " + threadgroup, w);
+                }
+            } else
+            {
+                string thread = item.after("t@");
+                thread = thread.before(" ");
+                gdb_command("thread t@" + thread, w);
+            }
+        }
     }
 }
 
@@ -7896,25 +7896,25 @@ string SourceView::get_line(string position)
 
     if (position.contains(':'))
     {
-	file_name = position.before(':');
-	position  = position.after(':');
+        file_name = position.before(':');
+        position  = position.after(':');
     }
     int line = get_positive_nr(position);
 
     // Sanity check: make sure the line # isn't too big
     line = min(line, line_count);
     if (line < 1)
-	return "";
+        return "";
 
     if (!is_current_file(file_name))
-	read_file(file_name, line);
+        read_file(file_name, line);
     if (!is_current_file(file_name))
-	return "";
+        return "";
 
     XmTextPosition start = pos_of_line(line) + indent_amount(source_text_w);
     XmTextPosition end   = current_source.index('\n', start);
     if (end < 0)
-	end = current_source.length();
+        end = current_source.length();
 
     const string text = current_source.at(int(start), end - start);
     return itostring(line) + "\t" + text;
@@ -7935,7 +7935,7 @@ void DestroyOldWidgets(WidgetArray& Array){
   for (int i = 0; i < size; i++)
     {
       if (Array[i] != 0)
-	XtDestroyWidget(Array[i]);
+        XtDestroyWidget(Array[i]);
     }
 }
 
@@ -7946,46 +7946,46 @@ void SourceView::set_max_glyphs (int nmax)
 
     for (int k = 0; k < 2; k++)
     {
-	// Destroy old widgets...
+        // Destroy old widgets...
         DestroyOldWidgets(plain_stops[k]);
-	DestroyOldWidgets(multi_stops[k]);
-	DestroyOldWidgets(grey_stops[k]);
-	DestroyOldWidgets(plain_conds[k]);
-	DestroyOldWidgets(multi_conds[k]);
-	DestroyOldWidgets(grey_conds[k]);
-	DestroyOldWidgets(plain_temps[k]);
-	DestroyOldWidgets(multi_temps[k]);
-	DestroyOldWidgets(grey_temps[k]);
+        DestroyOldWidgets(multi_stops[k]);
+        DestroyOldWidgets(grey_stops[k]);
+        DestroyOldWidgets(plain_conds[k]);
+        DestroyOldWidgets(multi_conds[k]);
+        DestroyOldWidgets(grey_conds[k]);
+        DestroyOldWidgets(plain_temps[k]);
+        DestroyOldWidgets(multi_temps[k]);
+        DestroyOldWidgets(grey_temps[k]);
 
-	// ...make array empty...
-	plain_stops[k] = empty;
-	multi_stops[k] = empty;
-	grey_stops[k]  = empty;
+        // ...make array empty...
+        plain_stops[k] = empty;
+        multi_stops[k] = empty;
+        grey_stops[k]  = empty;
 
-	plain_conds[k] = empty;
-	multi_conds[k] = empty;
-	grey_conds[k]  = empty;
+        plain_conds[k] = empty;
+        multi_conds[k] = empty;
+        grey_conds[k]  = empty;
 
-	plain_temps[k] = empty;
-	multi_temps[k] = empty;
-	grey_temps[k]  = empty;
+        plain_temps[k] = empty;
+        multi_temps[k] = empty;
+        grey_temps[k]  = empty;
 
-	// ...and make room for new widgets.  The last one is a null pointer.
-	int i;
-	for (i = 0; i < nmax + 1; i++)
-	{
-	    plain_stops[k].push_back(Widget(0));
-	    multi_stops[k].push_back(Widget(0));
-	    grey_stops[k].push_back(Widget(0));
+        // ...and make room for new widgets.  The last one is a null pointer.
+        int i;
+        for (i = 0; i < nmax + 1; i++)
+        {
+            plain_stops[k].push_back(Widget(0));
+            multi_stops[k].push_back(Widget(0));
+            grey_stops[k].push_back(Widget(0));
 
-	    plain_conds[k].push_back(Widget(0));
-	    multi_conds[k].push_back(Widget(0));
-	    grey_conds[k].push_back(Widget(0));
+            plain_conds[k].push_back(Widget(0));
+            multi_conds[k].push_back(Widget(0));
+            grey_conds[k].push_back(Widget(0));
 
-	    plain_temps[k].push_back(Widget(0));
-	    multi_temps[k].push_back(Widget(0));
-	    grey_temps[k].push_back(Widget(0));
-	}
+            plain_temps[k].push_back(Widget(0));
+            multi_temps[k].push_back(Widget(0));
+            grey_temps[k].push_back(Widget(0));
+        }
     }
 }
 
@@ -7996,13 +7996,13 @@ void SourceView::ActivateGlyphCB(Widget glyph, XtPointer, XtPointer call_data)
     XmPushButtonCallbackStruct *cbs = (XmPushButtonCallbackStruct *)call_data;
     XEvent *e = cbs->event;
     if (e->type != ButtonRelease)
-	return;
+        return;
 
     String *params = { 0 };
     XtCallActionProc(glyph, "source-drop-glyph", e, params, 0);
 
     if (cbs->click_count > 1)
-	XtCallActionProc(glyph, "source-double-click", e, params, 0);
+        XtCallActionProc(glyph, "source-double-click", e, params, 0);
 }
 
 
@@ -8012,31 +8012,31 @@ Pixmap SourceView::pixmap(Widget w, unsigned char *bits, int width, int height)
     Pixel foreground, background;
 
     XtVaGetValues(w,
-		  XmNforeground, &foreground,
-		  XmNbackground, &background,
-		  XtPointer(0));
+                  XmNforeground, &foreground,
+                  XmNbackground, &background,
+                  XtPointer(0));
 
     int depth = PlanesOfScreen(XtScreen(w));
     Pixmap pix = XCreatePixmapFromBitmapData(XtDisplay(w), XtWindow(w), 
-					     (char *)bits, width, height, 
-					     foreground, background, depth);
+                                             (char *)bits, width, height, 
+                                             foreground, background, depth);
     return pix;
 }
 
 
 // Create glyph in FORM_W named NAME from given BITS
 Widget SourceView::create_glyph(Widget form_w,
-				const _XtString name,
-				unsigned char *bits,
-				int width, int height)
+                                const _XtString name,
+                                unsigned char *bits,
+                                int width, int height)
 {
     // Get background color from text
     Pixel background;
     Widget text_w;
     if (form_w == code_form_w)
-	text_w = code_text_w;
+        text_w = code_text_w;
     else
-	text_w = source_text_w;
+        text_w = source_text_w;
     XtVaGetValues(text_w, XmNbackground, &background, XtPointer(0));
 
     // Create push button
@@ -8065,15 +8065,15 @@ Widget SourceView::create_glyph(Widget form_w,
     Widget w = verify(XmCreatePushButton(form_w, XMST(name), args, arg));
 
     if (XtIsRealized(form_w))
-	XtRealizeWidget(w);
+        XtRealizeWidget(w);
 
     XtManageChild(w);
 
     arg = 0;
     if (!cache_glyph_images)
     {
-	Pixmap pix = pixmap(w, bits, width, height);
-	XtSetArg(args[arg], XmNlabelPixmap, pix); arg++;
+        Pixmap pix = pixmap(w, bits, width, height);
+        XtSetArg(args[arg], XmNlabelPixmap, pix); arg++;
     }
     XtSetArg(args[arg], XmNwidth,  width);  arg++;
     XtSetArg(args[arg], XmNheight, height); arg++;
@@ -8091,9 +8091,9 @@ int SourceView::line_height(Widget text_w)
     static int source_height = 0;
     static int code_height   = 0;
     if (text_w == source_text_w && source_height > 0)
-	return source_height;
+        return source_height;
     else if (text_w == code_text_w && code_height > 0)
-	return code_height;
+        return code_height;
 
     bool ok;
 
@@ -8101,21 +8101,21 @@ int SourceView::line_height(Widget text_w)
     Position top_x, top_y;
     ok = XmTextPosToXY(text_w, top, &top_x, &top_y);
     if (!ok)
-	return 0;
+        return 0;
 
     const string& text = current_text(text_w);
     XmTextPosition second = text.index('\n', top) + 1;
     Position second_x, second_y;
     ok = XmTextPosToXY(text_w, second, &second_x, &second_y);
     if (!ok)
-	return 0;
+        return 0;
 
     int height = abs(second_y - top_y);
 
     if (text_w == source_text_w)
-	source_height = height;
+        source_height = height;
     else if (text_w == code_text_w)
-	code_height = height;
+        code_height = height;
 
     return height;
 }
@@ -8131,29 +8131,29 @@ WidgetArray SourceView::changed_glyphs;
 void SourceView::unmap_glyph(Widget glyph)
 {
     if (glyph == 0)
-	return;
+        return;
 
     assert(is_code_widget(glyph) || is_source_widget(glyph));
 
     XtPointer user_data;
     XtVaGetValues(glyph, XmNuserData, &user_data, XtPointer(0));
     if (user_data == 0)
-	return;			// Already unmapped
+        return;                        // Already unmapped
 
     if (change_glyphs)
     {
-	const Position invisible_x = -100;
-	const Position invisible_y = -100;
+        const Position invisible_x = -100;
+        const Position invisible_y = -100;
 
-	// Unmapping the glyph while dragging breaks the drag.
-	// Move the glyph to an invisible position instead.
-	XtVaSetValues(glyph,
-		      XmNleftOffset, invisible_x,
-		      XmNtopOffset,  invisible_y,
-		      XmNuserData, XtPointer(0),
-		      XtPointer(0));
+        // Unmapping the glyph while dragging breaks the drag.
+        // Move the glyph to an invisible position instead.
+        XtVaSetValues(glyph,
+                      XmNleftOffset, invisible_x,
+                      XmNtopOffset,  invisible_y,
+                      XmNuserData, XtPointer(0),
+                      XtPointer(0));
 
-	log_glyph(glyph);
+        log_glyph(glyph);
     }
 
     changed_glyphs.push_back(glyph);
@@ -8163,15 +8163,15 @@ void SourceView::unmap_glyph(Widget glyph)
 void SourceView::map_glyph(Widget& glyph, Position x, Position y)
 {
     while (glyph == 0)
-	CreateGlyphsWorkProc(0);
+        CreateGlyphsWorkProc(0);
 
     assert(is_code_widget(glyph) || is_source_widget(glyph));
 
     Widget text_w;
     if (is_source_widget(glyph))
-	text_w = source_text_w;
+        text_w = source_text_w;
     else
-	text_w = code_text_w;
+        text_w = code_text_w;
 
     XtPointer user_data;
     Dimension height              = 0;
@@ -8182,41 +8182,41 @@ void SourceView::map_glyph(Widget& glyph, Position x, Position y)
     int old_x                     = 0;
     int old_y                     = 0; 
     XtVaGetValues(glyph,
-		  XmNheight,             &height,
-		  XmNborderWidth,        &border_width,
-		  XmNmarginHeight,       &margin_height,
-		  XmNshadowThickness,    &shadow_thickness,
-		  XmNhighlightThickness, &highlight_thickness,
-		  XmNuserData,           &user_data,
-		  XmNleftOffset,         &old_x,
-		  XmNtopOffset,          &old_y,
-		  XtPointer(0));
+                  XmNheight,             &height,
+                  XmNborderWidth,        &border_width,
+                  XmNmarginHeight,       &margin_height,
+                  XmNshadowThickness,    &shadow_thickness,
+                  XmNhighlightThickness, &highlight_thickness,
+                  XmNuserData,           &user_data,
+                  XmNleftOffset,         &old_x,
+                  XmNtopOffset,          &old_y,
+                  XtPointer(0));
     Dimension glyph_height = 
-	height + border_width + margin_height
-	+ shadow_thickness + highlight_thickness;
+        height + border_width + margin_height
+        + shadow_thickness + highlight_thickness;
 
     y -= (line_height(text_w) + glyph_height) / 2 - 2;
 
     if (x != old_x || y != old_y)
     {
-	if (change_glyphs)
-	{
-	    XtVaSetValues(glyph, XmNleftOffset, x, XmNtopOffset, y, 
-			  XtPointer(0));
-	    log_glyph(glyph);
-	}
-	changed_glyphs.push_back(glyph);
+        if (change_glyphs)
+        {
+            XtVaSetValues(glyph, XmNleftOffset, x, XmNtopOffset, y, 
+                          XtPointer(0));
+            log_glyph(glyph);
+        }
+        changed_glyphs.push_back(glyph);
     }
 
     if (user_data != 0)
-	return;			// Already mapped
+        return;                        // Already mapped
 
     if (change_glyphs)
     {
-	XtMapWidget(glyph);
-	XtVaSetValues(glyph, XmNuserData, XtPointer(1), XtPointer(0));
-	log_glyph(glyph);
-	changed_glyphs.push_back(glyph);
+        XtMapWidget(glyph);
+        XtVaSetValues(glyph, XmNuserData, XtPointer(1), XtPointer(0));
+        log_glyph(glyph);
+        changed_glyphs.push_back(glyph);
     }
 }
 
@@ -8231,14 +8231,14 @@ void SourceView::update_glyphs(Widget glyph)
     static XtWorkProcId update_glyph_id = 0;
 
     if (glyph == 0)
-	update_source_glyphs = update_code_glyphs = true;
+        update_source_glyphs = update_code_glyphs = true;
     else if (is_source_widget(glyph))
-	update_source_glyphs = true;
+        update_source_glyphs = true;
     else if (is_code_widget(glyph))
-	update_code_glyphs = true;
+        update_code_glyphs = true;
 
     if (update_glyph_id != 0)
-	XtRemoveTimeOut(update_glyph_id);
+        XtRemoveTimeOut(update_glyph_id);
 
     // Chris van Engelen reports:
     // When reading in a new file, there is an infinite loop involving
@@ -8250,8 +8250,8 @@ void SourceView::update_glyphs(Widget glyph)
     // was solved by increasing the delay time for the first
     // scheduling to 50ms.
     update_glyph_id = 
-	XtAppAddTimeOut(XtWidgetToApplicationContext(source_text_w), 50,
-			UpdateGlyphsWorkProc, XtPointer(&update_glyph_id));
+        XtAppAddTimeOut(XtWidgetToApplicationContext(source_text_w), 50,
+                        UpdateGlyphsWorkProc, XtPointer(&update_glyph_id));
 }
 
 
@@ -8272,25 +8272,25 @@ void SourceView::CheckScrollCB(Widget, XtPointer, XtPointer)
 
     if (check_scroll_id != 0)
     {
-	XtRemoveTimeOut(check_scroll_id);
-	check_scroll_id = 0;
+        XtRemoveTimeOut(check_scroll_id);
+        check_scroll_id = 0;
     }
 
     check_scroll_id = 
-	XtAppAddTimeOut(XtWidgetToApplicationContext(source_text_w),
-			app_data.glyph_update_delay,
-			CheckScrollWorkProc, XtPointer(&check_scroll_id));
+        XtAppAddTimeOut(XtWidgetToApplicationContext(source_text_w),
+                        app_data.glyph_update_delay,
+                        CheckScrollWorkProc, XtPointer(&check_scroll_id));
 }
 
 void SourceView::CheckScrollWorkProc(XtPointer client_data, XtIntervalId *id)
 {
-    (void) id;			// Use it
+    (void) id;                        // Use it
 
     XtIntervalId *timer = (XtIntervalId *)client_data;
     if (timer != 0)
     {
-	assert(*timer == *id);
-	*timer = 0;
+        assert(*timer == *id);
+        *timer = 0;
     }
 
     // place the cursor inside the scrolled area
@@ -8320,11 +8320,11 @@ void SourceView::CheckScrollWorkProc(XtPointer client_data, XtIntervalId *id)
     last_top_pc = XmTextGetTopCharacter(code_text_w);
 
     if (old_top != last_top && old_top_pc != last_top_pc)
-	update_glyphs();
+        update_glyphs();
     else if (old_top != last_top)
-	update_glyphs(source_text_w);
+        update_glyphs(source_text_w);
     else if (old_top_pc != last_top_pc)
-	update_glyphs(code_text_w);
+        update_glyphs(code_text_w);
 }
 
 
@@ -8370,237 +8370,237 @@ Boolean SourceView::CreateGlyphsWorkProc(XtPointer)
     int k;
     for (k = 0; k < 2; k++)
     {
-	// On the Form widget, later children are displayed on top of
-	// earlier children.  A stop sign hiding an arrow gives more
-	// pleasing results than vice-versa, so place arrow glyph
-	// below sign glyphs.
+        // On the Form widget, later children are displayed on top of
+        // earlier children.  A stop sign hiding an arrow gives more
+        // pleasing results than vice-versa, so place arrow glyph
+        // below sign glyphs.
 
-	Widget form_w = k ? code_form_w : source_form_w;
+        Widget form_w = k ? code_form_w : source_form_w;
 
-	if (form_w == 0)
-	    continue;
+        if (form_w == 0)
+            continue;
 
-	if (past_arrows[k] == 0)
-	{
-	    past_arrows[k] = 
-		create_glyph(form_w, "past_arrow",
-			     past_arrow_bits, 
-			     past_arrow_width, 
-			     past_arrow_height);
-	    return False;
-	}
+        if (past_arrows[k] == 0)
+        {
+            past_arrows[k] = 
+                create_glyph(form_w, "past_arrow",
+                             past_arrow_bits, 
+                             past_arrow_width, 
+                             past_arrow_height);
+            return False;
+        }
 
-	if (plain_arrows[k] == 0)
-	{
-	    plain_arrows[k] = 
-		create_glyph(form_w, "plain_arrow",
-			     arrow_bits, 
-			     arrow_width,
-			     arrow_height);
-	    return False;
-	}
+        if (plain_arrows[k] == 0)
+        {
+            plain_arrows[k] = 
+                create_glyph(form_w, "plain_arrow",
+                             arrow_bits, 
+                             arrow_width,
+                             arrow_height);
+            return False;
+        }
 
-	if (grey_arrows[k] == 0)
-	{
-	    grey_arrows[k] = 
-		create_glyph(form_w, "grey_arrow",
-			     grey_arrow_bits, 
-			     grey_arrow_width, 
-			     grey_arrow_height);
-	    return False;
-	}
+        if (grey_arrows[k] == 0)
+        {
+            grey_arrows[k] = 
+                create_glyph(form_w, "grey_arrow",
+                             grey_arrow_bits, 
+                             grey_arrow_width, 
+                             grey_arrow_height);
+            return False;
+        }
 
-	if (signal_arrows[k] == 0)
-	{
-	    signal_arrows[k] = 
-		create_glyph(form_w, "signal_arrow",
-			     signal_arrow_bits, 
-			     signal_arrow_width,
-			     signal_arrow_height);
-	    return False;
-	}
+        if (signal_arrows[k] == 0)
+        {
+            signal_arrows[k] = 
+                create_glyph(form_w, "signal_arrow",
+                             signal_arrow_bits, 
+                             signal_arrow_width,
+                             signal_arrow_height);
+            return False;
+        }
 
-	if (drag_arrows[k] == 0)
-	{
-	    drag_arrows[k] = 
-		create_glyph(form_w, "drag_arrow",
-			     drag_arrow_bits, 
-			     drag_arrow_width,
-			     drag_arrow_height);
-	    return False;
-	}
+        if (drag_arrows[k] == 0)
+        {
+            drag_arrows[k] = 
+                create_glyph(form_w, "drag_arrow",
+                             drag_arrow_bits, 
+                             drag_arrow_width,
+                             drag_arrow_height);
+            return False;
+        }
     }
    
     for (k = 0; k < 2; k++)
     {
-	Widget form_w = k ? code_form_w : source_form_w;
+        Widget form_w = k ? code_form_w : source_form_w;
 
-	if (form_w == 0)
-	    continue;
+        if (form_w == 0)
+            continue;
 
-	int i;
+        int i;
 
-	for (i = 0; i < int(plain_stops[k].size()) - 1; i++)
-	{
-	    if (plain_stops[k][i] == 0)
-	    {
-		plain_stops[k][i] = 
-		    create_glyph(form_w, "plain_stop",
-				 stop_bits, 
-				 stop_width,
-				 stop_height);
-		return False;
-	    }
-	}
+        for (i = 0; i < int(plain_stops[k].size()) - 1; i++)
+        {
+            if (plain_stops[k][i] == 0)
+            {
+                plain_stops[k][i] = 
+                    create_glyph(form_w, "plain_stop",
+                                 stop_bits, 
+                                 stop_width,
+                                 stop_height);
+                return False;
+            }
+        }
 
-	for (i = 0; i < int(plain_temps[k].size()) - 1; i++)
-	{
-	    if (plain_temps[k][i] == 0)
-	    {
-		plain_temps[k][i] = 
-		    create_glyph(form_w, "plain_temp",
-				 temp_bits, 
-				 temp_width,
-				 temp_height);
-		return False;
-	    }
-	}
+        for (i = 0; i < int(plain_temps[k].size()) - 1; i++)
+        {
+            if (plain_temps[k][i] == 0)
+            {
+                plain_temps[k][i] = 
+                    create_glyph(form_w, "plain_temp",
+                                 temp_bits, 
+                                 temp_width,
+                                 temp_height);
+                return False;
+            }
+        }
 
-	for (i = 0; i < int(plain_conds[k].size()) - 1; i++)
-	{
-	    if (plain_conds[k][i] == 0)
-	    {
-		plain_conds[k][i] = 
-		    create_glyph(form_w, "plain_cond",
-				 cond_bits, 
-				 cond_width,
-				 cond_height);
-		return False;
-	    }
-	}
-	for (i = 0; i < int(multi_stops[k].size()) - 1; i++)
-	{
-	    if (multi_stops[k][i] == 0)
-	    {
-		multi_stops[k][i] = 
-		    create_glyph(form_w, "multi_stop",
-				 stop_bits, 
-				 stop_width,
-				 stop_height);
-		return False;
-	    }
-	}
-	for (i = 0; i < int(grey_stops[k].size()) - 1; i++)
-	{
-	    if (grey_stops[k][i] == 0)
-	    {
-		grey_stops[k][i] = 
-		    create_glyph(form_w, "grey_stop",
-				 grey_stop_bits, 
-				 grey_stop_width,
-				 grey_stop_height);
-		return False;
-	    }
-	}
+        for (i = 0; i < int(plain_conds[k].size()) - 1; i++)
+        {
+            if (plain_conds[k][i] == 0)
+            {
+                plain_conds[k][i] = 
+                    create_glyph(form_w, "plain_cond",
+                                 cond_bits, 
+                                 cond_width,
+                                 cond_height);
+                return False;
+            }
+        }
+        for (i = 0; i < int(multi_stops[k].size()) - 1; i++)
+        {
+            if (multi_stops[k][i] == 0)
+            {
+                multi_stops[k][i] = 
+                    create_glyph(form_w, "multi_stop",
+                                 stop_bits, 
+                                 stop_width,
+                                 stop_height);
+                return False;
+            }
+        }
+        for (i = 0; i < int(grey_stops[k].size()) - 1; i++)
+        {
+            if (grey_stops[k][i] == 0)
+            {
+                grey_stops[k][i] = 
+                    create_glyph(form_w, "grey_stop",
+                                 grey_stop_bits, 
+                                 grey_stop_width,
+                                 grey_stop_height);
+                return False;
+            }
+        }
 
-	for (i = 0; i < int(multi_temps[k].size()) - 1; i++)
-	{
-	    if (multi_temps[k][i] == 0)
-	    {
-		multi_temps[k][i] = 
-		    create_glyph(form_w, "multi_temp",
-				 temp_bits, 
-				 temp_width,
-				 temp_height);
-		return False;
-	    }
-	}
-	for (i = 0; i < int(grey_temps[k].size()) - 1; i++)
-	{
-	    if (grey_temps[k][i] == 0)
-	    {
-		grey_temps[k][i] = 
-		    create_glyph(form_w, "grey_temp",
-				 grey_temp_bits, 
-				 grey_temp_width,
-				 grey_temp_height);
-		return False;
-	    }
-	}
+        for (i = 0; i < int(multi_temps[k].size()) - 1; i++)
+        {
+            if (multi_temps[k][i] == 0)
+            {
+                multi_temps[k][i] = 
+                    create_glyph(form_w, "multi_temp",
+                                 temp_bits, 
+                                 temp_width,
+                                 temp_height);
+                return False;
+            }
+        }
+        for (i = 0; i < int(grey_temps[k].size()) - 1; i++)
+        {
+            if (grey_temps[k][i] == 0)
+            {
+                grey_temps[k][i] = 
+                    create_glyph(form_w, "grey_temp",
+                                 grey_temp_bits, 
+                                 grey_temp_width,
+                                 grey_temp_height);
+                return False;
+            }
+        }
 
-	for (i = 0; i < int(multi_conds[k].size()) - 1; i++)
-	{
-	    if (multi_conds[k][i] == 0)
-	    {
-		multi_conds[k][i] = 
-		    create_glyph(form_w, "multi_cond",
-				 cond_bits, 
-				 cond_width,
-				 cond_height);
-		return False;
-	    }
-	}
-	for (i = 0; i < int(grey_conds[k].size()) - 1; i++)
-	{
-	    if (grey_conds[k][i] == 0)
-	    {
-		grey_conds[k][i] = 
-		    create_glyph(form_w, "grey_cond",
-				 grey_cond_bits, 
-				 grey_cond_width,
-				 grey_cond_height);
-		return False;
-	    }
-	}
+        for (i = 0; i < int(multi_conds[k].size()) - 1; i++)
+        {
+            if (multi_conds[k][i] == 0)
+            {
+                multi_conds[k][i] = 
+                    create_glyph(form_w, "multi_cond",
+                                 cond_bits, 
+                                 cond_width,
+                                 cond_height);
+                return False;
+            }
+        }
+        for (i = 0; i < int(grey_conds[k].size()) - 1; i++)
+        {
+            if (grey_conds[k][i] == 0)
+            {
+                grey_conds[k][i] = 
+                    create_glyph(form_w, "grey_cond",
+                                 grey_cond_bits, 
+                                 grey_cond_width,
+                                 grey_cond_height);
+                return False;
+            }
+        }
 
-	if (drag_stops[k] == 0)
-	{
-	    drag_stops[k] = 
-		create_glyph(form_w, "drag_stop",
-			     drag_stop_bits, 
-			     drag_stop_width,
-			     drag_stop_height);
-	    return False;
-	}
+        if (drag_stops[k] == 0)
+        {
+            drag_stops[k] = 
+                create_glyph(form_w, "drag_stop",
+                             drag_stop_bits, 
+                             drag_stop_width,
+                             drag_stop_height);
+            return False;
+        }
 
-	if (drag_temps[k] == 0)
-	{
-	    drag_temps[k] = 
-		create_glyph(form_w, "drag_temp",
-			     drag_temp_bits, 
-			     drag_temp_width,
-			     drag_temp_height);
-	    return False;
-	}
+        if (drag_temps[k] == 0)
+        {
+            drag_temps[k] = 
+                create_glyph(form_w, "drag_temp",
+                             drag_temp_bits, 
+                             drag_temp_width,
+                             drag_temp_height);
+            return False;
+        }
 
-	if (drag_conds[k] == 0)
-	{
-	    drag_conds[k] = 
-		create_glyph(form_w, "drag_cond",
-			     drag_cond_bits, 
-			     drag_cond_width,
-			     drag_cond_height);
-	    return False;
-	}
+        if (drag_conds[k] == 0)
+        {
+            drag_conds[k] = 
+                create_glyph(form_w, "drag_cond",
+                             drag_cond_bits, 
+                             drag_cond_width,
+                             drag_cond_height);
+            return False;
+        }
     }
 
-    return True;		// all done
+    return True;                // all done
 }
 
 // Return position POS of glyph GLYPH in X/Y.  Return true iff displayed.
 bool SourceView::glyph_pos_to_xy(Widget glyph, XmTextPosition pos,
-				 Position& x, Position& y)
+                                 Position& x, Position& y)
 {
     assert (is_source_widget(glyph) || is_code_widget(glyph));
 
     if (pos == XmTextPosition(-1))
-	return false;		// Not displayed
+        return false;                // Not displayed
 
     Widget text_w;
     if (is_source_widget(glyph))
-	text_w = source_text_w;
+        text_w = source_text_w;
     else
-	text_w = code_text_w;
+        text_w = code_text_w;
 
     Boolean pos_displayed = XmTextPosToXY(text_w, pos, &x, &y);
 
@@ -8609,8 +8609,8 @@ bool SourceView::glyph_pos_to_xy(Widget glyph, XmTextPosition pos,
     
     if (pos_displayed && (x > width || y > height))
     {
-	// Below last displayed position
-	pos_displayed = False;
+        // Below last displayed position
+        pos_displayed = False;
     }
 
     return pos_displayed;
@@ -8620,49 +8620,49 @@ bool SourceView::glyph_pos_to_xy(Widget glyph, XmTextPosition pos,
 // Map stop sign GLYPH at position POS.  Get widget from STOPS[COUNT];
 // store location in POSITIONS.  Return mapped widget (0 if none)
 Widget SourceView::map_stop_at(Widget glyph, XmTextPosition pos,
-			       WidgetArray& stops, int& count,
-			       std::vector<XmTextPosition>& positions)
+                               WidgetArray& stops, int& count,
+                               std::vector<XmTextPosition>& positions)
 {
     Position x, y;
     bool pos_displayed = glyph_pos_to_xy(glyph, pos, x, y);
 
     if (pos_displayed)
     {
-	while (stops[count] == 0)
-	{
-	    if (CreateGlyphsWorkProc(0))
-		break;
-	}
+        while (stops[count] == 0)
+        {
+            if (CreateGlyphsWorkProc(0))
+                break;
+        }
 
-	Widget glyph = stops[count] ? stops[count++] : 0;
+        Widget glyph = stops[count] ? stops[count++] : 0;
 
-	if (glyph != 0)
-	{
-	    for (int i = 0; i < int(positions.size()); i++)
-		if (pos == positions[i])
-		    x += multiple_stop_x_offset;
+        if (glyph != 0)
+        {
+            for (int i = 0; i < int(positions.size()); i++)
+                if (pos == positions[i])
+                    x += multiple_stop_x_offset;
 
-	    map_glyph(glyph, x + stop_x_offset, y);
-	    positions.push_back(pos);
-	    return glyph;
-	}
-	else
-	{
-	    // Max number of glyphs exceeded
-	    const string msg = "Out of glyphs (used " + 
-		itostring(stops.size() - 1) + " of " +
-		itostring(stops.size() - 1) + ")";
+            map_glyph(glyph, x + stop_x_offset, y);
+            positions.push_back(pos);
+            return glyph;
+        }
+        else
+        {
+            // Max number of glyphs exceeded
+            const string msg = "Out of glyphs (used " + 
+                itostring(stops.size() - 1) + " of " +
+                itostring(stops.size() - 1) + ")";
 
-	    set_status(msg);
+            set_status(msg);
 
-	    static bool warning_posted = false;
+            static bool warning_posted = false;
 
-	    if (!warning_posted)
-	    {
-		post_warning(msg, "out_of_glyphs_warning", glyph);
-		warning_posted = true;
-	    }
-	}
+            if (!warning_posted)
+            {
+                post_warning(msg, "out_of_glyphs_warning", glyph);
+                warning_posted = true;
+            }
+        }
     }
 
     return 0;
@@ -8684,53 +8684,53 @@ Widget SourceView::map_arrow_at(Widget glyph, XmTextPosition pos)
     Widget& past_arrow   = past_arrows[k];
 
     while (signal_arrow == 0 || plain_arrow == 0 || 
-	   grey_arrow == 0 || past_arrow == 0)
+           grey_arrow == 0 || past_arrow == 0)
     {
-	if (CreateGlyphsWorkProc(0))
-	    break;
+        if (CreateGlyphsWorkProc(0))
+            break;
     }
 
     if (pos_displayed)
     {
-	if (undo_buffer.showing_earlier_state())
-	{
-	    map_glyph(past_arrow, x + arrow_x_offset, y);
-	    unmap_glyph(grey_arrow);
-	    unmap_glyph(signal_arrow);
-	    unmap_glyph(plain_arrow);
-	    return past_arrow;
-	}
-	else if (at_lowest_frame && signal_received)
-	{
-	    map_glyph(signal_arrow, x + arrow_x_offset, y);
-	    unmap_glyph(plain_arrow);
-	    unmap_glyph(grey_arrow);
-	    unmap_glyph(past_arrow);
-	    return signal_arrow;
-	}
-	else if (at_lowest_frame)
-	{
-	    map_glyph(plain_arrow, x + arrow_x_offset, y);
-	    unmap_glyph(signal_arrow);
-	    unmap_glyph(grey_arrow);
-	    unmap_glyph(past_arrow);
-	    return plain_arrow;
-	}
-	else
-	{
-	    map_glyph(grey_arrow, x + arrow_x_offset, y);
-	    unmap_glyph(signal_arrow);
-	    unmap_glyph(plain_arrow);
-	    unmap_glyph(past_arrow);
-	    return grey_arrow;
-	}
+        if (undo_buffer.showing_earlier_state())
+        {
+            map_glyph(past_arrow, x + arrow_x_offset, y);
+            unmap_glyph(grey_arrow);
+            unmap_glyph(signal_arrow);
+            unmap_glyph(plain_arrow);
+            return past_arrow;
+        }
+        else if (at_lowest_frame && signal_received)
+        {
+            map_glyph(signal_arrow, x + arrow_x_offset, y);
+            unmap_glyph(plain_arrow);
+            unmap_glyph(grey_arrow);
+            unmap_glyph(past_arrow);
+            return signal_arrow;
+        }
+        else if (at_lowest_frame)
+        {
+            map_glyph(plain_arrow, x + arrow_x_offset, y);
+            unmap_glyph(signal_arrow);
+            unmap_glyph(grey_arrow);
+            unmap_glyph(past_arrow);
+            return plain_arrow;
+        }
+        else
+        {
+            map_glyph(grey_arrow, x + arrow_x_offset, y);
+            unmap_glyph(signal_arrow);
+            unmap_glyph(plain_arrow);
+            unmap_glyph(past_arrow);
+            return grey_arrow;
+        }
     }
     else
     {
-	unmap_glyph(signal_arrow);
-	unmap_glyph(plain_arrow);
-	unmap_glyph(grey_arrow);
-	unmap_glyph(past_arrow);
+        unmap_glyph(signal_arrow);
+        unmap_glyph(plain_arrow);
+        unmap_glyph(grey_arrow);
+        unmap_glyph(past_arrow);
     }
     return 0;
 }
@@ -8739,30 +8739,30 @@ Widget SourceView::map_arrow_at(Widget glyph, XmTextPosition pos)
 void SourceView::copy_colors(Widget glyph, Widget origin)
 {
     if (origin == 0)
-	return;
+        return;
 
     Pixel background, foreground;
     XtVaGetValues(origin,
-		  XmNforeground, &foreground,
-		  XmNbackground, &background,
-		  XtPointer(0));
+                  XmNforeground, &foreground,
+                  XmNbackground, &background,
+                  XtPointer(0));
 
     Pixmap pixmap = 
-	XmGetPixmap(XtScreen(glyph), XtName(glyph), foreground, background);
+        XmGetPixmap(XtScreen(glyph), XtName(glyph), foreground, background);
     if (pixmap != XmUNSPECIFIED_PIXMAP)
     {
-	Pixmap old_pixmap;
-	XtVaGetValues(glyph, XmNlabelPixmap, &old_pixmap, XtPointer(0));
-	XmDestroyPixmap(XtScreen(glyph), old_pixmap);
+        Pixmap old_pixmap;
+        XtVaGetValues(glyph, XmNlabelPixmap, &old_pixmap, XtPointer(0));
+        XmDestroyPixmap(XtScreen(glyph), old_pixmap);
 
-	XtVaSetValues(glyph, XmNlabelPixmap, pixmap, XtPointer(0));
+        XtVaSetValues(glyph, XmNlabelPixmap, pixmap, XtPointer(0));
     }
 }
 
 // Map temporary stop sign at position POS.  If ORIGIN is given, use
 // colors from ORIGIN.
 Widget SourceView::map_drag_stop_at(Widget glyph, XmTextPosition pos, 
-				    Widget origin)
+                                    Widget origin)
 {
     assert (is_source_widget(glyph) || is_code_widget(glyph));
 
@@ -8773,77 +8773,77 @@ Widget SourceView::map_drag_stop_at(Widget glyph, XmTextPosition pos,
 
     if (pos_displayed)
     {
-	bool cond = (origin != 0 && string(XtName(origin)).contains("cond"));
-	bool temp = (origin != 0 && string(XtName(origin)).contains("temp"));
+        bool cond = (origin != 0 && string(XtName(origin)).contains("cond"));
+        bool temp = (origin != 0 && string(XtName(origin)).contains("temp"));
 
-	Widget& drag_stop = 
-	    temp ? drag_temps[k] : 
-	    cond ? drag_conds[k] : 
-	    drag_stops[k];
-	
-	while (drag_stop == 0)
-	{
-	    if (CreateGlyphsWorkProc(0))
-		break;
-	}
+        Widget& drag_stop = 
+            temp ? drag_temps[k] : 
+            cond ? drag_conds[k] : 
+            drag_stops[k];
+        
+        while (drag_stop == 0)
+        {
+            if (CreateGlyphsWorkProc(0))
+                break;
+        }
 
-	copy_colors(drag_stop, origin);
+        copy_colors(drag_stop, origin);
 
-	if (origin != 0)
-	{
-	    static Position last_x = x + stop_x_offset;
+        if (origin != 0)
+        {
+            static Position last_x = x + stop_x_offset;
 
-	    Position origin_x = -1;
- 	    XtVaGetValues(origin, XmNx, &origin_x, XtPointer(0));
-	    if (origin_x >= 0)
-	    {
-		// Origin is mapped
-		x = last_x = origin_x;
-	    }
-	    else
-	    {
-		// Origin is unmapped - use last recorded value
-		x = last_x;
-	    }
-	}
-	else
-	{
-	    x += stop_x_offset;
-	}
+            Position origin_x = -1;
+             XtVaGetValues(origin, XmNx, &origin_x, XtPointer(0));
+            if (origin_x >= 0)
+            {
+                // Origin is mapped
+                x = last_x = origin_x;
+            }
+            else
+            {
+                // Origin is unmapped - use last recorded value
+                x = last_x;
+            }
+        }
+        else
+        {
+            x += stop_x_offset;
+        }
 
-	map_glyph(drag_stop, x, y);
-	if (temp)
-	{
-	    unmap_glyph(drag_conds[k]);
-	    unmap_glyph(drag_stops[k]);
-	}
-	else if (cond)
-	{
-	    unmap_glyph(drag_temps[k]);
-	    unmap_glyph(drag_stops[k]);
-	}
-	else
-	{
-	    unmap_glyph(drag_conds[k]);
-	    unmap_glyph(drag_temps[k]);
-	}
+        map_glyph(drag_stop, x, y);
+        if (temp)
+        {
+            unmap_glyph(drag_conds[k]);
+            unmap_glyph(drag_stops[k]);
+        }
+        else if (cond)
+        {
+            unmap_glyph(drag_temps[k]);
+            unmap_glyph(drag_stops[k]);
+        }
+        else
+        {
+            unmap_glyph(drag_conds[k]);
+            unmap_glyph(drag_temps[k]);
+        }
 
-	return drag_stop;
+        return drag_stop;
     }
     else
     {
-	unmap_glyph(drag_conds[k]);
-	unmap_glyph(drag_temps[k]);
-	unmap_glyph(drag_stops[k]);
+        unmap_glyph(drag_conds[k]);
+        unmap_glyph(drag_temps[k]);
+        unmap_glyph(drag_stops[k]);
 
-	return 0;
+        return 0;
     }
 }
 
 // Map temporary arrow at position POS.  If ORIGIN is given, use
 // colors from ORIGIN.
 Widget SourceView::map_drag_arrow_at(Widget glyph, XmTextPosition pos, 
-				     Widget origin)
+                                     Widget origin)
 {
     assert (is_source_widget(glyph) || is_code_widget(glyph));
 
@@ -8856,16 +8856,16 @@ Widget SourceView::map_drag_arrow_at(Widget glyph, XmTextPosition pos,
 
     while (drag_arrow == 0)
     {
-	if (CreateGlyphsWorkProc(0))
-	    break;
+        if (CreateGlyphsWorkProc(0))
+            break;
     }
 
     copy_colors(drag_arrow, origin);
 
     if (pos_displayed)
-	map_glyph(drag_arrow, x + arrow_x_offset, y);
+        map_glyph(drag_arrow, x + arrow_x_offset, y);
     else
-	unmap_glyph(drag_arrow);
+        unmap_glyph(drag_arrow);
 
     return drag_arrow;
 }
@@ -8875,36 +8875,36 @@ Widget SourceView::map_drag_arrow_at(Widget glyph, XmTextPosition pos,
 // Update glyphs after interval
 void SourceView::UpdateGlyphsWorkProc(XtPointer client_data, XtIntervalId *id)
 {
-    (void) id;			// Use it
+    (void) id;                        // Use it
 
     // Allow new invocations
     XtIntervalId *proc_id = ((XtIntervalId *) client_data);
     if (proc_id != 0)
     {
-	assert(*proc_id == *id);
-	*proc_id = 0;
+        assert(*proc_id == *id);
+        *proc_id = 0;
     }
 
     XtAppContext app_context = XtWidgetToApplicationContext(source_text_w);
     if (XtAppPending(app_context) & (XtIMXEvent | XtIMAlternateInput))
     {
-	// Other events pending - check if we shall change something
-	const WidgetArray& glyphs = glyphs_to_be_updated();
+        // Other events pending - check if we shall change something
+        const WidgetArray& glyphs = glyphs_to_be_updated();
 
-	if (glyphs.size() > 0)
-	{
-	    // Change is imminent - unmap all glyphs that will change
-	    // and try again in 50ms
-	    for (int i = 0; i < int(glyphs.size()); i++)
-		unmap_glyph(glyphs[i]);
+        if (glyphs.size() > 0)
+        {
+            // Change is imminent - unmap all glyphs that will change
+            // and try again in 50ms
+            for (int i = 0; i < int(glyphs.size()); i++)
+                unmap_glyph(glyphs[i]);
 
-	    XtIntervalId new_id = 
-		XtAppAddTimeOut(app_context, 50,
-				UpdateGlyphsWorkProc, client_data);
-	    if (proc_id != 0)
-		*proc_id = new_id;
-	    return;
-	}
+            XtIntervalId new_id = 
+                XtAppAddTimeOut(app_context, 50,
+                                UpdateGlyphsWorkProc, client_data);
+            if (proc_id != 0)
+                *proc_id = new_id;
+            return;
+        }
     }
 
     change_glyphs = true;
@@ -8922,169 +8922,169 @@ void SourceView::update_glyphs_now()
 
     if (update_source_glyphs)
     {
-	// Show current execution position
-	XmTextPosition pos = XmTextPosition(-1);
+        // Show current execution position
+        XmTextPosition pos = XmTextPosition(-1);
 
-	if (display_glyphs &&
-	    (is_current_file(last_execution_file) ||
-	     base_matches(last_execution_file, current_file_name)) &&
-	     line_count > 0 &&
-	     last_execution_line > 0 &&
-	     last_execution_line <= line_count)
-	{
-	    pos = pos_of_line(last_execution_line);
-	}
+        if (display_glyphs &&
+            (is_current_file(last_execution_file) ||
+             base_matches(last_execution_file, current_file_name)) &&
+             line_count > 0 &&
+             last_execution_line > 0 &&
+             last_execution_line <= line_count)
+        {
+            pos = pos_of_line(last_execution_line);
+        }
 
-	map_arrow_at(source_text_w, pos);
+        map_arrow_at(source_text_w, pos);
     }
 
     if (update_code_glyphs)
     {
-	// Show current PC
-	XmTextPosition pos = XmTextPosition(-1);
+        // Show current PC
+        XmTextPosition pos = XmTextPosition(-1);
 
-	if (display_glyphs && !last_execution_pc.empty())
-	    pos = find_pc(last_execution_pc);
+        if (display_glyphs && !last_execution_pc.empty())
+            pos = find_pc(last_execution_pc);
 
-	map_arrow_at(code_text_w, pos);
+        map_arrow_at(code_text_w, pos);
     }
 
     // Map breakpoint glyphs
     for (int k = 0; k < 2; k++)
     {
-	if (k == 0 && !update_source_glyphs)
-	    continue;
-	if (k == 1 && !update_code_glyphs)
-	    continue;
+        if (k == 0 && !update_source_glyphs)
+            continue;
+        if (k == 1 && !update_code_glyphs)
+            continue;
 
-	int plain_stops_count = 0;
-	int multi_stops_count  = 0;
-	int grey_stops_count  = 0;
+        int plain_stops_count = 0;
+        int multi_stops_count  = 0;
+        int grey_stops_count  = 0;
 
-	int plain_conds_count = 0;
-	int multi_conds_count = 0;
-	int grey_conds_count  = 0;
+        int plain_conds_count = 0;
+        int multi_conds_count = 0;
+        int grey_conds_count  = 0;
 
-	int plain_temps_count = 0;
-	int multi_temps_count = 0;
-	int grey_temps_count  = 0;
+        int plain_temps_count = 0;
+        int multi_temps_count = 0;
+        int grey_temps_count  = 0;
 
-	if (display_glyphs)
-	{
-	    std::vector<XmTextPosition> positions;
-	    
-	    MapRef ref;
-	    for (BreakPoint *bp = bp_map.first(ref);
-		 bp != 0;
-		 bp = bp_map.next(ref))
-	    {
-		// According to the GDB folks
-		// (http://sourceware.org/ml/gdb/2009-02/msg00117.html)
-		// we can assume the source locations are all the same.
-		// So we only need one source glyph.
-		int n = (k == 0) ? 1 : bp->n_locations();
-		for (int i = 0; i < n; i++) {
-		    BreakPointLocn &locn = bp->get_location(i);
-		    if (bp->type() != BREAKPOINT)
-			continue;
+        if (display_glyphs)
+        {
+            std::vector<XmTextPosition> positions;
+            
+            MapRef ref;
+            for (BreakPoint *bp = bp_map.first(ref);
+                 bp != 0;
+                 bp = bp_map.next(ref))
+            {
+                // According to the GDB folks
+                // (http://sourceware.org/ml/gdb/2009-02/msg00117.html)
+                // we can assume the source locations are all the same.
+                // So we only need one source glyph.
+                int n = (k == 0) ? 1 : bp->n_locations();
+                for (int i = 0; i < n; i++) {
+                    BreakPointLocn &locn = bp->get_location(i);
+                    if (bp->type() != BREAKPOINT)
+                        continue;
 
-		    Widget& bp_glyph = k ? locn.code_glyph() : locn.source_glyph();
-		    Widget text_w    = k ? code_text_w      : source_text_w;
-		    bp_glyph = 0;
+                    Widget& bp_glyph = k ? locn.code_glyph() : locn.source_glyph();
+                    Widget text_w    = k ? code_text_w      : source_text_w;
+                    bp_glyph = 0;
 
-		    XmTextPosition pos;
-		    if (k == 0)
-		    {
-			// Find source position
-			if (!bp_matches(bp)
-			    || line_count <= 0
-			    || locn.line_nr() <= 0
-			    || locn.line_nr() > line_count)
-			    continue;
+                    XmTextPosition pos;
+                    if (k == 0)
+                    {
+                        // Find source position
+                        if (!bp_matches(bp)
+                            || line_count <= 0
+                            || locn.line_nr() <= 0
+                            || locn.line_nr() > line_count)
+                            continue;
 
-			pos = pos_of_line(locn.line_nr());
-		    }
-		    else
-		    {
-			// Find code position
-			pos = find_pc(locn.address());
-		    }
+                        pos = pos_of_line(locn.line_nr());
+                    }
+                    else
+                    {
+                        // Find code position
+                        pos = find_pc(locn.address());
+                    }
 
-		    if (bp->dispo() != BPKEEP)
-		    {
-			// Temporary breakpoint
-			if (bp->enabled()) {
-			    if (bp->n_locations() == 1)
-				bp_glyph = map_stop_at(text_w, pos, plain_temps[k],
-						       plain_temps_count, positions);
-			    else
-				bp_glyph = map_stop_at(text_w, pos, multi_temps[k],
-						       multi_temps_count, positions);
-			}
-			else
-			    bp_glyph = map_stop_at(text_w, pos, grey_temps[k],
-						   grey_temps_count, positions);
-		    }
-		    else if (!bp->condition().empty() || bp->ignore_count() != 0)
-		    {
-			// Conditional breakpoint
-			if (bp->enabled()) {
-			    if (bp->n_locations() == 1)
-				bp_glyph = map_stop_at(text_w, pos, plain_conds[k],
-						       plain_conds_count, positions);
-			    else
-				bp_glyph = map_stop_at(text_w, pos, multi_conds[k],
-						       multi_conds_count, positions);
-			}
-			else
-			    bp_glyph = map_stop_at(text_w, pos, grey_conds[k],
-						   grey_conds_count, positions);
-		    }
-		    else
-		    {
-			// Ordinary breakpoint
-			if (bp->enabled()) {
-			    if (bp->n_locations() == 1)
-				bp_glyph = map_stop_at(text_w, pos, plain_stops[k],
-						       plain_stops_count, positions);
-			    else
-				bp_glyph = map_stop_at(text_w, pos, multi_stops[k],
-						       multi_stops_count, positions);
-			}
-			else
-			    bp_glyph = map_stop_at(text_w, pos, grey_stops[k],
-						   grey_stops_count, positions);
-		    }
-		}
-	    }
-	}
+                    if (bp->dispo() != BPKEEP)
+                    {
+                        // Temporary breakpoint
+                        if (bp->enabled()) {
+                            if (bp->n_locations() == 1)
+                                bp_glyph = map_stop_at(text_w, pos, plain_temps[k],
+                                                       plain_temps_count, positions);
+                            else
+                                bp_glyph = map_stop_at(text_w, pos, multi_temps[k],
+                                                       multi_temps_count, positions);
+                        }
+                        else
+                            bp_glyph = map_stop_at(text_w, pos, grey_temps[k],
+                                                   grey_temps_count, positions);
+                    }
+                    else if (!bp->condition().empty() || bp->ignore_count() != 0)
+                    {
+                        // Conditional breakpoint
+                        if (bp->enabled()) {
+                            if (bp->n_locations() == 1)
+                                bp_glyph = map_stop_at(text_w, pos, plain_conds[k],
+                                                       plain_conds_count, positions);
+                            else
+                                bp_glyph = map_stop_at(text_w, pos, multi_conds[k],
+                                                       multi_conds_count, positions);
+                        }
+                        else
+                            bp_glyph = map_stop_at(text_w, pos, grey_conds[k],
+                                                   grey_conds_count, positions);
+                    }
+                    else
+                    {
+                        // Ordinary breakpoint
+                        if (bp->enabled()) {
+                            if (bp->n_locations() == 1)
+                                bp_glyph = map_stop_at(text_w, pos, plain_stops[k],
+                                                       plain_stops_count, positions);
+                            else
+                                bp_glyph = map_stop_at(text_w, pos, multi_stops[k],
+                                                       multi_stops_count, positions);
+                        }
+                        else
+                            bp_glyph = map_stop_at(text_w, pos, grey_stops[k],
+                                                   grey_stops_count, positions);
+                    }
+                }
+            }
+        }
 
-	// Unmap remaining breakpoint glyphs
-	Widget glyph;
-	while ((glyph = plain_stops[k][plain_stops_count++]))
-	    unmap_glyph(glyph);
-	while ((glyph = multi_stops[k][multi_stops_count++]))
-	    unmap_glyph(glyph);
-	while ((glyph = grey_stops[k][grey_stops_count++]))
-	    unmap_glyph(glyph);
-	while ((glyph = plain_conds[k][plain_conds_count++]))
-	    unmap_glyph(glyph);
-	while ((glyph = multi_conds[k][multi_conds_count++]))
-	    unmap_glyph(glyph);
-	while ((glyph = grey_conds[k][grey_conds_count++]))
-	    unmap_glyph(glyph);
-	while ((glyph = plain_temps[k][plain_temps_count++]))
-	    unmap_glyph(glyph);
-	while ((glyph = multi_temps[k][multi_temps_count++]))
-	    unmap_glyph(glyph);
-	while ((glyph = grey_temps[k][grey_temps_count++]))
-	    unmap_glyph(glyph);
+        // Unmap remaining breakpoint glyphs
+        Widget glyph;
+        while ((glyph = plain_stops[k][plain_stops_count++]))
+            unmap_glyph(glyph);
+        while ((glyph = multi_stops[k][multi_stops_count++]))
+            unmap_glyph(glyph);
+        while ((glyph = grey_stops[k][grey_stops_count++]))
+            unmap_glyph(glyph);
+        while ((glyph = plain_conds[k][plain_conds_count++]))
+            unmap_glyph(glyph);
+        while ((glyph = multi_conds[k][multi_conds_count++]))
+            unmap_glyph(glyph);
+        while ((glyph = grey_conds[k][grey_conds_count++]))
+            unmap_glyph(glyph);
+        while ((glyph = plain_temps[k][plain_temps_count++]))
+            unmap_glyph(glyph);
+        while ((glyph = multi_temps[k][multi_temps_count++]))
+            unmap_glyph(glyph);
+        while ((glyph = grey_temps[k][grey_temps_count++]))
+            unmap_glyph(glyph);
     }
 
     if (change_glyphs)
     {
-	update_source_glyphs = false;
-	update_code_glyphs   = false;
+        update_source_glyphs = false;
+        update_code_glyphs   = false;
     }
 
     // std::clog << "done.\n";
@@ -9112,36 +9112,36 @@ void SourceView::set_display_glyphs(bool set)
 {
     if (display_glyphs != set)
     {
-	// Save current execution position
-	string file   = last_execution_file;
-	int    line   = last_execution_line;
-	string pc     = last_execution_pc;
-	bool stopped  = at_lowest_frame;
-	bool signaled = signal_received;
+        // Save current execution position
+        string file   = last_execution_file;
+        int    line   = last_execution_line;
+        string pc     = last_execution_pc;
+        bool stopped  = at_lowest_frame;
+        bool signaled = signal_received;
 
-	if (XtIsRealized(source_text_w))
-	{
-	    display_glyphs = false;	
-	    show_execution_position();
-	    UpdateGlyphsWorkProc(0, 0);
+        if (XtIsRealized(source_text_w))
+        {
+            display_glyphs = false;        
+            show_execution_position();
+            UpdateGlyphsWorkProc(0, 0);
 
-	    display_glyphs = true;
-	    refresh_bp_disp(true);
-	}
+            display_glyphs = true;
+            refresh_bp_disp(true);
+        }
 
-	display_glyphs = set;
+        display_glyphs = set;
 
-	if (XtIsRealized(source_text_w))
-	{
-	    StatusDelay delay(set ? "Enabling glyphs" : "Disabling glyphs");
+        if (XtIsRealized(source_text_w))
+        {
+            StatusDelay delay(set ? "Enabling glyphs" : "Disabling glyphs");
 
-	    refresh_bp_disp(true);
-	    if (!file.empty())
-		show_execution_position(file + ":" + itostring(line), 
-					stopped, signaled);
-	    if (!pc.empty())
-		show_pc(pc, XmHIGHLIGHT_SELECTED);
-	}
+            refresh_bp_disp(true);
+            if (!file.empty())
+                show_execution_position(file + ":" + itostring(line), 
+                                        stopped, signaled);
+            if (!pc.empty())
+                show_pc(pc, XmHIGHLIGHT_SELECTED);
+        }
     }
 }
 
@@ -9150,14 +9150,14 @@ void SourceView::set_display_line_numbers(bool set)
 {
     if (display_line_numbers != set)
     {
-	display_line_numbers = set;
+        display_line_numbers = set;
 
-	if (XtIsRealized(source_text_w))
-	{
-	    StatusDelay delay(set ? "Enabling line numbers" : 
-			      "Disabling line numbers");
-	    reload();
-	}
+        if (XtIsRealized(source_text_w))
+        {
+            StatusDelay delay(set ? "Enabling line numbers" : 
+                              "Disabling line numbers");
+            reload();
+        }
     }
 }
 
@@ -9170,10 +9170,10 @@ MString SourceView::help_on_glyph(Widget glyph, bool detailed)
 
 // Return help on a breakpoint position
 MString SourceView::help_on_pos(Widget w, XmTextPosition pos, 
-				XmTextPosition& ref, bool detailed)
+                                XmTextPosition& ref, bool detailed)
 {
     if (w == 0)
-	return MString(0, true);
+        return MString(0, true);
 
     int line_nr;
     bool in_text;
@@ -9182,7 +9182,7 @@ MString SourceView::help_on_pos(Widget w, XmTextPosition pos,
     bool pos_found = get_line_of_pos(w, pos, line_nr, address, in_text, bp_nr);
 
     if (!pos_found || bp_nr == 0)
-	return MString(0, true);
+        return MString(0, true);
 
     ref = pos_of_line(line_nr) + 2;
     return help_on_bp(bp_nr, detailed);
@@ -9193,38 +9193,38 @@ MString SourceView::help_on_bp(int bp_nr, bool detailed)
 {
     BreakPoint *bp = bp_map.get(bp_nr);
     if (bp == 0)
-	return MString(0, true);
+        return MString(0, true);
 
     MString info = rm(bp->title() + " ") + tt(itostring(bp->number()));
 
     if (detailed)
     {
-	if (bp->enabled())
-	    info += rm(" (enabled");
-	else
-	    info += rm(" (disabled");
+        if (bp->enabled())
+            info += rm(" (enabled");
+        else
+            info += rm(" (disabled");
 
-	string infos = bp->infos();
-	strip_space(infos);
-	infos.gsub("\n", "; ");
+        string infos = bp->infos();
+        strip_space(infos);
+        infos.gsub("\n", "; ");
 
-	if (!bp->infos().empty())
-	    info += rm("; " + infos);
+        if (!bp->infos().empty())
+            info += rm("; " + infos);
 
-	switch (bp->dispo())
-	{
-	case BPKEEP:
-	    break;
+        switch (bp->dispo())
+        {
+        case BPKEEP:
+            break;
 
-	case BPDEL:
-	    info += rm("; delete when hit");
-	    break;
+        case BPDEL:
+            info += rm("; delete when hit");
+            break;
 
-	case BPDIS:
-	    info += rm("; disable when hit");
-	    break;
-	}
-	info += rm(")");
+        case BPDIS:
+            info += rm("; disable when hit");
+            break;
+        }
+        info += rm(")");
     }
 
     return info;
@@ -9234,55 +9234,55 @@ MString SourceView::help_on_bp(int bp_nr, bool detailed)
 // Glyph drag & drop
 
 XmTextPosition SourceView::glyph_position(Widget glyph, XEvent *e, 
-					  bool normalize)
+                                          bool normalize)
 {
     Widget text_w;
     if (is_source_widget(glyph))
-	text_w = source_text_w;
+        text_w = source_text_w;
     else if (is_code_widget(glyph))
-	text_w = code_text_w;
+        text_w = code_text_w;
     else
-	return XmTextPosition(-1);
+        return XmTextPosition(-1);
 
     BoxPoint p = point(e);
     if (glyph != source_text_w && glyph != code_text_w)
     {
-	// Called from a glyph: add glyph position to event position
-	translate_glyph_pos(glyph, text_w, p[X], p[Y]);
+        // Called from a glyph: add glyph position to event position
+        translate_glyph_pos(glyph, text_w, p[X], p[Y]);
     }
 
     // Get the position
     XmTextPosition pos;
     if (p[Y] <= 0)
-	pos = 0;		// We may drag outside the text window
+        pos = 0;                // We may drag outside the text window
     else
-	pos = XmTextXYToPos(text_w, p[X], p[Y]);
+        pos = XmTextXYToPos(text_w, p[X], p[Y]);
 
     // Stay within viewable text +/-1 row, such that we don't scroll too fast
     short rows = 0;
     XmTextPosition current_top = 0;
     XtVaGetValues(text_w,
-		  XmNrows, &rows,
-		  XmNtopCharacter, &current_top,
-		  XtPointer(0));
+                  XmNrows, &rows,
+                  XmNtopCharacter, &current_top,
+                  XtPointer(0));
 
     const string& text = current_text(text_w);
     XmTextPosition current_bottom = current_top;
     while (current_bottom < int(text.length()) && rows > 0)
-	if (text[current_bottom++] == '\n')
-	    rows--;
+        if (text[current_bottom++] == '\n')
+            rows--;
 
     if (pos < current_top)
-	pos = max(current_top - 1, 0);
+        pos = max(current_top - 1, 0);
     else if (pos > current_bottom)
-	pos = min(current_bottom + 1, text.length());
+        pos = min(current_bottom + 1, text.length());
 
     if (normalize)
     {
-	const string& text = current_text(glyph);
-	pos = min(pos, text.length());
-	while (pos > 0 && text[pos - 1] != '\n')
-	    pos--;
+        const string& text = current_text(glyph);
+        pos = min(pos, text.length());
+        while (pos > 0 && text[pos - 1] != '\n')
+            pos--;
     }
 
     return pos;
@@ -9296,58 +9296,58 @@ Widget SourceView::current_drag_origin     = 0;
 int    SourceView::current_drag_breakpoint = -1;
 
 void SourceView::dragGlyphAct(Widget glyph, XEvent *e, String *params, 
-			      Cardinal *num_params)
+                              Cardinal *num_params)
 {
     if (e->type != ButtonPress && e->type != ButtonRelease)
-	return;
+        return;
 
     Widget text_w;
     if (is_source_widget(glyph))
-	text_w = source_text_w;
+        text_w = source_text_w;
     else if (is_code_widget(glyph))
-	text_w = code_text_w;
+        text_w = code_text_w;
     else
-	return;			// Bad widget
+        return;                        // Bad widget
 
     if (!XtIsRealized(text_w))
-	return;
+        return;
 
     // Move cursor to glyph position
     XButtonEvent *event = &e->xbutton;
     translate_glyph_pos(glyph, text_w, event->x, event->y);
     event->window = XtWindow(text_w);
     XtCallActionProc(text_w, "source-start-select-word", e, 
-		     params, *num_params);
+                     params, *num_params);
 
     // Check for double clicks
     XtCallActionProc(text_w, "source-double-click", e,
-		     params, *num_params);
+                     params, *num_params);
 
     // Now start the drag
     int k;
     for (k = 0; k < 2; k++)
     {
-	if (glyph == grey_arrows[k] || glyph == past_arrows[k])
-	{
-	    // Cannot drag last execution position
-	    return;
-	}
-	else if (glyph == plain_arrows[k])
-	{
-	    if (!gdb->has_jump_command() && !gdb->has_assign_command())
-	    {
-		// Execution position cannot be dragged
-		return;
-	    }
-	}
-	else if (glyph == drag_stops[k] || 
-		 glyph == drag_conds[k] || 
-		 glyph == drag_temps[k] || 
-		 glyph == drag_arrows[k])
-	{
-	    // Temp glyph cannot be dragged
-	    return;
-	}
+        if (glyph == grey_arrows[k] || glyph == past_arrows[k])
+        {
+            // Cannot drag last execution position
+            return;
+        }
+        else if (glyph == plain_arrows[k])
+        {
+            if (!gdb->has_jump_command() && !gdb->has_assign_command())
+            {
+                // Execution position cannot be dragged
+                return;
+            }
+        }
+        else if (glyph == drag_stops[k] || 
+                 glyph == drag_conds[k] || 
+                 glyph == drag_temps[k] || 
+                 glyph == drag_arrows[k])
+        {
+            // Temp glyph cannot be dragged
+            return;
+        }
     }
 
     static Cursor move_cursor = XCreateFontCursor(XtDisplay(glyph), XC_fleur);
@@ -9363,23 +9363,23 @@ void SourceView::dragGlyphAct(Widget glyph, XEvent *e, String *params,
     MapRef ref;
     for (BreakPoint *bp = bp_map.first(ref); bp != 0; bp = bp_map.next(ref))
     {
-	for (int i = 0; i < bp->n_locations(); i++) {
-	    BreakPointLocn &locn = bp->get_location(i);
-	    if (glyph == locn.source_glyph() || glyph == locn.code_glyph())
-	    {
-		if (glyph == locn.code_glyph() && bp->n_locations() > 1) {
-		    // Cannot drag a breakpoint in code window if it has
-		    // multiple locations.  FIXME: such glyphs should be
-		    // visually distinguished.
-		    current_drag_origin     = NULL;
-		    current_drag_breakpoint = 0;
-		    return;
-		}
-		current_drag_origin     = glyph;
-		current_drag_breakpoint = bp->number();
-		return;
-	    }
-	}
+        for (int i = 0; i < bp->n_locations(); i++) {
+            BreakPointLocn &locn = bp->get_location(i);
+            if (glyph == locn.source_glyph() || glyph == locn.code_glyph())
+            {
+                if (glyph == locn.code_glyph() && bp->n_locations() > 1) {
+                    // Cannot drag a breakpoint in code window if it has
+                    // multiple locations.  FIXME: such glyphs should be
+                    // visually distinguished.
+                    current_drag_origin     = NULL;
+                    current_drag_breakpoint = 0;
+                    return;
+                }
+                current_drag_origin     = glyph;
+                current_drag_breakpoint = bp->number();
+                return;
+            }
+        }
     }
     current_drag_origin     = glyph;
     current_drag_breakpoint = 0;
@@ -9388,20 +9388,20 @@ void SourceView::dragGlyphAct(Widget glyph, XEvent *e, String *params,
 void SourceView::followGlyphAct(Widget glyph, XEvent *e, String *, Cardinal *)
 {
     if (glyph != current_drag_origin)
-	return;
+        return;
 
     Widget text_w;
     if (is_source_widget(glyph))
-	text_w = source_text_w;
+        text_w = source_text_w;
     else if (is_code_widget(glyph))
-	text_w = code_text_w;
+        text_w = code_text_w;
     else
-	return;			// Bad widget
+        return;                        // Bad widget
 
     // Protect against more than one invocation per 50ms.
     static Time last_time = 0;
     if (time(e) - last_time < 50)
-	return;
+        return;
     last_time = time(e);
 
     XmTextPosition pos = glyph_position(glyph, e);
@@ -9413,30 +9413,30 @@ void SourceView::followGlyphAct(Widget glyph, XEvent *e, String *, Cardinal *)
     CheckScrollCB(glyph, XtPointer(0), XtPointer(0));
 
     if (current_drag_breakpoint)
-	map_drag_stop_at(text_w, pos, glyph);
+        map_drag_stop_at(text_w, pos, glyph);
     else
-	map_drag_arrow_at(text_w, pos, glyph);
+        map_drag_arrow_at(text_w, pos, glyph);
 }
 
 void SourceView::dropGlyphAct (Widget glyph, XEvent *e, 
-			       String *params, Cardinal *num_params)
+                               String *params, Cardinal *num_params)
 {
     if (e->type != ButtonPress && e->type != ButtonRelease)
-	return;
+        return;
 
     if (glyph != current_drag_origin)
-	return;
+        return;
 
     Widget text_w;
     if (is_source_widget(glyph))
-	text_w = source_text_w;
+        text_w = source_text_w;
     else if (is_code_widget(glyph))
-	text_w = code_text_w;
+        text_w = code_text_w;
     else
-	return;			// Bad widget
+        return;                        // Bad widget
 
     if (!XtIsRealized(text_w))
-	return;
+        return;
 
     XUndefineCursor(XtDisplay(glyph), XtWindow(glyph));
 
@@ -9449,37 +9449,37 @@ void SourceView::dropGlyphAct (Widget glyph, XEvent *e,
 
     int k;
     for (k = 0; k < 2; k++)
-	if (glyph == grey_arrows[k] || 
-	    glyph == past_arrows[k] ||
-	    glyph == drag_stops[k] || 
-	    glyph == drag_conds[k] || 
-	    glyph == drag_temps[k] || 
-	    glyph == drag_arrows[k])
-	    return;
+        if (glyph == grey_arrows[k] || 
+            glyph == past_arrows[k] ||
+            glyph == drag_stops[k] || 
+            glyph == drag_conds[k] || 
+            glyph == drag_temps[k] || 
+            glyph == drag_arrows[k])
+            return;
 
     XmTextPosition pos = glyph_position(glyph, e);
     if (pos == XmTextPosition(-1))
-	return;			// No position
+        return;                        // No position
 
     int line_nr = 0;
     bool in_text;
     int bp_nr;
     string address;
     if (!get_line_of_pos(text_w, pos, line_nr, address, in_text, bp_nr))
-	return;			// No location
+        return;                        // No location
 
     if (text_w == code_text_w)
     {
-	// Selection from code
-	if (address.empty())
-	    return;		// No address
+        // Selection from code
+        if (address.empty())
+            return;                // No address
     }
     else
     {
-	// Selection from source
-	if (line_nr == 0)
-	    return;		// No line
-	address = current_source_name() + ':' + itostring(line_nr);
+        // Selection from source
+        if (line_nr == 0)
+            return;                // No line
+        address = current_source_name() + ':' + itostring(line_nr);
     }
 
     // std::clog << "Dropping " << XtName(glyph) << " [" << glyph << "] at " 
@@ -9487,50 +9487,50 @@ void SourceView::dropGlyphAct (Widget glyph, XEvent *e,
 
     if (text_w == code_text_w)
     {
-	// Selection from code
-	if (address.empty())
-	    return;		// No address
-	address = string('*') + address;
+        // Selection from code
+        if (address.empty())
+            return;                // No address
+        address = string('*') + address;
     }
     else
     {
-	// Selection from source
-	if (line_nr == 0)
-	    return;		// No line
-	address = current_source_name() + ':' + itostring(line_nr);
+        // Selection from source
+        if (line_nr == 0)
+            return;                // No line
+        address = current_source_name() + ':' + itostring(line_nr);
     }
 
     string p = "move";
     if (num_params != 0 && *num_params == 1)
-	p = params[0];
+        p = params[0];
     if (num_params != 0 && *num_params > 1)
-	std::cerr << "source-drop-glyph: too many parameters\n";
+        std::cerr << "source-drop-glyph: too many parameters\n";
     p.downcase();
 
     bool copy = false;
     if (p == "move")
-	copy = false;
+        copy = false;
     else if (p == "copy")
-	copy = true;
+        copy = true;
     else
-	std::cerr << "source-drop-glyph: unknown parameter " << quote(p) << "\n";
+        std::cerr << "source-drop-glyph: unknown parameter " << quote(p) << "\n";
 
     bool changed = false;
     if (current_drag_breakpoint)
     {
-	// Move breakpoint
-	changed = move_bp(current_drag_breakpoint, address, text_w, copy);
+        // Move breakpoint
+        changed = move_bp(current_drag_breakpoint, address, text_w, copy);
     }
     else
     {
-	// Move exec pos
-	changed = move_pc(address, text_w);
+        // Move exec pos
+        changed = move_pc(address, text_w);
     }
 
     if (changed)
     {
-	// Make sure this position is kept visible
-	SetInsertionPosition(text_w, pos);
+        // Make sure this position is kept visible
+        SetInsertionPosition(text_w, pos);
     }
 
     current_drag_origin     = 0;
@@ -9540,12 +9540,12 @@ void SourceView::dropGlyphAct (Widget glyph, XEvent *e,
 // Report glyph state (for debugging)
 void SourceView::log_glyph(Widget glyph, int n)
 {
-    (void) n;			// Use it
+    (void) n;                        // Use it
     (void) glyph;
 
 #if LOG_GLYPHS
     if (glyph == 0)
-	return;
+        return;
 
     int left = 0;
     int top  = 0;
@@ -9553,24 +9553,24 @@ void SourceView::log_glyph(Widget glyph, int n)
     Position y = 0;
     XtPointer user_data;
     XtVaGetValues(glyph,
-		  XmNuserData,           &user_data,
-		  XmNleftOffset,         &left,
-		  XmNtopOffset,          &top,
-		  XmNx,                  &x,
-		  XmNy,                  &y,
-		  XtPointer(0));
+                  XmNuserData,           &user_data,
+                  XmNleftOffset,         &left,
+                  XmNtopOffset,          &top,
+                  XmNx,                  &x,
+                  XmNy,                  &y,
+                  XtPointer(0));
 
     std::clog << XtName(glyph);
     if (n >= 0)
-	std::clog << "s[" << n << "]";
+        std::clog << "s[" << n << "]";
     std::clog << ": ";
     if (user_data)
-	std::clog << "mapped";
+        std::clog << "mapped";
     else
-	std::clog << "unmapped";
+        std::clog << "unmapped";
 
     std::clog << " at (" << left << ", " << top << " / "
-	      << x << ", " << y << ")\n";
+              << x << ", " << y << ")\n";
 #endif
 }
 
@@ -9579,45 +9579,45 @@ void SourceView::log_glyphs()
 #if LOG_GLYPHS
     for (int k = 0; k < 2; k++)
     {
-	if (k && !disassemble)
-	    continue;
+        if (k && !disassemble)
+            continue;
 
-	if (k == 0)
-	    std::clog << "Source glyphs:\n";
-	else
-	    std::clog << "\nCode glyphs:\n";
+        if (k == 0)
+            std::clog << "Source glyphs:\n";
+        else
+            std::clog << "\nCode glyphs:\n";
 
-	int i;
-	for (i = 0; i < plain_stops[k].size() - 1; i++)
-	    log_glyph(plain_stops[k][i], i);
-	for (i = 0; i < multi_stops[k].size() - 1; i++)
-	    log_glyph(multi_stops[k][i], i);
-	for (i = 0; i < grey_stops[k].size() - 1; i++)
-	    log_glyph(grey_stops[k][i], i);
+        int i;
+        for (i = 0; i < plain_stops[k].size() - 1; i++)
+            log_glyph(plain_stops[k][i], i);
+        for (i = 0; i < multi_stops[k].size() - 1; i++)
+            log_glyph(multi_stops[k][i], i);
+        for (i = 0; i < grey_stops[k].size() - 1; i++)
+            log_glyph(grey_stops[k][i], i);
 
-	for (i = 0; i < plain_conds[k].size() - 1; i++)
-	    log_glyph(plain_conds[k][i], i);
-	for (i = 0; i < multi_conds[k].size() - 1; i++)
-	    log_glyph(multi_conds[k][i], i);
-	for (i = 0; i < grey_conds[k].size() - 1; i++)
-	    log_glyph(grey_conds[k][i], i);
+        for (i = 0; i < plain_conds[k].size() - 1; i++)
+            log_glyph(plain_conds[k][i], i);
+        for (i = 0; i < multi_conds[k].size() - 1; i++)
+            log_glyph(multi_conds[k][i], i);
+        for (i = 0; i < grey_conds[k].size() - 1; i++)
+            log_glyph(grey_conds[k][i], i);
 
-	for (i = 0; i < multi_temps[k].size() - 1; i++)
-	    log_glyph(multi_temps[k][i], i);
-	for (i = 0; i < plain_temps[k].size() - 1; i++)
-	    log_glyph(plain_temps[k][i], i);
-	for (i = 0; i < grey_temps[k].size() - 1; i++)
-	    log_glyph(grey_temps[k][i], i);
+        for (i = 0; i < multi_temps[k].size() - 1; i++)
+            log_glyph(multi_temps[k][i], i);
+        for (i = 0; i < plain_temps[k].size() - 1; i++)
+            log_glyph(plain_temps[k][i], i);
+        for (i = 0; i < grey_temps[k].size() - 1; i++)
+            log_glyph(grey_temps[k][i], i);
 
-	log_glyph(plain_arrows[k]);
-	log_glyph(grey_arrows[k]);
-	log_glyph(past_arrows[k]);
-	log_glyph(signal_arrows[k]);
-	log_glyph(drag_arrows[k]);
+        log_glyph(plain_arrows[k]);
+        log_glyph(grey_arrows[k]);
+        log_glyph(past_arrows[k]);
+        log_glyph(signal_arrows[k]);
+        log_glyph(drag_arrows[k]);
 
-	log_glyph(drag_stops[k]);
-	log_glyph(drag_conds[k]);
-	log_glyph(drag_temps[k]);
+        log_glyph(drag_stops[k]);
+        log_glyph(drag_conds[k]);
+        log_glyph(drag_temps[k]);
     }
 #endif
 }
@@ -9630,16 +9630,16 @@ void SourceView::deleteGlyphAct(Widget glyph, XEvent *, String *, Cardinal *)
     MapRef ref;
     for (BreakPoint *bp = bp_map.first(ref); bp != 0; bp = bp_map.next(ref))
     {
-	for (int i = 0; i < bp->n_locations(); i++) {
-	    BreakPointLocn &locn = bp->get_location(i);
-	    if (glyph == locn.source_glyph() || glyph == locn.code_glyph())
-	    {
-		// Cannot delete individual locations.
-		if (glyph == locn.code_glyph() && bp->n_locations() > 1)
-		    continue;
-		bps.push_back(bp->number());
-	    }
-	}
+        for (int i = 0; i < bp->n_locations(); i++) {
+            BreakPointLocn &locn = bp->get_location(i);
+            if (glyph == locn.source_glyph() || glyph == locn.code_glyph())
+            {
+                // Cannot delete individual locations.
+                if (glyph == locn.code_glyph() && bp->n_locations() > 1)
+                    continue;
+                bps.push_back(bp->number());
+            }
+        }
     }
 
     delete_bps(bps, glyph);
@@ -9666,12 +9666,12 @@ static string first_address(const string& s)
 {
     int idx = index(s, rxnladdress, "\n");
     if (idx < 0)
-	return "";
+        return "";
     idx++;
 
     int eol = s.index('\n', idx);
     if (eol < 0)
-	eol = s.length();
+        eol = s.length();
 
     string addr = s.at(idx, eol - idx);
     return addr.through(rxaddress);
@@ -9681,20 +9681,20 @@ static string last_address(const string& s)
 {
     int idx = index(s, rxnladdress, "\n", -1);
     if (idx < 0)
-	return "";
+        return "";
     idx++;
 
     int eol = s.index('\n', idx);
     if (eol < 0)
-	eol = s.length();
+        eol = s.length();
 
     string addr = s.at(idx, eol - idx);
     return addr.through(rxaddress);
 }
 
 void SourceView::set_code(const string& code,
-			  const string& start,
-			  const string& end)
+                          const string& start,
+                          const string& end)
 {
     XmTextSetString(code_text_w, XMST(code.chars()));
     XmTextSetHighlight (code_text_w, 0, code.length(), XmHIGHLIGHT_NORMAL);
@@ -9719,65 +9719,65 @@ void SourceView::process_disassemble(const string& disassemble_output)
     string indented_code;
     for (int i = 0; i < count; i++)
     {
-	string& line = code_list[i];
-	untabify(line);
-	if (line.length() > 0 && line[0] == '0')
-	    line = replicate(' ', indent_amount(code_text_w)) + line;
-	indented_code += line + '\n';
+        string& line = code_list[i];
+        untabify(line);
+        if (line.length() > 0 && line[0] == '0')
+            line = replicate(' ', indent_amount(code_text_w)) + line;
+        indented_code += line + '\n';
     }
     delete[] code_list;
     code_list = 0;
 
     set_code(indented_code,
-	     first_address(disassemble_output),
-	     last_address(disassemble_output));
+             first_address(disassemble_output),
+             last_address(disassemble_output));
 
     if (cache_machine_code
-	&& !current_code_start.empty()
-	&& !current_code_end.empty())
-	code_cache.push_back(CodeCacheEntry(current_code_start, 
-				     current_code_end, 
-				     current_code));
+        && !current_code_start.empty()
+        && !current_code_end.empty())
+        code_cache.push_back(CodeCacheEntry(current_code_start, 
+                                     current_code_end, 
+                                     current_code));
 }
 
 // Search PC in the current code; return beginning of line if found
 XmTextPosition SourceView::find_pc(const string& pc)
 {
     if (compare_address(pc, current_code_start) < 0
-	|| compare_address(pc, current_code_end) > 0)
-	return XmTextPosition(-1);
+        || compare_address(pc, current_code_end) > 0)
+        return XmTextPosition(-1);
 
     XmTextPosition pos = XmTextPosition(-1);
 
     int i = 0;
     while (i < int(current_code.length()))
     {
-	int eol = current_code.index('\n', i);
-	if (eol < 0)
-	    break;
+        int eol = current_code.index('\n', i);
+        if (eol < 0)
+            break;
 
-	int j = i;
-	while (j < int(current_code.length()) && isspace(current_code[j]))
-	    j++;
+        int j = i;
+        while (j < int(current_code.length()) && isspace(current_code[j]))
+            j++;
 
-	if (j + 2 < int(current_code.length())
-	    && (is_address_start(current_code[j])))
-	{
-	    // Use first word of line as address.  Much faster than
-	    // checking address regexps.
-	    string address = current_code.at(j, eol - j);
-	    int k = 0;
-	    while (k < int(address.length()) && !isspace(address[k]))
-		k++;
-	    address = address.before(k);
-	    if (compare_address(pc, address) == 0)
-	    {
-		pos = i;
-		break;
-	    }
-	}
+        if (j + 2 < int(current_code.length())
+            && (is_address_start(current_code[j])))
+        {
+            // Use first word of line as address.  Much faster than
+            // checking address regexps.
+            string address = current_code.at(j, eol - j);
+            int k = 0;
+            while (k < int(address.length()) && !isspace(address[k]))
+                k++;
+            address = address.before(k);
+            if (compare_address(pc, address) == 0)
+            {
+                pos = i;
+                break;
+            }
+        }
 
-	i = eol + 1;
+        i = eol + 1;
     }
 
     return pos;
@@ -9791,14 +9791,14 @@ void SourceView::refresh_codeOQC(const string& answer, void *client_data)
 
     if (answer == NO_GDB_ANSWER)
     {
-	info->delay.outcome = "failed";
+        info->delay.outcome = "failed";
     }
     else
     {
-	process_disassemble(answer);
+        process_disassemble(answer);
 
-	if (find_pc(info->pc) != XmTextPosition(-1))
-	    show_pc(info->pc, info->mode);
+        if (find_pc(info->pc) != XmTextPosition(-1))
+            show_pc(info->pc, info->mode);
     }
 
     delete info;
@@ -9808,13 +9808,13 @@ void SourceView::normalize_address(string& addr)
 {
     addr.downcase();
     if (addr.contains("0", 0))
-	addr = addr.after("0");
+        addr = addr.after("0");
     if (addr.contains("x", 0))
-	addr = addr.after("x");
+        addr = addr.after("x");
     if (addr.contains("h'", 0))
-	addr = addr.after("h'");
+        addr = addr.after("h'");
     if (addr.contains("h", -1))
-	addr = addr.before(int(addr.length()) - 1);
+        addr = addr.before(int(addr.length()) - 1);
     addr.prepend("0x");
 }
 
@@ -9834,7 +9834,7 @@ void SourceView::get_func_at(const string& address, string& func, int& offset)
     offset = 0;
     func = gdb_question("x /i " + address);
     if (func == NO_GDB_ANSWER)
-	return;
+        return;
 
     // Find func
     func = func.after("<");
@@ -9844,8 +9844,8 @@ void SourceView::get_func_at(const string& address, string& func, int& offset)
     int plus = func.index('+');
     if (plus >= 0)
     {
-	offset = atoi(func.chars() + plus + 1);
-	func = func.before(plus);
+        offset = atoi(func.chars() + plus + 1);
+        func = func.before(plus);
     }
 }
 
@@ -9853,7 +9853,7 @@ void SourceView::get_func_at(const string& address, string& func, int& offset)
 bool SourceView::function_is_larger_than(string pc, int max_size)
 {
     if (gdb->type() != GDB)
-	return false;
+        return false;
 
     // Get function name at PC
     normalize_address(pc);
@@ -9861,13 +9861,13 @@ bool SourceView::function_is_larger_than(string pc, int max_size)
     int pc_offset;
     get_func_at(pc, pc_func, pc_offset);
     if (pc_func == NO_GDB_ANSWER)
-	return true;		// In doubt, treat function as `too large'.
+        return true;                // In doubt, treat function as `too large'.
 
     if (pc_offset > max_size)
     {
-	// We're already more than MAX_SIZE bytes away from the
-	// function start: function is too large.
-	return true;
+        // We're already more than MAX_SIZE bytes away from the
+        // function start: function is too large.
+        return true;
     }
 
     // Get the function name at function start + MAX_SIZE.  If this is
@@ -9876,8 +9876,8 @@ bool SourceView::function_is_larger_than(string pc, int max_size)
     unsigned long next_l = pc_l - pc_offset + max_size;
     if (next_l < pc_l)
     {
-	// Overflow
-	next_l = STATIC_CAST(unsigned long, -1);
+        // Overflow
+        next_l = STATIC_CAST(unsigned long, -1);
     }
     string next = make_address(next_l);
 
@@ -9886,12 +9886,12 @@ bool SourceView::function_is_larger_than(string pc, int max_size)
     get_func_at(next, next_func, next_offset);
 
     if (next_func == NO_GDB_ANSWER)
-	return true;		// In doubt, treat function as `too large'.
+        return true;                // In doubt, treat function as `too large'.
 
     if (pc_func == next_func)
     {
-	// We're still within the same function: function is too large.
-	return true;
+        // We're still within the same function: function is too large.
+        return true;
     }
 
     return false;
@@ -9903,26 +9903,26 @@ bool SourceView::function_is_larger_than(string pc, int max_size)
 // STOPPED indicates that the program just stopped.
 // SIGNALED indicates that the program just received a signal.
 void SourceView::show_pc(const string& pc, XmHighlightMode mode,
-			 bool stopped, bool signaled)
+                         bool stopped, bool signaled)
 {
     last_shown_pc = pc;
     if (mode == XmHIGHLIGHT_SELECTED)
-	last_execution_pc = pc;
+        last_execution_pc = pc;
 
     if (stopped)
     {
-	at_lowest_frame = true;
-	signal_received = signaled;
+        at_lowest_frame = true;
+        signal_received = signaled;
     }
 
     if (mode == XmHIGHLIGHT_SELECTED)
-	undo_buffer.add_address(pc, stopped);
+        undo_buffer.add_address(pc, stopped);
     else
-	undo_buffer.remove_address();
+        undo_buffer.remove_address();
     undo_buffer.add_state();
 
     if (!disassemble)
-	return;
+        return;
 
     // std::clog << "Showing PC " << pc << "\n";
 
@@ -9930,131 +9930,131 @@ void SourceView::show_pc(const string& pc, XmHighlightMode mode,
 
     // While PC not found, look for code in cache
     for (int i = 0; 
-	 pos == XmTextPosition(-1) && i < int(code_cache.size()); 
-	 i++)
+         pos == XmTextPosition(-1) && i < int(code_cache.size()); 
+         i++)
     {
-	const CodeCacheEntry& cce = code_cache[i];
-	if (compare_address(pc, cce.start) >= 0 
-	    && compare_address(pc, cce.end) <= 0)
-	{
-	    set_code(cce.code, cce.start, cce.end);
-	    pos = find_pc(pc);
-	}
+        const CodeCacheEntry& cce = code_cache[i];
+        if (compare_address(pc, cce.start) >= 0 
+            && compare_address(pc, cce.end) <= 0)
+        {
+            set_code(cce.code, cce.start, cce.end);
+            pos = find_pc(pc);
+        }
     }
 
     if (pos == XmTextPosition(-1))
     {
-	// PC not found in current code: disassemble location
+        // PC not found in current code: disassemble location
 
-	string start = pc;
-	string end   = "";
-	if (app_data.max_disassemble > 0 && 
-	    function_is_larger_than(pc, app_data.max_disassemble))
-	{
-	    // Disassemble only MAX_DISASSEMBLE bytes after PC
-	    unsigned long pc_l = strtoul(pc.chars(), (char **)0, 0);
-	    unsigned long next_l = pc_l + app_data.max_disassemble;
-	    if (next_l < pc_l)
-	    {
-		// Overflow
-		next_l = STATIC_CAST(unsigned long, -1);
-	    }
-	    end = make_address(next_l);
-	}
+        string start = pc;
+        string end   = "";
+        if (app_data.max_disassemble > 0 && 
+            function_is_larger_than(pc, app_data.max_disassemble))
+        {
+            // Disassemble only MAX_DISASSEMBLE bytes after PC
+            unsigned long pc_l = strtoul(pc.chars(), (char **)0, 0);
+            unsigned long next_l = pc_l + app_data.max_disassemble;
+            if (next_l < pc_l)
+            {
+                // Overflow
+                next_l = STATIC_CAST(unsigned long, -1);
+            }
+            end = make_address(next_l);
+        }
 
-	string msg = "Disassembling location " + start;
-	if (!end.empty())
-	    msg += " to " + end;
+        string msg = "Disassembling location " + start;
+        if (!end.empty())
+            msg += " to " + end;
 
-	RefreshDisassembleInfo *info = 
-	    new RefreshDisassembleInfo(pc, mode, msg);
+        RefreshDisassembleInfo *info = 
+            new RefreshDisassembleInfo(pc, mode, msg);
 
-	gdb_command(gdb->disassemble_command(start, end), 0,
-		    refresh_codeOQC, (void *)info);
-	return;
+        gdb_command(gdb->disassemble_command(start, end), 0,
+                    refresh_codeOQC, (void *)info);
+        return;
     }
 
     if (pos == XmTextPosition(-1))
-	return;
+        return;
 
     SetInsertionPosition(code_text_w, pos + indent_amount(code_text_w));
 
     XmTextPosition pos_line_end = 0;
     if (!current_code.empty())
-	pos_line_end = current_code.index('\n', pos) + 1;
+        pos_line_end = current_code.index('\n', pos) + 1;
 
     // Clear old selection
     if (last_start_highlight_pc)
     {
-	XmTextSetHighlight (code_text_w,
-			    last_start_highlight_pc, 
-			    last_end_highlight_pc,
-			    XmHIGHLIGHT_NORMAL);
-	last_start_highlight_pc = 0;
-	last_end_highlight_pc   = 0;
+        XmTextSetHighlight (code_text_w,
+                            last_start_highlight_pc, 
+                            last_end_highlight_pc,
+                            XmHIGHLIGHT_NORMAL);
+        last_start_highlight_pc = 0;
+        last_end_highlight_pc   = 0;
     }
 
     // Mark current line
     if (mode == XmHIGHLIGHT_SELECTED)
     {
-	if (!display_glyphs)
-	{
-	    // Set new marker
-	    int indent = indent_amount(code_text_w);
-	    static const string marker = ">";
-	    if (last_pos_pc)
-	    {
-		static const string no_marker = " ";
-		XmTextReplace (code_text_w,
-			       last_pos_pc + indent - no_marker.length(),
-			       last_pos_pc + indent,
-			       XMST(no_marker.chars()));
-	    }
+        if (!display_glyphs)
+        {
+            // Set new marker
+            int indent = indent_amount(code_text_w);
+            static const string marker = ">";
+            if (last_pos_pc)
+            {
+                static const string no_marker = " ";
+                XmTextReplace (code_text_w,
+                               last_pos_pc + indent - no_marker.length(),
+                               last_pos_pc + indent,
+                               XMST(no_marker.chars()));
+            }
 
-	    XmTextReplace (code_text_w,
-			   pos + indent - marker.length(),
-			   pos + indent,
-			   XMST(marker.chars()));
+            XmTextReplace (code_text_w,
+                           pos + indent - marker.length(),
+                           pos + indent,
+                           XMST(marker.chars()));
     
-	    if (pos_line_end)
-	    {
-		XmTextSetHighlight (code_text_w,
-				    pos, pos_line_end,
-				    XmHIGHLIGHT_SELECTED);
+            if (pos_line_end)
+            {
+                XmTextSetHighlight (code_text_w,
+                                    pos, pos_line_end,
+                                    XmHIGHLIGHT_SELECTED);
 
-		last_start_highlight_pc = pos;
-		last_end_highlight_pc   = pos_line_end;
-	    }
+                last_start_highlight_pc = pos;
+                last_end_highlight_pc   = pos_line_end;
+            }
 
-	    last_pos_pc = pos;
-	}
+            last_pos_pc = pos;
+        }
     }
 
     if (mode == XmHIGHLIGHT_SELECTED)
-	update_glyphs(code_text_w);
+        update_glyphs(code_text_w);
 }
 
 void SourceView::set_disassemble(bool set)
 {
     if (disassemble != set)
     {
-	disassemble = set;
+        disassemble = set;
 
-	if (!disassemble)
-	{
-	    unmanage_paned_child(code_form_w);
-	}
-	else
-	{
-	    manage_paned_child(code_form_w);
+        if (!disassemble)
+        {
+            unmanage_paned_child(code_form_w);
+        }
+        else
+        {
+            manage_paned_child(code_form_w);
 
-	    if (!last_execution_pc.empty())
-		show_pc(last_execution_pc, XmHIGHLIGHT_SELECTED);
-	    else if (!last_shown_pc.empty())
-		show_pc(last_shown_pc);
-	    else
-		lookup(line_of_cursor());
-	}
+            if (!last_execution_pc.empty())
+                show_pc(last_execution_pc, XmHIGHLIGHT_SELECTED);
+            else if (!last_shown_pc.empty())
+                show_pc(last_shown_pc);
+            else
+                lookup(line_of_cursor());
+        }
     }
 }
 
@@ -10062,14 +10062,14 @@ void SourceView::set_all_registers(bool set)
 {
     if (all_registers != set)
     {
-	all_registers = set;
+        all_registers = set;
 
-	if (all_registers_w)
-	    XmToggleButtonSetState(all_registers_w, (Boolean)set, False);
-	if (int_registers_w)
-	    XmToggleButtonSetState(int_registers_w, !(Boolean)set, False);
+        if (all_registers_w)
+            XmToggleButtonSetState(all_registers_w, (Boolean)set, False);
+        if (int_registers_w)
+            XmToggleButtonSetState(int_registers_w, !(Boolean)set, False);
 
-	refresh_registers();
+        refresh_registers();
     }
 }
 
@@ -10078,9 +10078,9 @@ void SourceView::set_all_registers(bool set)
 string SourceView::command_list(const string& cmd)
 {
     if (gdb->has_when_semicolon())
-	return "{ " + cmd + "; }";
+        return "{ " + cmd + "; }";
     else
-	return "{ " + cmd + " }";
+        return "{ " + cmd + " }";
 }
 
 // Get the position of breakpoint NUM
@@ -10088,10 +10088,10 @@ string SourceView::bp_pos(int num)
 {
     BreakPoint *bp = bp_map.get(num);
     if (bp == 0)
-	return "";
+        return "";
     else {
-	std::cerr << "FIXME: SourceView::bp_pos: only returns first pos\n";
-	return bp->pos();
+        std::cerr << "FIXME: SourceView::bp_pos: only returns first pos\n";
+        return bp->pos();
     }
 }
 
@@ -10102,8 +10102,8 @@ bool SourceView::have_selection()
     XmTextPosition left, right;
 
     return (XmTextGetSelectionPosition(source_text_w, &left, &right)
-	    || XmTextGetSelectionPosition(code_text_w, &left, &right)) 
-	&& left != right;
+            || XmTextGetSelectionPosition(code_text_w, &left, &right)) 
+        && left != right;
 }
 
 
@@ -10123,33 +10123,33 @@ bool SourceView::get_state(std::ostream& os)
     // Restore breakpoints
     MapRef ref;
     for (BreakPoint *bp = bp_map.first(ref); bp != 0; bp = bp_map.next(ref))
-	breakpoint_nrs.push_back(bp->number());
+        breakpoint_nrs.push_back(bp->number());
 
     if (breakpoint_nrs.size() > 0)
     {
-	sort(breakpoint_nrs);
+        sort(breakpoint_nrs);
 
-	// If all breakpoint numbers are less than
-	// MAX_BREAKPOINT_NUMBER, insert `dummy' breakpoints that are
-	// immediately deleted after creation, such that the
-	// breakpoint numbers are preserved.  Otherwise, begin
-	// numbering with 1.
+        // If all breakpoint numbers are less than
+        // MAX_BREAKPOINT_NUMBER, insert `dummy' breakpoints that are
+        // immediately deleted after creation, such that the
+        // breakpoint numbers are preserved.  Otherwise, begin
+        // numbering with 1.
 
-	int max_number = breakpoint_nrs[breakpoint_nrs.size() - 1];
-	bool restore_old_numbers = max_number < max_breakpoint_number;
+        int max_number = breakpoint_nrs[breakpoint_nrs.size() - 1];
+        bool restore_old_numbers = max_number < max_breakpoint_number;
 
-	int num = 1;
-	for (int i = 0; i < int(breakpoint_nrs.size()); i++)
-	{
-	    BreakPoint *bp = bp_map.get(breakpoint_nrs[i]);
-	    if (restore_old_numbers)
-	    {
-		while (num < breakpoint_nrs[i])
-		    ok = ok && bp->get_state(os, num++, true);
-		assert(num == breakpoint_nrs[i]);
-	    }
-	    ok = ok && bp->get_state(os, num++);
-	}
+        int num = 1;
+        for (int i = 0; i < int(breakpoint_nrs.size()); i++)
+        {
+            BreakPoint *bp = bp_map.get(breakpoint_nrs[i]);
+            if (restore_old_numbers)
+            {
+                while (num < breakpoint_nrs[i])
+                    ok = ok && bp->get_state(os, num++, true);
+                assert(num == breakpoint_nrs[i]);
+            }
+            ok = ok && bp->get_state(os, num++);
+        }
     }
 
     // Restore current cursor position
@@ -10158,19 +10158,19 @@ bool SourceView::get_state(std::ostream& os)
     case BASH:
     case GDB:
     case PYDB:
-	os << "info line " << line_of_cursor() << '\n';
-	break;
+        os << "info line " << line_of_cursor() << '\n';
+        break;
 
     case DBG:
     case DBX:
     case MAKE:
     case JDB:
     case PERL:
-	break;			// FIXME
+        break;                        // FIXME
 
     case XDB:
-	os << "v " << line_of_cursor() << '\n';
-	break;
+        os << "v " << line_of_cursor() << '\n';
+        break;
     }
 
     return ok;
@@ -10204,54 +10204,54 @@ void SourceView::reset()
     // Delete all breakpoints
     if (gdb->has_delete_command())
     {
-	string del = gdb->delete_command();
+        string del = gdb->delete_command();
 
-	MapRef ref;
-	int n = 0;
-	for (BreakPoint *bp = bp_map.first(ref); bp != 0; 
-	     bp = bp_map.next(ref))
-	{
-	    n++;
-	    del += " " + itostring(bp->number());
-	}
+        MapRef ref;
+        int n = 0;
+        for (BreakPoint *bp = bp_map.first(ref); bp != 0; 
+             bp = bp_map.next(ref))
+        {
+            n++;
+            del += " " + itostring(bp->number());
+        }
 
-	if (n > 0)
-	{
-	    Command c(del);
-	    c.verbose  = false;
-	    c.prompt   = false;
-	    c.check    = true;
-	    c.priority = COMMAND_PRIORITY_INIT;
-	    c.callback = reset_done;
-	    gdb_command(c);
+        if (n > 0)
+        {
+            Command c(del);
+            c.verbose  = false;
+            c.prompt   = false;
+            c.check    = true;
+            c.priority = COMMAND_PRIORITY_INIT;
+            c.callback = reset_done;
+            gdb_command(c);
 
-	    reset_later = true;
-	}
+            reset_later = true;
+        }
     }
     else if (gdb->has_clear_command())
     {
-	MapRef ref;
-	for (BreakPoint *bp = bp_map.first(ref); bp != 0; 
-	     bp = bp_map.next(ref))
-	{
-	    // For gdb we use the delete command.
-	    // So if we get here this is a simple breakpoint.
-	    Command c(clear_command(bp->pos()));
-	    c.verbose  = false;
-	    c.prompt   = false;
-	    c.check    = true;
-	    c.priority = COMMAND_PRIORITY_INIT;
+        MapRef ref;
+        for (BreakPoint *bp = bp_map.first(ref); bp != 0; 
+             bp = bp_map.next(ref))
+        {
+            // For gdb we use the delete command.
+            // So if we get here this is a simple breakpoint.
+            Command c(clear_command(bp->pos()));
+            c.verbose  = false;
+            c.prompt   = false;
+            c.check    = true;
+            c.priority = COMMAND_PRIORITY_INIT;
 
-	    if (bp_map.next(ref) == 0)
-	    {
-		// Last command
-		c.callback = reset_done;
-		reset_later = true;
-	    }
-	    gdb_command(c);
-	}
+            if (bp_map.next(ref) == 0)
+            {
+                // Last command
+                c.callback = reset_done;
+                reset_later = true;
+            }
+            gdb_command(c);
+        }
     }
 
     if (!reset_later)
-	reset_done("", 0);
+        reset_done("", 0);
 }

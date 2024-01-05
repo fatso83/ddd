@@ -156,8 +156,8 @@ class SourceView {
 
     // Create text or code widget
     static void create_text(Widget parent,
-			    const char *base, bool editable,
-			    Widget& form, Widget& text);
+                            const char *base, bool editable,
+                            Widget& form, Widget& text);
 
     // Refresh displays
     static void refresh_bp_disp(bool reset = false);
@@ -170,16 +170,16 @@ class SourceView {
 
     // Move/Copy breakpoint NR to ADDRESS; return true if changed
     static bool move_bp(int nr, const string& address, Widget origin = 0,
-			bool copy = false);
+                        bool copy = false);
     static bool copy_bp(int nr, const string& address, Widget origin = 0)
     {
-	return move_bp(nr, address, origin, true);
+        return move_bp(nr, address, origin, true);
     }
 
     // Position history
     static void add_current_to_history();
     static void add_position_to_history(const string& file_name, 
-					int line, bool stopped);
+                                        int line, bool stopped);
 
     // Set condition of breakpoints NRS to COND.
     // * If COND is char(-1), preserve old condition.
@@ -189,30 +189,30 @@ class SourceView {
     //   the original condition.
     // * Otherwise, preserve the condition state.
     static void _set_bps_cond(const std::vector<int>& nrs, const string& cond,
-			      int make_false, Widget origin);
+                              int make_false, Widget origin);
 
     // Set condition of breakpoints NRS to COND.
     inline static void set_bps_cond(const std::vector<int>& nrs, const string& cond,
-				    Widget origin = 0)
+                                    Widget origin = 0)
     {
-	_set_bps_cond(nrs, cond, -1, origin);
+        _set_bps_cond(nrs, cond, -1, origin);
     }
 
     // Enable and disable breakpoints via conditions.
     inline static void set_bps_cond_enabled(const std::vector<int>& nrs, bool enabled,
-					    Widget origin = 0)
+                                            Widget origin = 0)
     {
-	_set_bps_cond(nrs, char(-1), enabled ? 0 : 1, origin);
+        _set_bps_cond(nrs, char(-1), enabled ? 0 : 1, origin);
     }
 
     // Custom calls
     inline static void enable_bps_cond(const std::vector<int>& nrs, Widget origin = 0)
     {
-	set_bps_cond_enabled(nrs, true, origin);
+        set_bps_cond_enabled(nrs, true, origin);
     }
     inline static void disable_bps_cond(const std::vector<int>& nrs, Widget origin = 0)
     {
-	set_bps_cond_enabled(nrs, false, origin);
+        set_bps_cond_enabled(nrs, false, origin);
     }
 
     // Find the line number at POS.  LINE_NR becomes the line number
@@ -220,18 +220,18 @@ class SourceView {
     // BP_NR is the number of the breakpoint at POS (none: 0).  Return
     // false iff failure.
     static bool get_line_of_pos (Widget w,
-				 XmTextPosition pos,
-				 int& line_nr,
-				 string& address,
-				 bool& in_text,
-				 int& bp_nr);
+                                 XmTextPosition pos,
+                                 int& line_nr,
+                                 string& address,
+                                 bool& in_text,
+                                 int& bp_nr);
 
     // Find word around POS.  STARTPOS is the first character, ENDPOS
     // is the last character in the word.
     static void find_word_bounds (Widget w,
-				  const XmTextPosition pos,
-				  XmTextPosition& startpos,
-				  XmTextPosition& endpos);
+                                  const XmTextPosition pos,
+                                  XmTextPosition& startpos,
+                                  XmTextPosition& endpos);
 
     //-----------------------------------------------------------------------
     // Action procedures
@@ -273,7 +273,7 @@ class SourceView {
     //-----------------------------------------------------------------------
     static bool checking_scroll;
 
-    static Widget toplevel_w;	 // Top-level widget
+    static Widget toplevel_w;         // Top-level widget
 
     static Widget source_form_w; // Form around text and glyphs
     static Widget source_text_w; // Source text
@@ -287,7 +287,7 @@ class SourceView {
     static Widget frame_list_w;              // The frame list
     static Widget up_w;                      // The `Up' button
     static Widget down_w;                    // The `Down' button
-    static bool stack_dialog_popped_up;	     // True if the stack is visible
+    static bool stack_dialog_popped_up;             // True if the stack is visible
 
     static Widget register_dialog_w;          // Dialog for registers
     static Widget register_list_w;            // Register list inside
@@ -299,13 +299,13 @@ class SourceView {
     static Widget thread_list_w;              // Thread list inside
     static bool thread_dialog_popped_up;      // True if registers are visible
 
-    static bool display_glyphs;	              // Display glyphs?
-    static bool display_line_numbers;	      // Display line numbers?
+    static bool display_glyphs;                      // Display glyphs?
+    static bool display_line_numbers;              // Display line numbers?
     
-    static bool disassemble;	              // Disassemble code?
-    static bool all_registers;	              // Show all registers?
+    static bool disassemble;                      // Disassemble code?
+    static bool all_registers;                      // Show all registers?
     static bool at_lowest_frame;              // Are we at lowest frame?
-    static bool signal_received;	      // Did we receive a signal?
+    static bool signal_received;              // Did we receive a signal?
 
     static WatchMode selected_watch_mode;     // Last selected watch mode
 
@@ -374,11 +374,11 @@ class SourceView {
     static std::vector<string> bad_files;
     static bool new_bad_file(const string& file_name);
     static void post_file_error(const string& file_name,
-				const string& text, const _XtString name = 0,
-				Widget origin = 0);
+                                const string& text, const _XtString name = 0,
+                                Widget origin = 0);
     static void post_file_warning(const string& file_name,
-				  const string& text, const _XtString name = 0,
-				  Widget origin = 0);
+                                  const string& text, const _XtString name = 0,
+                                  Widget origin = 0);
 
     // The current directory
     static string current_pwd;
@@ -408,7 +408,7 @@ class SourceView {
     static string last_execution_pc;
     static string last_shown_pc;
     static void _show_execution_position (const string& file, int line, 
-					  bool silent, bool stopped);
+                                          bool silent, bool stopped);
 
     // Last frame position
     static int last_frame_pos;
@@ -416,29 +416,29 @@ class SourceView {
 
     // Read source text
     static String read_local(const string& file_name, long& length,
-			     bool silent);
+                             bool silent);
     static String read_remote(const string& file_name, long& length,
-			      bool silent);
+                              bool silent);
     static String read_class(const string& class_name, 
-			     string& file_name, SourceOrigin& origin,
-			     long& length, bool silent);
+                             string& file_name, SourceOrigin& origin,
+                             long& length, bool silent);
     static String read_from_gdb(const string& source_name, long& length,
-				bool silent);
+                                bool silent);
 
     static String read_indented(string& file_name, long& length,
-				SourceOrigin& origin,
-				bool silent = false);
+                                SourceOrigin& origin,
+                                bool silent = false);
     static int read_current(string& file_name, 
-			    bool force_reload = false,
-			    bool silent = false);
+                            bool force_reload = false,
+                            bool silent = false);
 
     // Set insertion position to POS.
     static void SetInsertionPosition(Widget w, XmTextPosition pos, 
-				     bool fromTop = false);
+                                     bool fromTop = false);
 
     // Make position POS visible.
     static void ShowPosition(Widget w, XmTextPosition pos, 
-			     bool fromTop = false);
+                             bool fromTop = false);
 
     static bool is_source_widget(Widget w);
     static bool is_code_widget(Widget w);
@@ -455,8 +455,8 @@ class SourceView {
     static XmTextPosition find_pc(const string& pc);
     static void refresh_codeOQC(const string& answer, void *data);
     static void set_code(const string& code,
-			 const string& start,
-			 const string& end);
+                         const string& start,
+                         const string& end);
 
     static MString help_on_bp(int bp, bool detailed);
 
@@ -488,7 +488,7 @@ class SourceView {
 
     // Create glyph in FORM_W named NAME from given BITS
     static Widget create_glyph(Widget form_w, const _XtString name, 
-			       unsigned char *bits, int width, int height);
+                               unsigned char *bits, int width, int height);
 
     // Map glyph W in (X, Y)
     static void map_glyph(Widget& w, Position x, Position y);
@@ -502,7 +502,7 @@ class SourceView {
 
     // Return position during glyph drag and drop
     static XmTextPosition glyph_position(Widget w, XEvent *e, 
-					 bool normalize = true);
+                                         bool normalize = true);
 
     // Get relative coordinates of GLYPH in TEXT
     static void translate_glyph_pos(Widget glyph, Widget text, int& x, int& y);
@@ -546,28 +546,28 @@ private:
 
     // Return position POS of glyph GLYPH in X/Y.  Return true iff displayed.
     static bool glyph_pos_to_xy(Widget glyph, XmTextPosition pos,
-				Position& x, Position& y);
+                                Position& x, Position& y);
 
     // Map stop sign in W at position POS.  Get widget from STOPS[COUNT];
     // store location in POSITIONS.  Return mapped widget (0 if none)
     static Widget map_stop_at(Widget w, XmTextPosition pos,
-			      WidgetArray& stops, int& count,
-			      std::vector<XmTextPosition>& positions);
+                              WidgetArray& stops, int& count,
+                              std::vector<XmTextPosition>& positions);
 
     // Map arrow/drag arrow/drag stop in W at POS.  If ORIGIN is
     // given, use colors from ORIGIN.
     static Widget map_arrow_at     (Widget w, XmTextPosition pos);
     static Widget map_drag_arrow_at(Widget w, XmTextPosition pos,
-				    Widget origin = 0);
+                                    Widget origin = 0);
     static inline void unmap_drag_arrow(Widget w)
     {
-	map_drag_arrow_at(w, XmTextPosition(-1));
+        map_drag_arrow_at(w, XmTextPosition(-1));
     }
     static Widget map_drag_stop_at (Widget w, XmTextPosition pos,
-				    Widget origin = 0);
+                                    Widget origin = 0);
     static inline void unmap_drag_stop(Widget w)
     {
-	map_drag_stop_at(w, XmTextPosition(-1));
+        map_drag_stop_at(w, XmTextPosition(-1));
     }
     static void copy_colors(Widget w, Widget origin);
 
@@ -612,9 +612,9 @@ public:
     // STOPPED indicates that the program just stopped.
     // SIGNALED indicates that the program received a signal.
     static void show_execution_position (const string& position = "",
-					 bool stopped    = false,
-					 bool signaled   = false,
-					 bool silent     = false);
+                                         bool stopped    = false,
+                                         bool signaled   = false,
+                                         bool silent     = false);
 
     // Unset current execution position (program terminated)
     static void clear_execution_position();
@@ -627,13 +627,13 @@ public:
     // STOPPED indicates that the program just stopped.
     // SIGNALED indicates that the program just received a signal.
     static void show_pc (const string& pc, 
-			 XmHighlightMode mode = XmHIGHLIGHT_NORMAL,
-			 bool stopped  = false,
-			 bool signaled = false);
+                         XmHighlightMode mode = XmHIGHLIGHT_NORMAL,
+                         bool stopped  = false,
+                         bool signaled = false);
 
     // Handle breakpoint information
     static void process_info_bp         (string& info_output,
-					 const string& break_arg = "");
+                                         const string& break_arg = "");
 
     // Handle 'info line' information
     static void process_info_line_main  (string& info_output);
@@ -676,19 +676,19 @@ public:
     enum SearchDirection {forward, backward};
 
     static void find(const string& s,
-		     SearchDirection direction = forward,
-		     bool words_only = false,
-		     bool case_sensitive = false,
-		     Time time = CurrentTime);
+                     SearchDirection direction = forward,
+                     bool words_only = false,
+                     bool case_sensitive = false,
+                     Time time = CurrentTime);
 
     // Locate function S; if S is omitted, locate last execution position.
     static void lookup(string s, bool silent = false);
 
     // Read file FILE_NAME; place cursor at INITIAL_LINE.
     static void read_file(string file_name,
-			  int initial_line = 1,
-			  bool force_reload = false,
-			  bool silent = false);
+                          int initial_line = 1,
+                          bool force_reload = false,
+                          bool silent = false);
 
     // Reload current file
     static void reload();
@@ -774,7 +774,7 @@ public:
     // breakpoint temporary.  If COND is given, break only iff COND
     // evals to true.  ORIGIN is the origin.
     static void set_bp(const string& a, bool set, bool temp, 
-		       const char *cond = "", Widget origin = 0);
+                       const char *cond = "", Widget origin = 0);
 
     // Custom calls
     static void create_bp(const string& a, Widget origin = 0);
@@ -792,47 +792,47 @@ public:
 
     inline static void enable_bp(int nr, Widget origin = 0)
     {
-	std::vector<int> nrs;
-	nrs.push_back(nr);
-	enable_bps(nrs, origin);
+        std::vector<int> nrs;
+        nrs.push_back(nr);
+        enable_bps(nrs, origin);
     }
 
     inline static void disable_bp(int nr, Widget origin = 0)
     {
-	std::vector<int> nrs;
-	nrs.push_back(nr);
-	disable_bps(nrs, origin);
+        std::vector<int> nrs;
+        nrs.push_back(nr);
+        disable_bps(nrs, origin);
     }
 
     inline static void delete_bp(int nr, Widget origin = 0)
     {
-	std::vector<int> nrs;
-	nrs.push_back(nr);
-	delete_bps(nrs, origin);
+        std::vector<int> nrs;
+        nrs.push_back(nr);
+        delete_bps(nrs, origin);
     }
 
     inline static void edit_bp(int nr, Widget origin = 0)
     {
-	std::vector<int> nrs;
-	nrs.push_back(nr);
-	edit_bps(nrs, origin);
+        std::vector<int> nrs;
+        nrs.push_back(nr);
+        edit_bps(nrs, origin);
     }
 
     // Set breakpoint commands
     static void set_bp_commands(std::vector<int>& nrs, const std::vector<string>& commands,
-				Widget origin = 0);
+                                Widget origin = 0);
     inline static void set_bp_commands(int nr, const std::vector<string>& commands,
-				       Widget origin = 0)
+                                       Widget origin = 0)
     {
-	std::vector<int> nrs;
-	nrs.push_back(nr);
-	set_bp_commands(nrs, commands, origin);
+        std::vector<int> nrs;
+        nrs.push_back(nr);
+        set_bp_commands(nrs, commands, origin);
     }
 
     static string numbers(const std::vector<int>& nrs);
     static string all_numbers(const std::vector<int>& nrs);
     static bool all_bps(const std::vector<int>& nrs);
-	    
+            
     // Move PC to ADDRESS; return true if changed.
     static bool move_pc(const string& address, Widget origin = 0);
 
@@ -840,7 +840,7 @@ public:
     // guess the next event number and clear this one as well.
     // Consider only breakpoints whose number is >= FIRST_BP.
     static string clear_command(string arg, bool clear_next = false,
-				int first_bp = 0);
+                                int first_bp = 0);
     // Return `delete N' command.
     static std::vector<string> delete_commands(int bp_nr);
 
@@ -874,7 +874,7 @@ public:
     // Get a help string for GLYPH; return 0 if none
     static MString help_on_glyph(Widget glyph, bool detailed);
     static MString help_on_pos(Widget w, XmTextPosition pos, 
-			       XmTextPosition& ref, bool detailed);
+                               XmTextPosition& ref, bool detailed);
 
     // Get the position of breakpoint NUM
     static string bp_pos(int num);
@@ -887,15 +887,15 @@ public:
 
     // Get the word at position of EVENT
     static string get_word_at_event(Widget w,
-				    XEvent *event,
-				    XmTextPosition& first_pos,
-				    XmTextPosition& last_pos);
+                                    XEvent *event,
+                                    XmTextPosition& first_pos,
+                                    XmTextPosition& last_pos);
 
     // Get the word at position POS
     static string get_word_at_pos(Widget w,
-				  XmTextPosition pos,
-				  XmTextPosition& startpos,
-				  XmTextPosition& endpos);
+                                  XmTextPosition pos,
+                                  XmTextPosition& startpos,
+                                  XmTextPosition& endpos);
 
     // Examine DDD state
 
@@ -934,7 +934,7 @@ public:
 
     // Goto history entry
     static void goto_entry(const string& file, int line,
-			   const string& address, bool exec_pos);
+                           const string& address, bool exec_pos);
 
     // Set or unset showing earlier state
     static void showing_earlier_state(bool set);
