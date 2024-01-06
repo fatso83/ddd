@@ -67,6 +67,7 @@
 #include "x11/Delay.h"
 #include "template/StringSA.h"
 #include "motif/MString.h"
+#include "SourceCode.h"
 
 //-----------------------------------------------------------------------------
 extern GDBAgent* gdb;
@@ -271,7 +272,7 @@ class SourceView {
     //-----------------------------------------------------------------------
     // Data
     //-----------------------------------------------------------------------
-    static bool checking_scroll;
+    //static bool checking_scroll;
 
     static Widget toplevel_w;         // Top-level widget
 
@@ -300,7 +301,7 @@ class SourceView {
     static bool thread_dialog_popped_up;      // True if registers are visible
 
     static bool display_glyphs;                      // Display glyphs?
-    static bool display_line_numbers;              // Display line numbers?
+//     static bool display_line_numbers;              // Display line numbers?
     
     static bool disassemble;                      // Disassemble code?
     static bool all_registers;                      // Show all registers?
@@ -309,19 +310,12 @@ class SourceView {
 
     static WatchMode selected_watch_mode;     // Last selected watch mode
 
-    // Tab width
-    static int tab_width;
-
     // The breakpoint map
     static Map<int, BreakPoint> bp_map;
 
     // File attributes
-    static string current_file_name;
-    static int    line_count;
     static IntIntArrayAssoc bps_in_line;
-    static std::vector<XmTextPosition> m_pos_of_line;
     static std::vector<string> bp_addresses;
-    static XmTextPosition pos_of_line(int line);
 
     // True iff breakpoint BP is in current file (at LINE, if given)
     static bool bp_matches(BreakPoint *bp, int line = 0);
@@ -344,41 +338,18 @@ class SourceView {
     // True iff FILE is the currently loaded file
     static bool is_current_file(const string& file);
 
-    static StringStringAssoc file_cache;
-    static StringOriginAssoc origin_cache;
     static CodeCache code_cache;
 
     // The current source text.
-    static string current_source;
+    static SourceCode sourcecode;
 
     // The current frame number.  (-1 if none)
     static int current_frame;
-
-    // The origin of the current source text.
-    static SourceOrigin current_origin;
 
     // The current assembler code.
     static string current_code;
     static string current_code_start;
     static string current_code_end;
-
-    // Return current source name (name under this source is known to GDB)
-    static StringStringAssoc source_name_cache;
-    static string get_source_name(string filename = "");
-    static string current_source_name();
-
-    // File name of current source (for JDB)
-    static StringStringAssoc file_name_cache;
-
-    // Files listed as erroneous
-    static std::vector<string> bad_files;
-    static bool new_bad_file(const string& file_name);
-    static void post_file_error(const string& file_name,
-                                const string& text, const _XtString name = 0,
-                                Widget origin = 0);
-    static void post_file_warning(const string& file_name,
-                                  const string& text, const _XtString name = 0,
-                                  Widget origin = 0);
 
     // The current directory
     static string current_pwd;
@@ -414,24 +385,6 @@ class SourceView {
     static int last_frame_pos;
     static bool frame_pos_locked;
 
-    // Read source text
-    static String read_local(const string& file_name, long& length,
-                             bool silent);
-    static String read_remote(const string& file_name, long& length,
-                              bool silent);
-    static String read_class(const string& class_name, 
-                             string& file_name, SourceOrigin& origin,
-                             long& length, bool silent);
-    static String read_from_gdb(const string& source_name, long& length,
-                                bool silent);
-
-    static String read_indented(string& file_name, long& length,
-                                SourceOrigin& origin,
-                                bool silent = false);
-    static int read_current(string& file_name, 
-                            bool force_reload = false,
-                            bool silent = false);
-
     // Set insertion position to POS.
     static void SetInsertionPosition(Widget w, XmTextPosition pos, 
                                      bool fromTop = false);
@@ -442,11 +395,12 @@ class SourceView {
 
     static bool is_source_widget(Widget w);
     static bool is_code_widget(Widget w);
-    static string& current_text(Widget w);
+    static const string& current_text(Widget w);
 
     // Return current breakpoint indent amount.  If POS is given, add
     // the whitespace from POS.
     static int indent_amount(Widget w, int pos = -1);
+    static int indent_amount_code(int pos = -1);
 
     // Format `where' and `thread' lines
     static void setup_where_line(string& line);
@@ -531,15 +485,15 @@ private:
     static Widget past_arrows[2];
     static Widget signal_arrows[2];
     static Widget drag_arrows[2];
-    static WidgetArray plain_stops[2];
-    static WidgetArray grey_stops[2];
-    static WidgetArray multi_stops[2];
-    static WidgetArray plain_conds[2];
-    static WidgetArray grey_conds[2];
-    static WidgetArray multi_conds[2];
-    static WidgetArray plain_temps[2];
-    static WidgetArray grey_temps[2];
-    static WidgetArray multi_temps[2];
+    static std::vector<Widget> plain_stops[2];
+    static std::vector<Widget> grey_stops[2];
+    static std::vector<Widget> multi_stops[2];
+    static std::vector<Widget> plain_conds[2];
+    static std::vector<Widget> grey_conds[2];
+    static std::vector<Widget> multi_conds[2];
+    static std::vector<Widget> plain_temps[2];
+    static std::vector<Widget> grey_temps[2];
+    static std::vector<Widget> multi_temps[2];
     static Widget drag_stops[2];
     static Widget drag_conds[2];
     static Widget drag_temps[2];
@@ -723,8 +677,18 @@ public:
     static bool can_go_down();
 
     // Check whether source files and code are to be cached
-    static bool cache_source_files;
     static bool cache_machine_code;
+    static void set_cache_machine_code(bool set)
+    {
+        if (set == cache_machine_code)
+            return;
+
+        cache_machine_code = set;
+        if (!cache_machine_code)
+            clear_code_cache();
+    }
+
+    static void set_cache_source(bool set) { sourcecode.set_caches(set); }
 
     // Set whether glyphs are to be displayed
     static void set_display_glyphs(bool value);
@@ -742,7 +706,7 @@ public:
     static void set_tab_width(int width);
 
     // Set the indentation
-    static void set_indent(int source_indent, int code_indent);
+    static void set_indent(int source_indent, int code_indent, int script_indent, int line_indent);
 
     // Set the max number of glyphs
     static void set_max_glyphs(int max_glyphs);
@@ -754,10 +718,7 @@ public:
     static int max_popup_expr_length;
 
     // The indenting amounts
-    static int source_indent_amount;         // Source
     static int code_indent_amount;           // Machine code
-    static int line_indent_amount;           // Extra columns for line numbers
-    static int script_indent_amount;         // Minimum for scripts
 
     // The scrolling amounts
     static int lines_above_cursor;           // Lines to keep before cursor
@@ -854,7 +815,7 @@ public:
     static string class_path();
 
     // Return current source file name
-    static string name_of_source() { return current_source_name(); }
+    static string name_of_source() { return sourcecode.current_source_name(); }
 
     // Return source text and machine code widget (read-only)
     static Widget source() { return source_text_w; }
@@ -865,7 +826,8 @@ public:
     static Widget code_form()   { return code_form_w; }
 
     // Clear caches
-    static void clear_file_cache();
+    static void clear_file_cache() {
+        sourcecode.clear_file_cache(); }
     static void clear_code_cache();
 
     // Get the line at POSITION
@@ -900,7 +862,7 @@ public:
     // Examine DDD state
 
     // True iff we have some source text
-    static bool have_source() { return current_source.length() != 0; }
+    static bool have_source() { return sourcecode.have_source(); }
 
     // True iff we have some execution position
     static bool have_exec_pos() { return !last_execution_file.empty(); }

@@ -565,6 +565,8 @@ DDD_SRC = \
 	SmartC.C     \
 	SmartC.h     \
 	SourceO.h    \
+	SourceCode.C \
+	SourceCode.h \
 	SourceView.C \
 	SourceView.h \
 	StringTPA.h  \

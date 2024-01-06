@@ -4099,29 +4099,15 @@ void update_options()
     set_toggle(startup_tips_w,  app_data.startup_tips);
     set_toggle(set_startup_tips_w, app_data.startup_tips);
 
-    if (app_data.cache_source_files != source_view->cache_source_files)
-    {
-        source_view->cache_source_files = app_data.cache_source_files;
-        if (!app_data.cache_source_files)
-            source_view->clear_file_cache();
-    }
-
-    if (app_data.cache_machine_code != source_view->cache_machine_code)
-    {
-        source_view->cache_machine_code = app_data.cache_machine_code;
-        if (!app_data.cache_machine_code)
-            source_view->clear_code_cache();
-    }
-
+    source_view->set_cache_source(app_data.cache_source_files);
+    source_view->set_cache_machine_code(app_data.cache_machine_code);
     source_view->set_display_line_numbers(app_data.display_line_numbers);
     source_view->set_display_glyphs(app_data.display_glyphs);
     source_view->set_disassemble(gdb->type() == GDB || (gdb->type() == PYDB && app_data.disassemble));
     source_view->set_all_registers(app_data.all_registers);
     source_view->set_tab_width(app_data.tab_width);
-    source_view->set_indent(app_data.indent_source, app_data.indent_code);
+    source_view->set_indent(app_data.indent_source, app_data.indent_code, app_data.indent_script, app_data.line_number_width);
 
-    source_view->line_indent_amount   = app_data.line_number_width;
-    source_view->script_indent_amount = app_data.indent_script;
     source_view->lines_above_cursor   = app_data.lines_above_cursor;
     source_view->lines_below_cursor   = app_data.lines_below_cursor;
 

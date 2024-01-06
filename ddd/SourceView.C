@@ -88,7 +88,6 @@ char SourceView_rcsid[] =
 #include "agent/TimeOut.h"
 #include "UndoBuffer.h"
 #include "assert.h"
-#include "base/basename.h"
 #include "buttons.h"
 #include "base/casts.h"
 #include "x11/charsets.h"
@@ -149,14 +148,6 @@ char SourceView_rcsid[] =
 #endif
 #endif
 
-// LessTif hacks
-#include <X11/IntrinsicP.h>
-
-// System stuff
-extern "C" {
-#include <sys/types.h>
-#include <sys/stat.h>
-}
 #include <stdio.h>
 #include <fcntl.h>
 #include <stdlib.h>
@@ -167,10 +158,6 @@ extern "C" {
 
 #include <algorithm>
 
-// Test for regular file - see stat(3)
-#ifndef S_ISREG
-#define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
-#endif
 
 
 //-----------------------------------------------------------------------
@@ -347,38 +334,25 @@ bool SourceView::stack_dialog_popped_up    = false;
 bool SourceView::register_dialog_popped_up = false;
 bool SourceView::thread_dialog_popped_up   = false;
 
-bool SourceView::cache_source_files     = true;
 bool SourceView::cache_machine_code     = true;
 bool SourceView::display_glyphs         = true;
-bool SourceView::display_line_numbers   = false;
 bool SourceView::disassemble            = true;
 bool SourceView::all_registers          = false;
 
-int  SourceView::source_indent_amount = 4;
-int  SourceView::script_indent_amount = 4;
 int  SourceView::code_indent_amount   = 4;
-int  SourceView::line_indent_amount   = 4;
-int  SourceView::tab_width            = DEFAULT_TAB_WIDTH;
 
 int  SourceView::lines_above_cursor   = 2;
 int  SourceView::lines_below_cursor   = 3;
 
-SourceOrigin SourceView::current_origin = ORIGIN_NONE;
-
 Map<int, BreakPoint> SourceView::bp_map;
 
-string SourceView::current_file_name = "";
-int    SourceView::line_count = 0;
 IntIntArrayAssoc SourceView::bps_in_line;
-std::vector<XmTextPosition> SourceView::m_pos_of_line;
 std::vector<string> SourceView::bp_addresses;
-StringStringAssoc SourceView::file_cache;
-StringOriginAssoc SourceView::origin_cache;
-StringStringAssoc SourceView::source_name_cache;
-StringStringAssoc SourceView::file_name_cache;
 CodeCache SourceView::code_cache;
 
-string SourceView::current_source;
+// string SourceView::current_source;
+SourceCode SourceView::sourcecode;
+
 string SourceView::current_code;
 string SourceView::current_code_start;
 string SourceView::current_code_end;
@@ -407,7 +381,7 @@ int SourceView::last_frame_pos = 0;
 bool SourceView::frame_pos_locked = false;
 int SourceView::current_frame = -1;
 
-bool SourceView::checking_scroll = false;
+//bool SourceView::checking_scroll = false;
 
 bool SourceView::at_lowest_frame = true;
 bool SourceView::signal_received = false;
@@ -498,14 +472,14 @@ bool SourceView::is_source_widget(Widget w)
     return false;
 }
 
-string& SourceView::current_text(Widget w)
+const string& SourceView::current_text(Widget w)
 {
     assert(is_source_widget(w) || is_code_widget(w));
 
     if (is_code_widget(w))
         return current_code;
     else
-        return current_source;
+        return sourcecode.get_source();
 }
 
 
@@ -515,29 +489,22 @@ int SourceView::indent_amount(Widget w, int pos)
 {
     assert(is_source_widget(w) || is_code_widget(w));
 
-    int indent = 0;
     if (is_code_widget(w))
-    {
-        indent = code_indent_amount;
-    }
+        return indent_amount_code(pos);
     else
-    {
-        indent = source_indent_amount;
+        return sourcecode.calculate_indent(pos);
+}
 
-        if (display_line_numbers)
-            indent += line_indent_amount;
-
-        // Set a minimum indentation for scripting languages
-        if (gdb->requires_script_indent())
-            indent = max(indent, script_indent_amount);
-    }
+int SourceView::indent_amount_code(int pos)
+{
+    int indent = code_indent_amount;
 
     // Make sure indentation stays within reasonable bounds
     indent = min(max(indent, 0), MAX_INDENT);
 
     if (pos >= 0)
     {
-        const string& text = current_text(w);
+        const string& text = current_code;
         while (pos < int(text.length()) && text[pos] == ' ')
         {
             pos++;
@@ -719,7 +686,7 @@ void SourceView::set_bp(const string& a, bool set, bool temp,
                 string file = address.before(':');
                 address = address.after(':');
 
-                if (!file_matches(file, current_file_name))
+                if (!file_matches(file, sourcecode.get_filename()))
                     gdb_command("f " + file, w);
             }
 
@@ -1244,7 +1211,7 @@ std::vector<string> SourceView::delete_commands(int bp_nr)
 // whose number is >= FIRST_BP.
 string SourceView::clear_command(string pos, bool clear_next, int first_bp)
 {
-    string file = current_file_name;
+    string file = sourcecode.get_filename();
     string line = pos;
     MapRef ref;
 
@@ -1270,7 +1237,7 @@ string SourceView::clear_command(string pos, bool clear_next, int first_bp)
             return "clear " + pos;
 
         case PERL:
-            if (line_no > 0 && file_matches(file, current_file_name))
+            if (line_no > 0 && file_matches(file, sourcecode.get_filename()))
             {
                 // Clear the breakpoint
                 string command = "B " + line;
@@ -1330,7 +1297,7 @@ string SourceView::clear_command(string pos, bool clear_next, int first_bp)
             break;
 
         case DBX:
-            if (line_no > 0 && file_matches(file, current_file_name))
+            if (line_no > 0 && file_matches(file, sourcecode.get_filename()))
                 return "clear " + line;
             break;
 
@@ -1499,7 +1466,6 @@ void SourceView::text_popup_lookupCB (Widget, XtPointer client_data, XtPointer)
 
 // ***************************************************************************
 //
-
 // Return the normalized full path of FILE
 string SourceView::full_path(string file)
 {
@@ -1583,9 +1549,9 @@ bool SourceView::file_matches(const string& file1, const string& file2)
 bool SourceView::is_current_file(const string& file)
 {
     if (gdb->type() == JDB)
-        return file == current_source_name();
+        return file == sourcecode.current_source_name();
     else
-        return file_matches(file, current_file_name);
+        return file_matches(file, sourcecode.get_filename());
 }
 
 bool SourceView::base_matches(const string& file1, const string& file2)
@@ -1596,8 +1562,8 @@ bool SourceView::base_matches(const string& file1, const string& file2)
 // Check if BP occurs in the current source text
 bool SourceView::bp_matches(BreakPoint *bp, int line)
 {
-    return bp_matches(bp, current_source_name(), line) || 
-        bp_matches(bp, current_file_name, line);
+    return bp_matches(bp, sourcecode.current_source_name(), line) ||
+        bp_matches(bp, sourcecode.get_filename(), line);
 }
 
 bool SourceView::bp_matches(BreakPoint *bp, const string& file, int line)
@@ -1623,8 +1589,8 @@ bool SourceView::bp_matches(BreakPoint *bp, const string& file, int line)
 // Check if BP occurs in the current source text
 bool SourceView::bp_matches(BreakPointLocn &locn, int line)
 {
-    return bp_matches(locn, current_source_name(), line) || 
-        bp_matches(locn, current_file_name, line);
+    return bp_matches(locn, sourcecode.current_source_name(), line) ||
+        bp_matches(locn, sourcecode.get_filename(), line);
 }
 
 bool SourceView::bp_matches(BreakPointLocn &locn, const string& file, int line)
@@ -1739,7 +1705,7 @@ void SourceView::set_source_argCB(Widget text_w,
                 in_bp_area = true;
 
                 // Selection from line number area: prepend source file name
-                pos = current_source_name() + ":" + itostring(line_nr);
+                pos = sourcecode.current_source_name() + ":" + itostring(line_nr);
                 source_arg->set_string(pos);
 
                 // If a breakpoint is here, select this one only
@@ -1753,8 +1719,8 @@ void SourceView::set_source_argCB(Widget text_w,
             }
         }
         else if (text_w == code_text_w
-                 && startPos - startIndex <= indent_amount(text_w)
-                 && endPos - endIndex <= indent_amount(text_w))
+                 && startPos - startIndex <= indent_amount_code()
+                 && endPos - endIndex <= indent_amount_code())
         {
             // Selection from address area
             int index = address_index(text, startPos);
@@ -1957,755 +1923,10 @@ void SourceView::SetInsertionPosition(Widget text_w,
 }
 
 
-
-//-----------------------------------------------------------------------
-// Error handling
-//-----------------------------------------------------------------------
-
-std::vector<string> SourceView::bad_files;
-bool SourceView::new_bad_file(const string& file_name)
-{
-    for (int i = 0; i < int(bad_files.size()); i++)
-        if (file_name == bad_files[i])
-            return false;
-    bad_files.push_back(file_name);
-    return true;
-}
-
-void SourceView::post_file_error(const string& file_name,
-                                 const string& text, const _XtString name,
-                                 Widget origin)
-{
-    if (new_bad_file(file_name))
-        post_error(text, name, origin);
-}
-
-void SourceView::post_file_warning(const string& file_name,
-                                   const string& text, const _XtString name,
-                                   Widget origin)
-{
-    if (new_bad_file(file_name))
-        post_warning(text, name, origin);
-}
-
-
-
-
-//-----------------------------------------------------------------------
-// Read file
-//-----------------------------------------------------------------------
-
-// Read local file from FILE_NAME
-String SourceView::read_local(const string& file_name, long& length,
-                              bool silent)
-{
-    StatusDelay delay("Reading file " + quote(file_name));
-    length = 0;
-
-    // Make sure the file is a regular text file and open it
-    int fd;
-    if ((fd = open(file_name.chars(), O_RDONLY)) < 0)
-    {
-        delay.outcome = strerror(errno);
-        //if (!silent)
-        //    post_file_error(file_name, 
-        //                    file_name + ": " + delay.outcome, 
-        //                    "source_file_error", source_text_w);
-        return 0;
-    }
-
-    struct stat statb;
-    if (fstat(fd, &statb) < 0)
-    {
-        delay.outcome = strerror(errno);
-        if (!silent)
-            post_file_error(file_name,
-                            file_name + ": " + delay.outcome, 
-                            "source_file_error", source_text_w);
-        return 0;
-    }
-
-    // Avoid loading from directory, socket, device, or otherwise.
-    if (!S_ISREG(statb.st_mode))
-    {
-        delay.outcome = "not a regular file";
-        if (!silent)
-            post_file_error(file_name,
-                            file_name + ": " + delay.outcome, 
-                            "source_file_error", source_text_w);
-        return 0;
-    }
-
-    // Put the contents of the file in the Text widget by allocating
-    // enough space for the entire file and reading the file into the
-    // allocated space.
-    char* text = XtMalloc(unsigned(statb.st_size + 1));
-    if ((length = read(fd, text, statb.st_size)) != statb.st_size)
-    {
-        delay.outcome = "truncated";
-        if (!silent)
-            post_file_error(file_name,
-                            file_name + ": " + delay.outcome,
-                            "source_trunc_error", source_text_w);
-    }
-    close(fd);
-
-    text[statb.st_size] = '\0'; // be sure to null-terminate
-
-    if (statb.st_size == 0)
-    {
-        delay.outcome = "empty file";
-        if (!silent)
-            post_file_warning(file_name,
-                              file_name + ": " + delay.outcome,
-                              "source_empty_warning", source_text_w);
-    }
-
-    return text;
-}
-
-
-// Read (possibly remote) file FILE_NAME; a little slower
-String SourceView::read_remote(const string& file_name, long& length, 
-                               bool silent)
-{
-    StatusDelay delay("Reading file " + 
-                      quote(file_name) + " from " + gdb_host);
-    length = 0;
-
-    string cat_command = sh_command("cat " + file_name);
-
-    Agent cat(cat_command);
-    cat.start();
-
-    FILE *fp = cat.inputfp();
-    if (fp == 0)
-    {
-        delay.outcome = "failed";
-        return 0;
-    }
-
-    String text = XtMalloc(1);
-
-    do {
-        text = XtRealloc(text, length + BUFSIZ + 1);
-        length += fread(text + length, sizeof(char), BUFSIZ, fp);
-    } while (!feof(fp));
-
-    text[length] = '\0';  // be sure to null-terminate
-
-    if (length == 0)
-    {
-        if (!silent)
-            post_file_error(file_name,
-                            "Cannot access remote file " + quote(file_name), 
-                            "remote_file_error", source_text_w);
-        delay.outcome = "failed";
-    }
-
-    return text;
-}
-
-// Read class CLASS_NAME
-String SourceView::read_class(const string& class_name, 
-                              string& file_name, SourceOrigin& origin,
-                              long& length, bool silent)
-{
-    StatusDelay delay("Loading class " + quote(class_name));
-    
-    String text = 0;
-    length = 0;
-
-    file_name = java_class_file(class_name);
-
-    if (!file_name.empty())
-    {
-        if (remote_gdb())
-            text = read_remote(file_name, length, true);
-        else
-        {
-            file_name = full_path(file_name);
-            text = read_local(file_name, length, true);
-        }
-    }
-
-    if (text != 0 && length != 0)
-    {
-        // Save class name for further reference
-        source_name_cache[file_name] = class_name;
-        origin = remote_gdb() ? ORIGIN_REMOTE : ORIGIN_LOCAL;
-        return text;
-    }
-    else
-    {
-        // Could not load class
-        file_name = class_name;
-        origin = ORIGIN_NONE;
-        delay.outcome = "failed";
-        if (!silent)
-            post_file_error(class_name,
-                            "Cannot access class " + quote(class_name),
-                            "class_error", source_text_w);
-
-        return 0;
-    }
-}
-
-#define HUGE_LINE_NUMBER "1000000"
-
-// Read file FILE_NAME via the GDB `list' function
-// Really slow, is guaranteed to work for source files.
-String SourceView::read_from_gdb(const string& file_name, long& length, 
-                                 bool /* silent */)
-{
-    length = 0;
-    if (!can_do_gdb_command())
-        return 0;
-    if (gdb->type() == JDB)
-        return 0;                // Won't work with JDB
-
-    StatusDelay delay("Reading file " + quote(file_name) + 
-                      " from " + gdb->title());
-
-    string command;
-    switch (gdb->type())
-    {
-    case BASH:
-    case DBX:
-    case PYDB:
-        command = "list 1," HUGE_LINE_NUMBER;
-        break;
-
-    case DBG: // Is this correct? DBG "list" sommand seems not to do anything
-    case GDB:
-        command = "list " + file_name + ":1," HUGE_LINE_NUMBER;
-        break;
-
-    case PERL:
-        command = "l 1-" HUGE_LINE_NUMBER;
-        break;
-
-    case JDB:
-        command = "list " + file_name;
-        break;
-
-    case MAKE:  // Don't have a "list" function yet.
-        command = "";
-        break;
-
-    case XDB:
-        command = "w " HUGE_LINE_NUMBER;
-        break;
-    }
-    string listing = gdb_question(command, -1, true);
-
-    // GDB listings have the format <NUMBER>\t<LINE>.
-    // Copy LINE only; line numbers will be re-added later.
-    // Note that tabs may be expanded to spaces due to a PTY interface.
-    String text = XtMalloc(listing.length());
-
-    int i = 0;
-    length = 0;
-    while (i < int(listing.length()))
-    {
-        int count = 0;
-
-        // Skip leading spaces.  Some debuggers also issue `*', `=',
-        // or `>' to indicate the current position.
-        while (count < 8
-               && i < int(listing.length())
-               && (isspace(listing[i])
-                   || listing[i] == '=' 
-                   || listing[i] == '*'
-                   || listing[i] == '>'))
-            i++, count++;
-
-        if (i < int(listing.length()) && isdigit(listing[i]))
-        {
-            // Skip line number
-            while (i < int(listing.length()) && isdigit(listing[i]))
-                i++, count++;
-
-            // Skip `:' (XDB output)
-            if (count < 8 && i < int(listing.length()) && listing[i] == ':')
-                i++, count++;
-
-            // Break at first non-blank character or after 8 characters
-            while (count < 8 && i < int(listing.length()) && listing[i] == ' ')
-                i++, count++;
-
-            // Skip tab character
-            if (count < 8 && i < int(listing.length()) && listing[i] == '\t')
-                i++;
-
-            // Copy line
-            while (i < int(listing.length()) && listing[i] != '\n')
-                text[length++] = listing[i++];
-
-            // Copy newline character
-            text[length++] = '\n';
-            i++;
-        }
-        else
-        {
-            int start = i;
-
-            // Some other line -- the prompt, maybe?
-            while (i < int(listing.length()) && listing[i] != '\n')
-                i++;
-            if (i < int(listing.length()))
-                i++;
-
-            string msg = listing.from(start);
-            msg = msg.before('\n');
-            if (!msg.contains("end of file")) // XDB issues this
-                post_gdb_message(msg, true, source_text_w);
-        }
-    }
-
-    if (text[0] == 'i' && text[1] == 'n' && text[2] == ' ')
-    {
-        // GDB 5.0 issues only `LINE_NUMBER in FILE_NAME'.  Treat this
-        // like an error message.
-        length = 0;
-    }
-
-    text[length] = '\0';  // be sure to null-terminate
-
-    if (length == 0)
-        delay.outcome = "failed";
-
-    return text;
-}
-
-bool utf8toUnicode(wchar_t &unicode, const char *text, int &pos, const int length)
-{
-    const unsigned char *utext = (const unsigned char *)text;
-    unicode = 0;
-    if (utext==nullptr || pos>=length || utext[pos] == 0)
-        return false;
-
-    if ((utext[pos] & 0x80) == 0)
-    {
-        // U+0000-U+007F
-        unicode = utext[pos];
-        pos += 1;
-        return true;
-    }
-
-    if (pos+1>=length || utext[pos+1] == 0)
-        return false;
-
-    if ((utext[pos] & 0xe0) == 0xc0 && (utext[pos+1] & 0xc0) == 0x80)
-    {
-        // U+0080-U+07FF
-        unicode = ((utext[pos] & 0x1f) << 6) | (utext[pos+1] & 0x3f);
-        pos += 2;
-        return true;
-    }
-
-    if (pos+2>=length || utext[pos+2] == 0)
-        return false;
-
-    if ((utext[pos] & 0xf0) == 0xe0 && (utext[pos+1] & 0xc0) == 0x80 && (utext[pos+2] & 0xc0) == 0x80)
-    {
-        // U+0800-U+FFFF
-        unicode = ((utext[pos] & 0x1f) << 12) | ((utext[pos+1] & 0x3f) << 6) | (utext[pos+2] & 0x3f);
-        pos += 3;
-        return true;
-    }
-
-    if (pos+2>=length || utext[pos+2] == 0)
-        return false;
-
-    if ((utext[pos] & 0xf8) == 0xf0 && (utext[pos+1] & 0xc0) == 0x80 && (utext[pos+2] & 0xc0) == 0x80 && (utext[pos+3] & 0xc0) == 0x80)
-    {
-        // U+10000-U+10FFFF
-        unicode = ((utext[pos] & 0x1f) << 18) | ((utext[pos+1] & 0x3f) << 12) | ((utext[pos+2] & 0x3f) << 6) | (utext[pos+3] & 0x3f);
-        pos += 4;
-        return true;
-    }
-
-    return false;
-}
-
-// Read file FILE_NAME and format it
-String SourceView::read_indented(string& file_name, long& length, 
-                                 SourceOrigin& origin, bool silent)
-{
-    length = 0;
-    Delay delay;
-    long t;
-        
-    String text = 0;
-    origin = ORIGIN_NONE;
-    string full_file_name = file_name;
-
-    if (gdb->type() == JDB && !file_name.contains('/'))
-    {
-        // FILE_NAME is a class name.  Search class in JDB `use' path.
-        text = read_class(file_name, full_file_name, origin, length, true);
-    }
-
-    if (gdb->type() == PERL && file_name.contains('-', 0))
-    {
-        // Attempt to load `-e' in Perl or likewise
-        origin = ORIGIN_NONE;
-        return 0;
-    }
-
-    if (text == 0 || length == 0)
-    {
-        for (int trial = 1; (text == 0 || length == 0) && trial <= 3; trial++)
-        {
-            switch (trial)
-            {
-            case 1:
-                // Loop #1: use full path of file
-                full_file_name = full_path(file_name);
-                break;
-
-            case 2:
-                // Loop #2: ask debugger for full path, using `edit'
-                full_file_name = full_path(dbx_path(file_name));
-                if (full_file_name == full_path(file_name))
-                    continue;
-                break;
-                
-            case 3:
-                // Loop #3: used file list from debugger
-                full_file_name = get_source_name(file_name);
-                if (full_file_name == full_path(file_name))
-                    continue;
-                break;
-            }
-
-            // Attempt #1.  Try to read file from remote source.
-            if ((text == 0 || length == 0) && remote_gdb())
-            {
-                text = read_remote(full_file_name, length, true);
-                if (text != 0)
-                    origin = ORIGIN_REMOTE;
-            }
-
-            // Attempt #2.  Read file from local source.
-            if ((text == 0 || length == 0) && !remote_gdb())
-            {
-                text = read_local(full_file_name, length, true);
-                if (text != 0)
-                    origin = ORIGIN_LOCAL;
-            }
-
-            // Attempt #3.  Read file from local source, even if we are remote.
-            if ((text == 0 || length == 0) && remote_gdb())
-            {
-                text = read_local(full_file_name, length, true);
-                if (text != 0)
-                    origin = ORIGIN_LOCAL;
-            }
-        }
-    }
-
-    // Attempt #4.  Read file from GDB.
-    if (text == 0 || length == 0)
-    {
-        string source_name = get_source_name(file_name);
-
-        text = read_from_gdb(source_name, length, silent);
-
-        if (text != 0 && length != 0)
-        {
-            // Use the source name as file name
-            full_file_name = source_name;
-            if (text != 0)
-                origin = ORIGIN_GDB;
-        }
-    }
-
-    if ((text == 0 || length == 0) && !silent)
-    {
-        // All failed - produce an appropriate error message.
-        if (gdb->type() == JDB)
-            text = read_class(file_name, full_file_name, origin, 
-                              length, false);
-        else if (!remote_gdb())
-            text = read_local(full_file_name, length, false);
-        else
-            text = read_remote(full_file_name, length, false);
-    }
-
-    if (text == 0 || length == 0)
-    {
-        origin = ORIGIN_NONE;
-        return 0;
-    }
-
-    // At this point, we have a source text.
-    file_name = full_file_name;
-    
-    
-    // determine utf-8 encoding
-    bool utf8 = true;
-    // simple test
-    for (t = 0; t < length; t++)
-    {
-        if (((unsigned char)text[t]) == 0xc0 || ((unsigned char)text[t]) == 0xc1 || ((unsigned char)text[t]) >= 0xf5)
-        {
-            utf8 = false;
-            break;
-        }
-    }
-    
-    // determine new length and check encoding
-    if (utf8 == true)
-    {
-        int newlength = 0;
-        int pos = 0;
-        wchar_t unicode;
-        while (pos<length)
-        {
-            bool res = utf8toUnicode(unicode, text, pos, length);
-            if (res==false)
-                break;
-            
-            newlength ++;
-        }
-
-        if (pos==length)
-        {
-            // map utf-8 to latin1
-            // undisplayable characters (unicode > 255) are mapped to "_"
-            // This should be ok for source code, since only the display 
-            // of non-latin1 comments and string literals is affected.
-            char* newtext = XtMalloc(unsigned(newlength + 1));
-            
-            int pos = 0;
-            wchar_t unicode;
-            int newpos = 0;
-            while (pos<length)
-            {
-                bool res = utf8toUnicode(unicode, text, pos, length);
-                if (res==false)
-                    break;
-
-                if (unicode<=255)
-                    newtext[newpos] = unicode;
-                else
-                    newtext[newpos] = '_';
-                
-                newpos++;
-            }
-    
-            XtFree(text);
-            
-            length = newlength;
-            text = newtext;
-        }
-    }
-
-    // Determine text length and number of lines
-    int lines = 0;
-    for (t = 0; t < length; t++)
-        if (text[t] == '\n')
-            lines++;
-
-    int indented_text_length = length;
-    if (length > 0 && text[length - 1] != '\n')
-    {
-        // Text does not end in '\n':
-        // Make room for final '\n'
-        indented_text_length += 1;
-
-        // Make room for final line
-        lines++;
-    }
-
-    // Make room for line numbers
-    int indent = indent_amount(source_text_w);
-    indented_text_length += (indent + script_indent_amount) * lines;
-
-    String indented_text = XtMalloc(indented_text_length + 1);
-
-    string line_no_s = replicate(' ', indent);
-
-    t = 0;
-    char *pos_ptr = indented_text; // Writing position in indented_text
-    while (t < length)
-    {
-        assert (pos_ptr - indented_text <= indented_text_length);
-
-        // Increase line number
-        int i;
-        for (i = indent - 2; i >= 0; i--)
-        {
-            char& c = line_no_s[i];
-            if (c == ' ')
-            {
-                c = '1';
-                break;
-            }
-            else if (c < '9')
-            {
-                c++;
-                break;
-            }
-            else
-                c = '0';
-        }
-
-        // Copy line number
-        for (i = 0; i < indent; i++)
-            *pos_ptr++ = display_line_numbers ? line_no_s[i] : ' ';
-
-        if (indent < script_indent_amount)
-        {
-            // Check for empty line or line starting with '\t'
-            int spaces = 0;
-            while (t + spaces < length && text[t + spaces] == ' ')
-                spaces++;
-
-            if (spaces < script_indent_amount)
-            {
-                if (t + spaces >= length ||
-                    text[t + spaces] == '\n' ||
-                    text[t + spaces] == '\t')
-                {
-                    // Prepend a few space characters
-                    while (spaces < script_indent_amount)
-                    {
-                        *pos_ptr++ = ' ';
-                        spaces++;
-                    }
-                }
-            }
-        }
-
-        // Copy remainder of line
-        while (t < length && text[t] != '\n')
-            *pos_ptr++ = text[t++];
-
-        // Copy '\n' or '\0'
-        if (t == length)
-        {
-            // Text doesn't end in '\n'
-            *pos_ptr++ = '\n';
-        }
-        else
-        {
-            *pos_ptr++ = text[t++];
-        }
-    }
-    *pos_ptr = '\0';
-
-    XtFree(text);
-
-    length = pos_ptr - indented_text;
-    return indented_text;
-}
-
-
-// Read file FILE_NAME into current_source; get it from the cache if possible
-int SourceView::read_current(string& file_name, bool force_reload, bool silent)
-{
-    string requested_file_name = file_name;
-
-    if (cache_source_files && !force_reload && file_cache.has(file_name))
-    {
-        current_source = file_cache[file_name];
-        current_origin = origin_cache[file_name];
-        file_name      = file_name_cache[file_name];
-
-        if (gdb->type() == JDB)
-        {
-            // In JDB, a single source may contain multiple classes.
-            // Store current class name FILE_NAME as source name.
-            source_name_cache[file_name] = requested_file_name;
-        }
-    }
-    else
-    {
-        long length = 0;
-        SourceOrigin orig;
-        String indented_text = read_indented(file_name, length, orig, silent);
-        if (indented_text == 0 || length == 0)
-            return -1;                // Failure
-
-        current_source = string(indented_text, length);
-        current_origin = orig;
-        XtFree(indented_text);
-
-        if (current_source.length() > 0)
-        {
-            file_cache[file_name]             = current_source;
-            origin_cache[file_name]           = current_origin;
-            file_name_cache[file_name]        = file_name;
-
-            if (file_name != requested_file_name)
-            {
-                file_cache[requested_file_name]      = current_source;
-                origin_cache[requested_file_name]    = current_origin;
-                file_name_cache[requested_file_name] = file_name;
-            }
-        }
-
-        int null_count = current_source.freq('\0');
-        if (null_count > 0 && !silent)
-            post_warning(file_name + ": binary file",
-                         "source_binary_warning", source_text_w);
-    }
-
-    // Untabify current source, using the current tab width
-    untabify(current_source, tab_width, indent_amount(source_text_w));
-
-    // Setup global parameters
-
-    // Number of lines
-    line_count   = current_source.freq('\n');
-    m_pos_of_line.clear();
-    m_pos_of_line.reserve(line_count + 2);
-    m_pos_of_line.push_back((XmTextPosition(0)));
-    m_pos_of_line.push_back((XmTextPosition(0)));
-
-    for (int i = 0; i < int(current_source.length()); i++)
-        if (current_source[i] == '\n')
-                m_pos_of_line.push_back((XmTextPosition(i + 1)));
-
-    assert(int( m_pos_of_line.size()) == line_count + 2);
-
-    if (current_source.length() == 0)
-        return -1;
-    else
-        return 0;
-}
-
-// Return position of line LINE
-XmTextPosition SourceView::pos_of_line(int line)
-{
-    if (line < 0 || line > line_count || line >= int( m_pos_of_line.size()))
-        return 0;
-    else
-        return m_pos_of_line[line];
-}
-
-// Clear the file cache
-void SourceView::clear_file_cache()
-{
-    static const StringStringAssoc string_empty;
-    file_cache        = string_empty;
-    source_name_cache = string_empty;
-    file_name_cache   = string_empty;
-
-    static const StringOriginAssoc origin_empty;
-    origin_cache      = origin_empty;
-
-    static const std::vector<string> bad_files_empty;
-    bad_files         = bad_files_empty;
-}
-
 void SourceView::reload()
 {
     // Reload current file
-    if (current_file_name.empty())
+    if (sourcecode.get_filename().empty())
         return;
 
     string file;
@@ -2731,46 +1952,28 @@ void SourceView::reload()
                                 at_lowest_frame, signal_received);
 }
 
-
-static const int MAX_TAB_WIDTH = 256;
-
 // Change tab width
 void SourceView::set_tab_width(int width)
 {
-    if (width <= 0)
-        return;
+    bool force_reload = sourcecode.set_tab_width(width);
 
-    if (tab_width != width)
+    if (force_reload)
     {
-        // Make sure the tab width stays within reasonable ranges
-        tab_width = min(max(width, 1), MAX_TAB_WIDTH);
-
-        if (!current_file_name.empty())
-        {
-            StatusDelay delay("Reformatting");
-            reload();
-        }
+        StatusDelay delay("Reformatting");
+        reload();
     }
 }
 
 // Change indentation
-void SourceView::set_indent(int source_indent, int code_indent)
+void SourceView::set_indent(int source_indent, int code_indent, int script_indent, int line_indent)
 {
-    if (source_indent < 0 || code_indent < 0)
+    if (source_indent < 0 || code_indent < 0 || script_indent < 0 || line_indent<0)
         return;
 
-    if (source_indent == source_indent_amount &&
-        code_indent == code_indent_amount)
-        return;
-
-    if (source_indent != source_indent_amount)
+    if (sourcecode.set_indent(source_indent, script_indent, line_indent))
     {
-        source_indent_amount = min(max(source_indent, 0), MAX_INDENT);
-        if (!current_file_name.empty())
-        {
-            StatusDelay delay("Reformatting");
-            reload();
-        }
+        StatusDelay delay("Reformatting");
+        reload();
     }
 
     if (code_indent != code_indent_amount)
@@ -2816,7 +2019,7 @@ void SourceView::read_file (string file_name,
     file_name.gsub("//", "/");
 
     // Read in current_source
-    int error = read_current(file_name, force_reload, silent);
+    int error = sourcecode.read_current(file_name, force_reload, silent, source_text_w);
     if (error)
         return;
 
@@ -2826,16 +2029,13 @@ void SourceView::read_file (string file_name,
     Delay delay;
 
     // Set source and initial line
-    XmTextSetString(source_text_w, XMST(current_source.chars()));
+    XmTextSetString(source_text_w, XMST(sourcecode.get_source().chars()));
 
     XmTextPosition initial_pos = 0;
-    if (initial_line > 0 && initial_line <= line_count)
-        initial_pos = pos_of_line(initial_line) + indent_amount(source_text_w);
+    if (initial_line > 0 && initial_line <= sourcecode.get_num_lines())
+        initial_pos = sourcecode.pos_of_line(initial_line) + sourcecode.calculate_indent();
 
     SetInsertionPosition(source_text_w, initial_pos, true);
-
-    // Set current file name
-    current_file_name = file_name;
 
     // Refresh title
     update_title();
@@ -2850,7 +2050,7 @@ void SourceView::read_file (string file_name,
     XtManageChild(source_text_w);
 
     MString msg;
-    switch (current_origin)
+    switch (sourcecode.get_origin())
     {
     case ORIGIN_LOCAL:
         msg += rm("File " + quote(file_name));
@@ -2874,14 +2074,14 @@ void SourceView::read_file (string file_name,
     }
     msg += rm(" ");
 
-    if (line_count == 1)
+    if (sourcecode.get_num_lines() == 1)
         msg += rm("1 line, ");
     else
-        msg += rm(itostring(line_count) + " lines, ");
-    if (current_source.length() == 1)
+        msg += rm(itostring(sourcecode.get_num_lines()) + " lines, ");
+    if (sourcecode.get_length() == 1)
         msg += rm("1 character");
     else
-        msg += rm(itostring(current_source.length()) + " characters");
+        msg += rm(itostring(sourcecode.get_length()) + " characters");
 
     set_status_mstring(msg);
 
@@ -2924,11 +2124,11 @@ void SourceView::update_title()
     if (toplevel_w == 0)
         return;
 
-    string title   = DDD_NAME ": " + current_file_name;
+    string title   = DDD_NAME ": " + sourcecode.get_filename();
     const _XtString title_s = title.chars();
 
     string icon   = 
-        DDD_NAME ": " + string(basename(current_file_name.chars()));
+        DDD_NAME ": " + string(basename(sourcecode.get_filename().chars()));
     const _XtString icon_s = icon.chars();
 
     XtVaSetValues(toplevel_w,
@@ -2962,20 +2162,20 @@ void SourceView::refresh_source_bp_disp(bool reset)
          ++b_i_l_iter)
     {
         int line_nr = b_i_l_iter.key();
-        if (line_nr < 0 || line_nr > line_count)
+        if (line_nr < 0 || line_nr > sourcecode.get_num_lines())
             continue;
 
-        int pos = pos_of_line(line_nr);
-        int indent = indent_amount(source_text_w, pos);
+        int pos = sourcecode.pos_of_line(line_nr);
+        int indent = sourcecode.calculate_indent(pos);
 
         if (indent > 0)
         {
-            string s(current_source.at(pos, indent - 1));
+            string s(sourcecode.get_source_at(pos, indent - 1));
 
             if (s.length() > 0)
                 XmTextReplace(source_text_w,
-                              pos_of_line(line_nr),
-                              pos_of_line(line_nr) + s.length(),
+                              sourcecode.pos_of_line(line_nr),
+                              sourcecode.pos_of_line(line_nr) + s.length(),
                               XMST(s.chars()));
         }
     }
@@ -3004,11 +2204,11 @@ void SourceView::refresh_source_bp_disp(bool reset)
          ++b_i_l_iter2)
     {
         int line_nr = b_i_l_iter2.key();
-        if (line_nr < 0 || line_nr > line_count)
+        if (line_nr < 0 || line_nr > sourcecode.get_num_lines())
             continue;
 
-        XmTextPosition pos = pos_of_line(line_nr);
-        int indent = indent_amount(source_text_w, pos);
+        XmTextPosition pos = sourcecode.pos_of_line(line_nr);
+        int indent = sourcecode.calculate_indent(pos);
 
         if (indent > 0)
         {
@@ -3030,7 +2230,7 @@ void SourceView::refresh_source_bp_disp(bool reset)
             {
                 for (int i = insert_string.length(); i < indent - 1; i++)
                 {
-                    insert_string += current_source[pos + i];
+                    insert_string += sourcecode.get_source()[pos + i];
                 }
             }
 
@@ -3059,7 +2259,7 @@ void SourceView::refresh_code_bp_disp(bool reset)
             continue;
 
         // Process all breakpoints at ADDRESS
-        int indent = indent_amount(code_text_w, pos);
+        int indent = indent_amount_code(pos);
         if (indent > 0)
         {
             string spaces = replicate(' ', indent);
@@ -3104,7 +2304,7 @@ void SourceView::refresh_code_bp_disp(bool reset)
                     insert_string += bp->symbol();
         }
 
-        int indent = indent_amount(code_text_w, pos);
+        int indent = indent_amount_code(pos);
         if (indent > 0)
         {
             insert_string += replicate(' ', indent);
@@ -3176,7 +2376,7 @@ bool SourceView::get_line_of_pos (Widget   w,
     {
         // Position is on the right of text
         in_text = false;
-        line_nr = line_count;
+        line_nr = sourcecode.get_num_lines();
         return true;
     }
 
@@ -3186,18 +2386,18 @@ bool SourceView::get_line_of_pos (Widget   w,
         XmTextPosition line_pos = 0;
         XmTextPosition next_line_pos = 0;
 
-        while (!found && line_count >= line_nr)
+        while (!found && sourcecode.get_num_lines() >= line_nr)
         {
-            next_line_pos = (line_count >= line_nr + 1) ?
-                pos_of_line(line_nr + 1) :
+            next_line_pos = (sourcecode.get_num_lines() >= line_nr + 1) ?
+                            sourcecode.pos_of_line(line_nr + 1) :
                 XmTextGetLastPosition (text_w) + 1;
 
             bool left_of_first_nonblank = false;
             if (pos < next_line_pos)
             {
                 // Check if we're left of first non-blank source character
-                int first_nonblank = line_pos + indent_amount(text_w);
-                const string& text = current_text(text_w);
+                int first_nonblank = line_pos + sourcecode.calculate_indent();
+                const string& text = sourcecode.get_source();
                 while (first_nonblank < next_line_pos
                        && first_nonblank < int(text.length())
                        && isspace(text[first_nonblank]))
@@ -3207,7 +2407,7 @@ bool SourceView::get_line_of_pos (Widget   w,
 
             if (pos == line_pos
                 || left_of_first_nonblank
-                || pos < (line_pos + indent_amount(text_w) - 1))
+                || pos < (line_pos + sourcecode.calculate_indent() - 1))
             {
                 // Position in breakpoint area
                 found = true;
@@ -3263,7 +2463,7 @@ bool SourceView::get_line_of_pos (Widget   w,
             line_pos--;
         line_pos++;
 
-        if (pos == line_pos || pos - line_pos < indent_amount(text_w))
+        if (pos == line_pos || pos - line_pos < indent_amount_code())
         {
             // Breakpoint area
             in_text = false;
@@ -3970,7 +3170,7 @@ void SourceView::show_execution_position (const string& position_,
         if (!display_glyphs)
         {
             // Remove old marker
-            int indent = indent_amount(source_text_w);
+            int indent = sourcecode.calculate_indent();
             if (indent > 0)
             {
                 static const string no_marker = " ";
@@ -3996,7 +3196,7 @@ void SourceView::show_execution_position (const string& position_,
         return;
     }
 
-    string file_name = current_file_name;
+    string file_name = sourcecode.get_filename();
     string position = position_;
 
     if (position.contains(':'))
@@ -4022,7 +3222,7 @@ void SourceView::show_execution_position (const string& position_,
 
     if (is_current_file(file_name))
     {
-        int indent = indent_amount(source_text_w);
+        int indent = sourcecode.calculate_indent();
 
         if (!display_glyphs && indent > 0)
         {
@@ -4061,13 +3261,13 @@ void SourceView::_show_execution_position(const string& file, int line,
     if (!is_current_file(file))
         read_file(file, line, silent);
 
-    if (!is_current_file(file) || line < 1 || line > line_count)
+    if (!is_current_file(file) || line < 1 || line > sourcecode.get_num_lines())
         return;
 
     add_position_to_history(file, line, stopped);
 
-    XmTextPosition pos = pos_of_line(line);
-    int indent = indent_amount(source_text_w);
+    XmTextPosition pos = sourcecode.pos_of_line(line);
+    int indent = sourcecode.calculate_indent();
     SetInsertionPosition(source_text_w, pos + indent, false);
 
     // Mark current line
@@ -4082,8 +3282,8 @@ void SourceView::_show_execution_position(const string& file, int line,
     }
 
     XmTextPosition pos_line_end = 0;
-    if (!current_source.empty())
-        pos_line_end = current_source.index('\n', pos) + 1;
+    if (sourcecode.have_source())
+        pos_line_end = sourcecode.get_source().index('\n', pos) + 1;
 
     if (!display_glyphs && 
         (pos != last_start_highlight || pos_line_end != last_end_highlight))
@@ -4110,7 +3310,7 @@ void SourceView::_show_execution_position(const string& file, int line,
 
 void SourceView::show_position(string position, bool silent)
 {
-    string file_name = current_file_name;
+    string file_name = sourcecode.get_filename();
 
     if (position.contains(':'))
     {
@@ -4132,7 +3332,7 @@ void SourceView::show_position(string position, bool silent)
         if (line == 0 && gdb->type() == JDB)
         {
             // Scroll to current class
-            int pos = java_class_start(current_source, current_source_name());
+            int pos = java_class_start(sourcecode.get_source(), sourcecode.current_source_name());
 
             if (pos >= 0)
             {
@@ -4149,12 +3349,12 @@ void SourceView::show_position(string position, bool silent)
             }
         }
            
-        if (line > 0 && line <= line_count)
+        if (line > 0 && line <= sourcecode.get_num_lines())
         {
              add_position_to_history(file_name, line, false);
     
-            XmTextPosition pos = pos_of_line(line);
-            int indent = indent_amount(source_text_w, pos);
+            XmTextPosition pos = sourcecode.pos_of_line(line);
+            int indent = sourcecode.calculate_indent(pos);
             SetInsertionPosition(source_text_w, pos + indent, true);
                 
             last_pos = pos;
@@ -4215,7 +3415,7 @@ void SourceView::process_info_bp (string& info_output,
     bool changed = false;
     bool added   = false;
     std::ostringstream undo_commands;
-    string file = current_file_name;
+    string file = sourcecode.get_filename();
 
     while (!info_output.empty())
     {
@@ -4380,7 +3580,7 @@ void SourceView::process_info_bp (string& info_output,
         BreakPoint *bp = bp_map.get(bps_not_read[i]);
 
         // Older Perl versions only listed breakpoints in the current file
-        if (gdb->type() == PERL && !bp_matches(bp, current_file_name))
+        if (gdb->type() == PERL && !bp_matches(bp, sourcecode.get_filename()))
             continue;
 
         // Delete it
@@ -4412,14 +3612,14 @@ int SourceView::next_breakpoint_number()
 // Process GDB `info line main' output
 void SourceView::process_info_line_main(string& info_output)
 {
-    clear_file_cache();
+    sourcecode.clear_file_cache();
     clear_code_cache();
     clear_dbx_lookup_cache();
 
     if (info_output.empty())
         return;
 
-    current_file_name = "";
+    sourcecode.reset_filename();
 
     switch (gdb->type())
     {
@@ -4548,7 +3748,7 @@ void SourceView::lookup(string s, bool silent)
     {
         // Line number given
         int line = atoi(s.chars());
-        if (line > 0 && line <= line_count)
+        if (line > 0 && line <= sourcecode.get_num_lines())
         {
             add_current_to_history();
 
@@ -4556,7 +3756,7 @@ void SourceView::lookup(string s, bool silent)
             {
             case GDB:
             {
-                Command c("list " + current_source_name() + ":" + 
+                Command c("list " + sourcecode.current_source_name() + ":" +
                           itostring(line));
                 c.verbose = !silent;
                 c.echo    = !silent;
@@ -4566,7 +3766,7 @@ void SourceView::lookup(string s, bool silent)
             }
                 
             case JDB:
-                show_position(current_source_name() + ":" + itostring(line));
+                show_position(sourcecode.current_source_name() + ":" + itostring(line));
                 break;
 
             case BASH:
@@ -4576,7 +3776,7 @@ void SourceView::lookup(string s, bool silent)
             case PERL:
             case PYDB:
             case XDB:
-                show_position(full_path(current_file_name) 
+                show_position(full_path(sourcecode.get_filename())
                               + ":" + itostring(line));
                 break;
             }
@@ -4696,7 +3896,7 @@ void SourceView::add_current_to_history()
     pos_found = get_line_of_pos(source_text_w, pos, line_nr, address, 
                                 in_text, bp_nr);
     if (pos_found)
-        add_position_to_history(current_source_name(), line_nr, false);
+        add_position_to_history(sourcecode.current_source_name(), line_nr, false);
 
     // Get position in machine code
     pos = XmTextGetInsertionPosition(code_text_w);
@@ -4717,8 +3917,7 @@ void SourceView::add_position_to_history(const string& file_name, int line,
     case JDB:
     case PYDB:
         // Use source names instead.
-        if (source_name_cache.has(file_name))
-            source_name = source_name_cache[file_name];
+        sourcecode.get_source_from_file(file_name,source_name);
         break;
 
     case BASH:
@@ -4770,7 +3969,7 @@ void SourceView::goto_entry(const string& file_name, int line,
             read_file(file_name, line);
         }
 
-        if (is_current_file(file_name) && line > 0 && line <= line_count)
+        if (is_current_file(file_name) && line > 0 && line <= sourcecode.get_num_lines())
         {
             if (exec_pos)
             {
@@ -4778,8 +3977,8 @@ void SourceView::goto_entry(const string& file_name, int line,
             }
             else
             {
-                XmTextPosition pos = pos_of_line(line);
-                int indent = indent_amount(source_text_w, pos);
+                XmTextPosition pos = sourcecode.pos_of_line(line);
+                int indent = sourcecode.calculate_indent(pos);
                 SetInsertionPosition(source_text_w, pos + indent, true);
             }
         }
@@ -4839,6 +4038,7 @@ void SourceView::process_pwd(string& pwd_output)
             if (pwd.contains('/', 0) && !pwd.contains(" "))
             {
                 current_pwd = pwd;
+                sourcecode.current_pwd = pwd;
                 process_cd(current_pwd);
                 return;
             }
@@ -4869,7 +4069,7 @@ void SourceView::process_use(string& use_output)
     if (current_class_path != use_output)
     {
         current_class_path = use_output;
-        clear_file_cache();
+        sourcecode.clear_file_cache();
         reload();
     }
 }
@@ -4896,7 +4096,7 @@ string SourceView::class_path()
 // Searching
 //-----------------------------------------------------------------------
 
-void SourceView::find(const string& s, 
+void SourceView::find(const string& s,
                       SourceView::SearchDirection direction,
                       bool words_only,
                       bool case_sensitive,
@@ -4915,7 +4115,7 @@ void SourceView::find(const string& s,
     }
 
     string key  = s;
-    string text = current_source;
+    string text = sourcecode.get_source();
     if (!case_sensitive)
     {
         // FIXME: This should be done according to the current locale
@@ -4992,7 +4192,7 @@ void SourceView::find(const string& s,
 
             if (pos + matchlen < int(text.length()))
             {
-                if (isid(text[pos + matchlen - 1]) && 
+                if (isid(text[pos + matchlen - 1]) &&
                     isid(text[pos + matchlen]))
                     continue;
             }
@@ -5031,11 +4231,11 @@ void SourceView::find(const string& s,
             int bp_nr;
             string address;
 
-            if (!get_line_of_pos(source_text_w, pos, line_nr, 
+            if (!get_line_of_pos(source_text_w, pos, line_nr,
                                  address, in_text, bp_nr))
-                line_nr = line_count;
+                line_nr = sourcecode.get_num_lines();
 
-            string occurrence = current_source.at(pos, matchlen);
+            string occurrence = sourcecode.get_source_at(pos, matchlen);
             msg = "Found " + quote(occurrence) + " in " + line_of_cursor();
             if (wraps)
                 msg += " (wrapped)";
@@ -5045,142 +4245,11 @@ void SourceView::find(const string& s,
     set_status(msg);
 }
 
-
-
-
-//-----------------------------------------------------------------------
-// Return source name
-// use "" as parameter filename the current_file_name is used
-//-----------------------------------------------------------------------
-
-string SourceView::get_source_name(string filename)
-{
-    if (filename =="")
-        filename = current_file_name;
-    
-    string source = "";
-
-    switch (gdb->type())
-    {
-    case GDB:
-        // GDB internally recognizes only `source names', i.e., the
-        // source file name as compiled into the executable.
-        if (source_name_cache[filename].empty())
-        {
-            // Try the current source.
-            string ans = gdb_question("info source");
-            if (ans != NO_GDB_ANSWER)
-            {
-                ans = ans.before('\n');
-                ans = ans.after(' ', -1);
-
-                if (base_matches(ans, filename))
-                {
-                    // For security, we request that source and current
-                    // file have the same basename.
-                    source_name_cache[filename] = ans;
-                }
-                else
-                {
-                    // The current source does not match the current file.
-                    // Try all sources.
-                    static const string all_sources = "<ALL SOURCES>";
-
-                    if (source_name_cache[all_sources].empty())
-                    {
-                        std::vector<string> sources;
-                        get_gdb_sources(sources);
-
-                        if (sources.size() > 0)
-                        {
-                            ans = "";
-                            for (int i = 0; i < int(sources.size()); i++)
-                                ans += sources[i] + '\n';
-
-                            source_name_cache[all_sources] = ans;
-                        }
-                    }
-
-                    ans = source_name_cache[all_sources];
-                    if (!ans.empty())
-                    {
-                        int n = ans.freq('\n');
-                        string *sources = new string[n + 1];
-                        split(ans, sources, n + 1, '\n');
-
-                        for (int i = 0; i < n + 1; i++)
-                        {
-                            if (base_matches(sources[i], filename))
-                            {
-                                const string& src = sources[i];
-                                source_name_cache[filename] = src;
-                                break;
-                            }
-                        }
-                        
-                        delete[] sources;
-
-                        if (source_name_cache[filename].empty())
-                        {
-                            // No such source text.  Store the base name
-                            // such that GDB is not asked again.
-                            string base = basename(filename.chars());
-                            source_name_cache[filename] = base;
-                        }
-                    }
-                }
-            }
-        }
-
-        source = source_name_cache[filename];
-        break;
-
-    case BASH:
-    case DBG:
-    case DBX:
-    case MAKE:
-    case PERL:
-    case PYDB:
-    case XDB:
-        if (app_data.use_source_path)
-        {
-            // These debuggers use full file names.
-            source = full_path(filename);
-        }
-        break;
-
-    case JDB:
-        if (source_name_cache.has(filename))
-        {
-            // Use the source name as stored by read_class()
-            source = source_name_cache[filename];
-        }
-        if (source.empty())
-        {
-            source = basename(filename.chars());
-            strip_java_suffix(source);
-        }
-        break;
-    }
-
-    // In case this does not work, use the current base name.
-    if (source.empty())
-        source = basename(filename.chars());
-
-    return source;
-}
-
-string SourceView::current_source_name()
-{
-    return get_source_name("");
-}
-
-
 string SourceView::line_of_cursor()
 {
     XmTextPosition pos = XmTextGetInsertionPosition(source_text_w);
 
-    string s = current_source_name();
+    string s = sourcecode.current_source_name();
     if (s.empty())
         return "";                // No source
 
@@ -5192,13 +4261,13 @@ string SourceView::line_of_cursor()
     if (get_line_of_pos(source_text_w, pos, line_nr, address, in_text, bp_nr))
         return s + ":" + itostring(line_nr);    // Cursor within source
     else
-        return s + ":" + itostring(line_count);        // Cursor in last line
+        return s + ":" + itostring(sourcecode.get_num_lines());        // Cursor in last line
 }
 
 string SourceView::file_of_cursor()
 {
     string pos = line_of_cursor();
-    return full_path(current_file_name) + pos.from(':');
+    return full_path(sourcecode.get_filename()) + pos.from(':');
 }
 
 
@@ -5405,7 +4474,7 @@ void SourceView::srcpopupAct (Widget w, XEvent* e, String *, Cardinal *)
         }
 
         if (is_source_widget(w))
-            address = current_source_name() + ":" + itostring(line_nr);
+            address = sourcecode.current_source_name() + ":" + itostring(line_nr);
         else
             address = string('*') + address;
         XmMenuPosition (line_popup_w, event);
@@ -5552,11 +4621,11 @@ void SourceView::doubleClickAct(Widget w, XEvent *e, String *params,
         {
             // Check for function call
             int p = endpos;
-            while (p < (int)current_source.length() && 
-                   isspace(current_source[p]))
+            while (p < (int)sourcecode.get_length() &&
+                   isspace(sourcecode.get_source()[p]))
                 p++;
 
-            if (control || current_source.contains('(', p))
+            if (control || sourcecode.get_source().contains('(', p))
             {
                 if (*num_params >= 3)
                     gdb_button_command(params[2]);
@@ -6973,7 +6042,7 @@ void SourceView::process_breakpoints(string& info_breakpoints_output)
         count--;
 
     bool select = false;
-    string file = current_source_name();
+    string file = sourcecode.current_source_name();
 
     for (int i = 0; i < count; i++)
     {
@@ -7892,7 +6961,7 @@ void SourceView::SelectThreadCB(Widget w, XtPointer, XtPointer)
 
 string SourceView::get_line(string position)
 {
-    string file_name = current_file_name;
+    string file_name = sourcecode.get_filename();
 
     if (position.contains(':'))
     {
@@ -7902,7 +6971,7 @@ string SourceView::get_line(string position)
     int line = get_positive_nr(position);
 
     // Sanity check: make sure the line # isn't too big
-    line = min(line, line_count);
+    line = min(line, sourcecode.get_num_lines());
     if (line < 1)
         return "";
 
@@ -7911,12 +6980,12 @@ string SourceView::get_line(string position)
     if (!is_current_file(file_name))
         return "";
 
-    XmTextPosition start = pos_of_line(line) + indent_amount(source_text_w);
-    XmTextPosition end   = current_source.index('\n', start);
+    XmTextPosition start = sourcecode.pos_of_line(line) + sourcecode.calculate_indent();
+    XmTextPosition end   = sourcecode.get_source().index('\n', start);
     if (end < 0)
-        end = current_source.length();
+        end = sourcecode.get_length();
 
-    const string text = current_source.at(int(start), end - start);
+    const string text = sourcecode.get_source_at(int(start), end - start);
     return itostring(line) + "\t" + text;
 }
 
@@ -8927,12 +7996,12 @@ void SourceView::update_glyphs_now()
 
         if (display_glyphs &&
             (is_current_file(last_execution_file) ||
-             base_matches(last_execution_file, current_file_name)) &&
-             line_count > 0 &&
+             base_matches(last_execution_file, sourcecode.get_filename())) &&
+                sourcecode.get_num_lines() > 0 &&
              last_execution_line > 0 &&
-             last_execution_line <= line_count)
+             last_execution_line <= sourcecode.get_num_lines())
         {
-            pos = pos_of_line(last_execution_line);
+            pos = sourcecode.pos_of_line(last_execution_line);
         }
 
         map_arrow_at(source_text_w, pos);
@@ -8997,12 +8066,12 @@ void SourceView::update_glyphs_now()
                     {
                         // Find source position
                         if (!bp_matches(bp)
-                            || line_count <= 0
+                            || sourcecode.get_num_lines() <= 0
                             || locn.line_nr() <= 0
-                            || locn.line_nr() > line_count)
+                            || locn.line_nr() > sourcecode.get_num_lines())
                             continue;
 
-                        pos = pos_of_line(locn.line_nr());
+                        pos = sourcecode.pos_of_line(locn.line_nr());
                     }
                     else
                     {
@@ -9148,16 +8217,12 @@ void SourceView::set_display_glyphs(bool set)
 // Change setting of display_line_numbers
 void SourceView::set_display_line_numbers(bool set)
 {
-    if (display_line_numbers != set)
+    bool changed = sourcecode.set_display_line_numbers(set);
+    if (changed && XtIsRealized(source_text_w))
     {
-        display_line_numbers = set;
-
-        if (XtIsRealized(source_text_w))
-        {
-            StatusDelay delay(set ? "Enabling line numbers" : 
-                              "Disabling line numbers");
-            reload();
-        }
+        StatusDelay delay(set ? "Enabling line numbers" :
+                            "Disabling line numbers");
+        reload();
     }
 }
 
@@ -9184,7 +8249,7 @@ MString SourceView::help_on_pos(Widget w, XmTextPosition pos,
     if (!pos_found || bp_nr == 0)
         return MString(0, true);
 
-    ref = pos_of_line(line_nr) + 2;
+    ref = sourcecode.pos_of_line(line_nr) + 2;
     return help_on_bp(bp_nr, detailed);
 }
 
@@ -9479,7 +8544,7 @@ void SourceView::dropGlyphAct (Widget glyph, XEvent *e,
         // Selection from source
         if (line_nr == 0)
             return;                // No line
-        address = current_source_name() + ':' + itostring(line_nr);
+        address = sourcecode.current_source_name() + ':' + itostring(line_nr);
     }
 
     // std::clog << "Dropping " << XtName(glyph) << " [" << glyph << "] at " 
@@ -9497,7 +8562,7 @@ void SourceView::dropGlyphAct (Widget glyph, XEvent *e,
         // Selection from source
         if (line_nr == 0)
             return;                // No line
-        address = current_source_name() + ':' + itostring(line_nr);
+        address = sourcecode.current_source_name() + ':' + itostring(line_nr);
     }
 
     string p = "move";
@@ -9722,7 +8787,7 @@ void SourceView::process_disassemble(const string& disassemble_output)
         string& line = code_list[i];
         untabify(line);
         if (line.length() > 0 && line[0] == '0')
-            line = replicate(' ', indent_amount(code_text_w)) + line;
+            line = replicate(' ', indent_amount_code()) + line;
         indented_code += line + '\n';
     }
     delete[] code_list;
@@ -9977,7 +9042,7 @@ void SourceView::show_pc(const string& pc, XmHighlightMode mode,
     if (pos == XmTextPosition(-1))
         return;
 
-    SetInsertionPosition(code_text_w, pos + indent_amount(code_text_w));
+    SetInsertionPosition(code_text_w, pos + indent_amount_code());
 
     XmTextPosition pos_line_end = 0;
     if (!current_code.empty())
@@ -10000,7 +9065,7 @@ void SourceView::show_pc(const string& pc, XmHighlightMode mode,
         if (!display_glyphs)
         {
             // Set new marker
-            int indent = indent_amount(code_text_w);
+            int indent = indent_amount_code();
             static const string marker = ">";
             if (last_pos_pc)
             {
@@ -10179,10 +9244,10 @@ bool SourceView::get_state(std::ostream& os)
 void SourceView::reset_done(const string&, void *)
 {
     // All breakpoints should be deleted now -- clear all other information
-    clear_file_cache();
+    sourcecode.clear_file_cache();
     clear_code_cache();
     clear_dbx_lookup_cache();
-    current_file_name = "";
+    sourcecode.reset_filename();
 
     // Reset execution positions
     last_execution_file = "";
