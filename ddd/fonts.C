@@ -197,6 +197,9 @@ static string component(const AppData& ad, DDDFont font, FontComponent n)
 	    break;
 	}
 
+	if (sz<80)
+            sz = 100;
+
 	return itostring(sz);
     }
 
