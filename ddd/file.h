@@ -30,7 +30,10 @@
 
 #include <X11/Intrinsic.h>
 #include "base/strclass.h"
-#include "template/StringA.h"
+#include "base/strclass.h"
+
+#include <vector>
+
 
 // Open file, process, core, source ...
 extern void gdbOpenFileCB     (Widget, XtPointer, XtPointer);
@@ -42,7 +45,7 @@ extern void gdbOpenSourceCB   (Widget, XtPointer, XtPointer);
 extern void gdbLookupSourceCB (Widget, XtPointer, XtPointer);
 
 // Get all sources from GDB
-void get_gdb_sources(StringArray& sources_list);
+void get_gdb_sources(std::vector<string>& sources_list);
 
 // Update sources list
 void update_sources();

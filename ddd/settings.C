@@ -2579,9 +2579,9 @@ static void fix_clip_window_translations(Widget scroll)
 // Themes
 
 // Return all available themes
-void get_themes(StringArray& themes)
+void get_themes(std::vector<string>& themes)
 {
-    StringArray bases;
+    std::vector<string> bases;
 
     string path = DispBox::vsllib_path;
     int n = path.freq(':');
@@ -2636,7 +2636,7 @@ void get_themes(StringArray& themes)
 static void add_themes(Widget form, int& row, Dimension& max_width)
 {
     clear_vsldoc_cache();
-    StringArray themes;
+    std::vector<string> themes;
     get_themes(themes);
 
     for (int i = 0; i < int(themes.size()); i++)
@@ -3683,7 +3683,7 @@ static void refresh_combo_box()
 	return;			// Not yet created
 
     // Refresh combo box
-    StringArray commands;
+    std::vector<string> commands;
     for (StringStringAssocIter iter(defs); iter.ok(); ++iter)
 	commands.push_back(iter.key());
     smart_sort(commands);
@@ -3788,7 +3788,7 @@ static void DoneEditCommandDefinitionCB(Widget w, XtPointer, XtPointer)
 
     if ((!cmd.empty() && !defs.has(name)) || cmd != defs[name])
     {
-	StringArray commands;
+	std::vector<string> commands;
 	while (!cmd.empty())
 	{
 	    string c = cmd.before('\n');

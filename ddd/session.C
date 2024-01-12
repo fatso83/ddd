@@ -427,7 +427,7 @@ bool unlock_session_dir(const string& session)
 // Session selection
 // ---------------------------------------------------------------------------
 
-static void get_sessions(StringArray& arr)
+static void get_sessions(std::vector<string>& arr)
 {
     string mask = session_state_file("*");
     char **files = glob_filename(mask.chars());
@@ -497,7 +497,7 @@ static void update_sessions(Widget dialog)
 {
     Widget sessions = XmSelectionBoxGetChild(dialog, XmDIALOG_LIST);
 
-    StringArray session_list;
+    std::vector<string> session_list;
     session_list.push_back(NO_SESSION);
     get_sessions(session_list);
 	
@@ -721,7 +721,7 @@ static void SetSessionCB(Widget dialog, XtPointer, XtPointer)
     }
     else
     {
-	StringArray session_list;
+	std::vector<string> session_list;
 	get_sessions(session_list);
 	for (int i = 0; i < int(session_list.size()); i++)
 	    if (session_list[i] == app_data.session)

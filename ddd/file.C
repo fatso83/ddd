@@ -989,10 +989,9 @@ static int ps_pid(const string& line)
 }
 
 // Fill the pids in DISP_NRS
-static void getPIDs(Widget selectionList, IntArray& disp_nrs)
+static void getPIDs(Widget selectionList, std::vector<int>& disp_nrs)
 {
-    static const IntArray empty;
-    disp_nrs = empty;
+    disp_nrs.clear();
 
     XmStringTable selected_items;
     int selected_items_count = 0;
@@ -1020,7 +1019,7 @@ static void getPIDs(Widget selectionList, IntArray& disp_nrs)
 // Get the PID from the selection list in CLIENT_DATA
 static int get_pid(Widget, XtPointer client_data, XtPointer)
 {
-    IntArray pids;
+    std::vector<int> pids;
     Widget processes = Widget(client_data);
     if (processes != 0)
 	getPIDs(processes, pids);
@@ -1033,7 +1032,7 @@ static int get_pid(Widget, XtPointer client_data, XtPointer)
 
 // Process selection
 
-static void sortProcesses(StringArray& a)
+static void sortProcesses(std::vector<string>& a)
 {
     // Shell sort -- simple and fast
     int h = 1;
@@ -1106,7 +1105,7 @@ static void update_processes(Widget processes, bool keep_selection)
 	return;
     }
 
-    StringArray all_process_list;
+    std::vector<string> all_process_list;
     int c;
     string line = "";
     bool first_line = true;
@@ -1202,7 +1201,7 @@ static void update_processes(Widget processes, bool keep_selection)
 	}
     }
 
-    StringArray process_list;
+    std::vector<string> process_list;
     for (i = 0; i < int(all_process_list.size()); i++)
 	if (all_process_list[i] != NO_GDB_ANSWER)
 	    process_list.push_back(all_process_list[i]);
@@ -1217,7 +1216,7 @@ static void update_processes(Widget processes, bool keep_selection)
     {
 	// Preserve old selection: each PID selected before will also be
 	// selected after.
-	IntArray selection;
+	std::vector<int> selection;
 	getPIDs(processes, selection);
 
 	for (i = 0; i < int(selection.size()); i++)
@@ -1383,10 +1382,9 @@ static void warn_if_no_program(Widget popdown)
 //-----------------------------------------------------------------------------
 
 // Get the selected item ids
-static void get_items(Widget selectionList, StringArray& itemids)
+static void get_items(Widget selectionList, std::vector<string>& itemids)
 {
-    static const StringArray empty;
-    itemids = empty;
+    itemids.clear();
 
     XmStringTable selected_items;
     int selected_items_count = 0;
@@ -1412,7 +1410,7 @@ static void get_items(Widget selectionList, StringArray& itemids)
 // Get the item from the selection list in CLIENT_DATA
 static string get_item(Widget, XtPointer client_data, XtPointer)
 {
-    StringArray itemids;
+    std::vector<string> itemids;
     Widget items = Widget(client_data);
     if (items != 0)
 	get_items(items, itemids);
@@ -1446,7 +1444,7 @@ static void SelectClassCB(Widget w, XtPointer client_data,
 static void update_classes(Widget classes)
 {
     StatusDelay delay("Getting list of classes");
-    StringArray classes_list;
+    std::vector<string> classes_list;
     get_java_classes(classes_list);
 
     // Now set the selection.
@@ -1487,7 +1485,7 @@ static void openClassDone(Widget w, XtPointer client_data,
 // Lookup sources and functions (GDB only)
 //-----------------------------------------------------------------------------
 
-static StringArray all_sources;
+static std::vector<string> all_sources;
 
 // Select a source; show the full path name in the status line
 static void SelectSourceCB(Widget w, XtPointer, XtPointer call_data)
@@ -1503,10 +1501,9 @@ static void SelectSourceCB(Widget w, XtPointer, XtPointer call_data)
 }
 
 // Get list of sources into SOURCES_LIST
-void get_gdb_sources(StringArray& sources_list)
+void get_gdb_sources(std::vector<string>& sources_list)
 {
-    static const StringArray empty;
-    sources_list = empty;
+    sources_list.clear();
 
     string ans = gdb_question("info sources");
     if (ans != NO_GDB_ANSWER)
@@ -1540,10 +1537,10 @@ void get_gdb_sources(StringArray& sources_list)
 }
 
 // Remove adjacent duplicates in A1
-static void uniq(StringArray& a1, StringArray& a2)
+static void uniq(std::vector<string>& a1, std::vector<string>& a2)
 {
-    StringArray b1;
-    StringArray b2;
+    std::vector<string> b1;
+    std::vector<string> b2;
 
     for (int i = 0; i < int(a1.size()); i++)
     {
@@ -1559,7 +1556,7 @@ static void uniq(StringArray& a1, StringArray& a2)
 }
 
 // Sort A1 and A2 according to the values in A1
-static void sort(StringArray& a1, StringArray& a2)
+static void sort(std::vector<string>& a1, std::vector<string>& a2)
 {
     assert(a1.size() == a2.size());
 
@@ -1589,13 +1586,13 @@ static void sort(StringArray& a1, StringArray& a2)
     } while (h != 1);
 }
 
-static void filter_sources(StringArray& labels, StringArray& sources,
+static void filter_sources(std::vector<string>& labels, std::vector<string>& sources,
 			   const string& pattern)
 {
     assert(labels.size() == sources.size());
 
-    StringArray new_labels;
-    StringArray new_sources;
+    std::vector<string> new_labels;
+    std::vector<string> new_sources;
 
     for (int i = 0; i < int(labels.size()); i++)
     {
@@ -1625,7 +1622,7 @@ static void update_sources(Widget sources, Widget filter)
 	pattern = "*";
     XmTextFieldSetString(filter, XMST(pattern.chars()));
 
-    StringArray labels;
+    std::vector<string> labels;
     uniquify(all_sources, labels);
 
     // Sort and remove duplicates
@@ -1721,7 +1718,7 @@ void gdbOpenRecentCB(Widget, XtPointer client_data, XtPointer)
 {
     int index = ((int)(long)client_data) - 1;
 
-    StringArray recent_files;
+    std::vector<string> recent_files;
     get_recent(recent_files);
 
     if (index >= 0 && index < int(recent_files.size()))
