@@ -193,7 +193,6 @@ char ddd_rcsid[] =
 #include "graph/GraphEdit.h"
 #include "GDBAgent.h"
 #include "HistoryD.h"
-#include "motif/LabelH.h"
 #include "motif/MakeMenu.h"
 #include "PlotAgent.h"
 #include "SourceView.h"
@@ -299,6 +298,7 @@ extern "C" {
 }
 #endif
 
+#include "box/FontTable.h" // for the define USE_XFT_LIB
 
 //-----------------------------------------------------------------------------
 // Forward function decls
@@ -2321,10 +2321,6 @@ ddd_exit_t pre_main_loop(int argc, char *argv[])
         signal(SIGCHLD, SignalProc(SIG_DFL));
     }
 #endif
-
-    // Setup label hack
-    arg = 0;
-    XtCreateWidget("label_hack", xmLabelHackWidgetClass, toplevel, args, arg);
 
     // Set key bindings
     setup_cut_copy_paste_bindings(XtDatabase(XtDisplay(toplevel)));

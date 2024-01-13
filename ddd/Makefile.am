@@ -203,9 +203,6 @@ XSTUFF_SRC = \
 MSTUFF_SRC = \
 	motif/freeXmST.C   \
 	motif/freeXmST.h   \
-	motif/LabelH.C     \
-	motif/LabelH.h     \
-	motif/LabelHP.h    \
 	motif/MakeMenu.C   \
 	motif/MakeMenu.h   \
 	motif/MString.C    \
