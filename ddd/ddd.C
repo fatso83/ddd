@@ -5138,10 +5138,9 @@ static void create_status(Widget parent)
     XtSetArg(args[arg], XmNresizable,          False); arg++;
     XtSetArg(args[arg], XmNfillOnSelect,       True); arg++;
     XtSetArg(args[arg], XmNset,                True); arg++;
-
-    MString spaces("   ");
-    led_w = verify(XmCreateToggleButton(status_form, 
-                                        XMST("led"), args, arg));
+    XtSetArg(args[arg], XmNindicatorType, XmONE_OF_MANY_ROUND); arg++;
+    XtSetArg(args[arg], XmNvisibleWhenOff, true); arg++;
+    led_w = verify(XmCreateToggleButton(status_form, XMST("led"), args, arg));
     XtManageChild(led_w);
 
     XtAddCallback(led_w, XmNvalueChangedCallback, ToggleBlinkCB, XtPointer(0));
@@ -5159,18 +5158,17 @@ static void create_status(Widget parent)
     XtSetArg(args[arg], XmNforeground,       arrow_foreground); arg++;
     XtSetArg(args[arg], XmNarrowDirection, 
              (app_data.status_at_bottom ? XmARROW_UP : XmARROW_DOWN)); arg++;
-    Widget arrow_w = 
-        verify(XmCreateArrowButton(status_form, XMST("arrow"), args, arg));
+    Widget arrow_w = verify(XmCreateArrowButton(status_form, XMST("arrow"), args, arg));
     XtManageChild(arrow_w);
 
     // Give some `dummy' status message.  Some Motif versions limit
     // the size of the status window to the length of the very first
     // message, so we give some huge string at the beginning.
-    MString short_msg = rm("Hello, world!");
-    MString long_msg = short_msg + rm(replicate(' ', 90));
+//     MString short_msg = rm("Hello, world!");
+//     MString long_msg = short_msg + rm(replicate(' ', 90));
 
     arg = 0;
-    XtSetArg(args[arg], XmNlabelString,      long_msg.xmstring()); arg++;
+//     XtSetArg(args[arg], XmNlabelString,      long_msg.xmstring()); arg++;
     XtSetArg(args[arg], XmNtopAttachment,    XmATTACH_FORM); arg++;
     XtSetArg(args[arg], XmNbottomAttachment, XmATTACH_FORM); arg++;
     XtSetArg(args[arg], XmNleftAttachment,   XmATTACH_WIDGET); arg++;
@@ -5180,15 +5178,14 @@ static void create_status(Widget parent)
     XtSetArg(args[arg], XmNresizable,        False); arg++;
     XtSetArg(args[arg], XmNrecomputeSize,    False); arg++;
     XtSetArg(args[arg], XmNshadowThickness,  0); arg++;
-    status_w = verify(XmCreatePushButton(status_form, 
-                                         XMST("status"), args, arg));
+    status_w = verify(XmCreatePushButton(status_form, XMST("status"), args, arg));
     XtManageChild(status_w);
 
     // Initialize status history
     status_history_size = app_data.status_history_size;
     (void) status_history(parent);
     set_status("");
-    set_status_mstring(short_msg);
+    //set_status_mstring(short_msg);
 
     XtAddCallback(status_w, XmNarmCallback, 
                   PopupStatusHistoryCB, XtPointer(0));
