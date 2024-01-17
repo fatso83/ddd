@@ -2438,6 +2438,8 @@ bool SourceView::get_line_of_pos (Widget   w,
 
     if (text_w == source_text_w)
     {
+        if (sourcecode.have_source()==false)
+            return false;
 
         line_nr = sourcecode.line_of_pos(pos);
         if (pos > sourcecode.get_num_characters())
@@ -2566,6 +2568,9 @@ void SourceView::find_word_bounds (Widget text_w,
     XmTextPosition lineoffset = 0;
     if (is_source_widget(text_w))
     {
+        if (sourcecode.have_source()==false)
+            return;
+
         lineoffset = sourcecode.startofline_at_pos(pos);
         int line = sourcecode.line_of_pos(pos);
         text = sourcecode.get_source_lineASCII(line);

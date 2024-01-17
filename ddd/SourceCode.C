@@ -939,6 +939,9 @@ XmTextPosition SourceCode::pos_of_line(int line)
  */
 int SourceCode::line_of_pos(XmTextPosition pos)
 {
+    if (textpos_of_line.size()==0)
+        return 0;
+
     auto it = std::lower_bound(textpos_of_line.begin(), textpos_of_line.end(), pos+1);
     if (it != textpos_of_line.begin())
         return std::distance(textpos_of_line.begin(), it);
@@ -952,6 +955,9 @@ int SourceCode::line_of_pos(XmTextPosition pos)
  */
 int SourceCode::line_of_bytepos(int pos)
 {
+    if (bytepos_of_line.size()==0)
+        return 0;
+
     auto it = std::lower_bound(bytepos_of_line.begin(), bytepos_of_line.end(), pos+1);
     if (it != bytepos_of_line.begin())
         return std::distance(bytepos_of_line.begin(), it);
@@ -965,7 +971,14 @@ int SourceCode::line_of_bytepos(int pos)
  */
 XmTextPosition SourceCode::startofline_at_pos(XmTextPosition pos)
 {
+    if (textpos_of_line.size()==0)
+        return 0;
+
     auto it = std::lower_bound(textpos_of_line.begin(), textpos_of_line.end(), pos+1);
+
+    if (it == textpos_of_line.begin())
+        return 0;
+
     --it;
     if (it != textpos_of_line.begin())
         return *it;
@@ -979,11 +992,14 @@ XmTextPosition SourceCode::startofline_at_pos(XmTextPosition pos)
  */
 XmTextPosition SourceCode::endofline_at_pos(XmTextPosition pos)
 {
+    if (textpos_of_line.size()==0)
+        return 0;
+
     auto it = std::lower_bound(textpos_of_line.begin(), textpos_of_line.end(), pos+1);
     if (it != textpos_of_line.begin())
         return *it - 1;
 
-    return true;
+    return 0;
 }
 
 const subString SourceCode::get_source_line(int line)
