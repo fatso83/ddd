@@ -46,8 +46,9 @@
 #include "base/strclass.h"
 #include "base/bool.h"
 #include "base/assert.h"
-#include "template/StringA.h"
 #include "template/VoidArray.h"
+
+#include <vector>
 
 //-----------------------------------------------------------------------------
 // Debugger types
@@ -103,7 +104,7 @@ typedef void (* OAProc) (const string& answer,
 typedef void (* OACProc) (void* user_data);
 
 // Called from send_qu_array with the complete answers
-typedef void (* OQACProc) (StringArray& complete_answers,
+typedef void (* OQACProc) (std::vector<string>& complete_answers,
 			   const VoidArray& user_datas,
 			   void *user_data);
 
@@ -252,7 +253,7 @@ public:
     void start_plus (OAProc   on_answer,
 		     OACProc  on_answer_completion,
 		     void*    user_data,
-		     const StringArray& cmds,
+		     const std::vector<string>& cmds,
 		     const VoidArray& user_datas,
 		     int      qu_count,
 		     OQACProc on_qu_array_completion,
@@ -273,7 +274,7 @@ public:
     // 3. Send CMDS, as in send_qu_array.
     // 4. When all replies have come in: call OACProc and OQACProc.
     //
-    bool send_user_cmd_plus (const StringArray& cmds,
+    bool send_user_cmd_plus (const std::vector<string>& cmds,
 			     const VoidArray& qu_datas,
 			     int      qu_count,
 			     OQACProc on_qu_array_completion,
@@ -282,7 +283,7 @@ public:
 			     string user_cmd,
 			     void* user_data = 0);
 
-    bool send_qu_array (const StringArray& cmds,
+    bool send_qu_array (const std::vector<string>& cmds,
 			const VoidArray& qu_datas,
 			int      qu_count,
 			OQACProc on_qu_array_completion,
@@ -859,8 +860,8 @@ private:
 
     int     qu_index;
     int    _qu_count;
-    StringArray cmd_array;
-    StringArray complete_answers;
+    std::vector<string> cmd_array;
+    std::vector<string> complete_answers;
     VoidArray _qu_datas;
     void*   _qa_data;
 
@@ -868,7 +869,7 @@ private:
     OACProc  _on_answer_completion;
     OQACProc _on_qu_array_completion;
 
-    void    init_qu_array (const StringArray& cmds,
+    void    init_qu_array (const std::vector<string>& cmds,
 			   const VoidArray& qu_datas,
 			   int      qu_count,
 			   OQACProc on_qu_array_completion,

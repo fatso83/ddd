@@ -445,7 +445,7 @@ void GDBAgent::do_start (OAProc  on_answer,
 void GDBAgent::start_plus (OAProc   on_answer,
 			   OACProc  on_answer_completion,
 			   void*    user_data,
-			   const StringArray& cmds,
+			   const std::vector<string>& cmds,
 			   const VoidArray& qu_datas,
 			   int      qu_count,
 			   OQACProc on_qu_array_completion,
@@ -525,7 +525,7 @@ bool GDBAgent::send_user_ctrl_cmd(const string& cmd, void *user_data)
 }
 
 // Send command array CMDS to GDB, associated with QU_DATAS.
-bool GDBAgent::send_user_cmd_plus (const StringArray& cmds,
+bool GDBAgent::send_user_cmd_plus (const std::vector<string>& cmds,
 				   const VoidArray& qu_datas,
 				   int      qu_count,
 				   OQACProc on_qu_array_completion,
@@ -560,7 +560,7 @@ bool GDBAgent::send_user_cmd_plus (const StringArray& cmds,
 }
 
 // Send CMDS to GDB; upon completion, call ON_QU_ARRAY_COMPLETION with QU_DATAS
-bool GDBAgent::send_qu_array (const StringArray& cmds,
+bool GDBAgent::send_qu_array (const std::vector<string>& cmds,
 			      const VoidArray& qu_datas,
 			      int      qu_count,
 			      OQACProc on_qu_array_completion,
@@ -588,7 +588,7 @@ bool GDBAgent::send_qu_array (const StringArray& cmds,
 }
 
 // Initialize GDB question array
-void GDBAgent::init_qu_array (const StringArray& cmds,
+void GDBAgent::init_qu_array (const std::vector<string>& cmds,
 			      const VoidArray& qu_datas,
 			      int      qu_count,
 			      OQACProc on_qu_array_completion,
@@ -599,7 +599,7 @@ void GDBAgent::init_qu_array (const StringArray& cmds,
     _qu_count = qu_count;
     _qa_data  = qa_data;
 
-    static const StringArray empty_s;
+    static const std::vector<string> empty_s;
     static const VoidArray   empty_v;
 
     complete_answers = empty_s;
@@ -1293,7 +1293,7 @@ void GDBAgent::handle_input(string& answer)
 		    // We use a local copy of the answers and user
 		    // data here, since the callback may submit a new
 		    // query, overriding the original value.
-		    StringArray answers(complete_answers);
+		    std::vector<string> answers(complete_answers);
 		    VoidArray datas(_qu_datas);
 		    OQACProc array_completion  = _on_qu_array_completion;
 		    OACProc  answer_completion = _on_answer_completion;

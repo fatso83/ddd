@@ -31,7 +31,6 @@
 #include "base/bool.h"
 #include "UndoBE.h"
 #include "string-fun.h"		// itostring()
-#include "IntArray.h"
 
 class BreakPoint;
 class StatusMsg;

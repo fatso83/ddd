@@ -67,6 +67,7 @@ char plotter_rcsid[] =
 
 #include <stdio.h>
 #include <fstream>
+#include <vector>
 
 #include <Xm/Command.h>
 #include <Xm/MainW.h>
@@ -390,7 +391,7 @@ static void configure_plot(PlotWindowInfo *plot)
     // Check if we can export something
     bool have_source = false;
     bool can_export  = false;
-    const StringArray& sources = plot->plotter->data_files();
+    const std::vector<string>& sources = plot->plotter->data_files();
     for (i = 0; i < int(sources.size()); i++)
     {
 	if (!sources[i].empty())
@@ -764,7 +765,7 @@ static void PlotterNotFoundHP(Agent *plotter, void *client_data, void *)
 #define SWALLOWER_NAME "swallower"
 #define PLOT_AREA_NAME "area"
 
-static VoidArray plot_infos;
+static std::vector<PlotWindowInfo*> plot_infos;
 
 static PlotWindowInfo *new_decoration(const string& name)
 {
@@ -773,7 +774,7 @@ static PlotWindowInfo *new_decoration(const string& name)
     // Check whether we can reuse an existing decoration
     for (int i = 0; i < int(plot_infos.size()); i++)
     {
-	PlotWindowInfo *info = (PlotWindowInfo *)plot_infos[i];
+	PlotWindowInfo *info = plot_infos[i];
 	if (info->plotter == 0)
 	{
 	    // Shell is unused - use this one
@@ -926,7 +927,7 @@ void clear_plot_window_cache()
 {
     for (int i = 0; i < int(plot_infos.size()); i++)
     {
-	PlotWindowInfo *info = (PlotWindowInfo *)plot_infos[i];
+	PlotWindowInfo *info = plot_infos[i];
 	if (info->plotter == 0)
 	{
 	    // Shell is unused -- destroy it
@@ -940,8 +941,7 @@ void clear_plot_window_cache()
 	}
     }
 
-    static const VoidArray empty;
-    plot_infos = empty;
+    plot_infos.clear();
 }
 
 
@@ -1198,8 +1198,8 @@ static void DoExportCB(Widget w, XtPointer client_data, XtPointer call_data)
     if (target.empty())
 	return;
 
-    const StringArray& titles  = plot->plotter->data_titles();
-    const StringArray& sources = plot->plotter->data_files();
+    const std::vector<string>& titles  = plot->plotter->data_titles();
+    const std::vector<string>& sources = plot->plotter->data_files();
 
     string source = "";
     string title  = "";

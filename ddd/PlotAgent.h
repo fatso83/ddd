@@ -30,12 +30,11 @@
 
 #include "agent/LiterateA.h"
 #include "assert.h"
-#include "template/StringA.h"
-#include "IntArray.h"
 #include "base/PrintGC.h"
 #include "agent/ChunkQueue.h"
 
 #include <fstream>
+#include <vector>
 
 // Event types
 const unsigned Plot = LiterateAgent_NTypes;   // Plot data received
@@ -48,11 +47,11 @@ public:
     DECLARE_TYPE_INFO
 
 private:
-    StringArray files;		// Temporary files allocated by this Agent
-    StringArray titles;		// Titles currently plotted
-    StringArray values;		// Scalars
+    std::vector<string> files;		// Temporary files allocated by this Agent
+    std::vector<string> titles;		// Titles currently plotted
+    std::vector<string> values;		// Scalars
 
-    IntArray dims;		// Dimensions of scalars
+    std::vector<int> dims;		// Dimensions of scalars
     std::ofstream plot_os;		// Stream used for adding data
     int ndim;			// Number of dimensions used so far
 
@@ -134,8 +133,8 @@ public:
     double max_v() const { return v_max; }
 
     // Get data titles and files
-    const StringArray& data_titles() const { return titles; }
-    const StringArray& data_files()  const { return files;  }
+    const std::vector<string>& data_titles() const { return titles; }
+    const std::vector<string>& data_files()  const { return files;  }
 
     // Print plot to FILENAME
     void print(const string& filename, 

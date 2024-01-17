@@ -226,7 +226,7 @@ void CmdData::clear_origin(Widget w, XtPointer client_data, XtPointer)
 class ExtraData {
 public:
     string   command;		       // The command issued
-    StringArray extra_commands;	       // The additional commands
+    std::vector<string> extra_commands;	       // The additional commands
 
     int      n_init;	               // # of initialization commands
 
@@ -356,7 +356,7 @@ private:
 
 static void partial_answer_received(const string&, void *);
 static void command_completed(void *);
-static void extra_completed(StringArray&, const VoidArray&, void *);
+static void extra_completed(std::vector<string>&, const VoidArray&, void *);
 
 // Handle graph command in CMD, with WHERE_ANSWER being the GDB reply
 // to a `where 1' command; return true iff recognized
@@ -452,7 +452,7 @@ void start_gdb(bool config)
 
     ExtraData *extra_data = new ExtraData;
     extra_data->command = "<init>";
-    StringArray cmds;
+    std::vector<string> cmds;
     VoidArray dummy;
 
     // Fetch initialization commands
@@ -1598,7 +1598,7 @@ void send_gdb_command(string cmd, Widget origin,
     if (abort_undo)
 	undo_buffer.restore_current_state();
 
-    StringArray cmds;
+    std::vector<string> cmds;
     VoidArray dummy;
 
     assert(extra_data->n_init == 0);
@@ -2372,9 +2372,9 @@ static void command_completed(void *data)
 //-----------------------------------------------------------------------------
 
 // Fetch display numbers from ARG into NUMBERS
-static bool read_displays(string arg, IntArray& numbers, bool verbose)
+static bool read_displays(string arg, std::vector<int>& numbers, bool verbose)
 {
-    IntArray displays;
+    std::vector<int> displays;
     data_disp->get_all_display_numbers(displays);
 
     while (has_nr(arg))
@@ -2544,7 +2544,7 @@ static bool handle_graph_cmd(string& cmd, const string& where_answer,
     }
     else if (is_data_cmd(cmd))
     {
-	IntArray numbers;
+	std::vector<int> numbers;
 	bool ok = read_displays(cmd.after("display"), numbers, verbose);
 	if (ok)
 	{
@@ -2931,7 +2931,7 @@ static void find_some_source()
 // Handle GDB answers to DDD questions sent after GDB command
 //-----------------------------------------------------------------------------
 
-static void extra_completed (StringArray& answers,
+static void extra_completed (std::vector<string>& answers,
 			     const VoidArray& /* qu_datas */,
 			     void*  data)
 {
@@ -3298,7 +3298,7 @@ int(answers.size())<=qu_count + extra_data->n_refresh_user)
     {
 // 	StringArray answers_(answers.data() + qu_count,
 // 			    extra_data->n_refresh_user);
-        StringArray answers_(answers.cbegin() + qu_count, answers.cbegin() + qu_count + extra_data->n_refresh_user);
+        std::vector<string> answers_(answers.cbegin() + qu_count, answers.cbegin() + qu_count + extra_data->n_refresh_user);
 	data_disp->process_user(answers_);
 	qu_count += extra_data->n_refresh_user;
     }

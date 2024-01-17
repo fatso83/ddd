@@ -610,9 +610,9 @@ bool UndoBuffer::process_state(UndoBufferEntry& entry)
     }
 
     // Process displays
-    StringArray displays;
-    StringArray values;
-    StringArray addrs;
+    std::vector<string> displays;
+    std::vector<string> values;
+    std::vector<string> addrs;
     for (StringStringAssocIter iter(entry); iter.ok(); ++iter)
     {
 	if (iter.key().contains(UB_DISPLAY_PREFIX, 0))

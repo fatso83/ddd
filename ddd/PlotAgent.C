@@ -54,9 +54,9 @@ void PlotAgent::start_with(const string& init)
 void PlotAgent::reset()
 {
     // Clear storage
-    titles = StringArray();
-    values = StringArray();
-    dims   = IntArray();
+    titles.clear();
+    values.clear();
+    dims.clear();
     ndim   = 0;
 
     // Clear range

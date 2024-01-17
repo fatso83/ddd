@@ -132,7 +132,7 @@ XtResource ddd_resources[] = {
         XtPointer(
             "set height 0\n"
             "set width 0\n"
-            " set verbose off\n"
+            "set verbose off\n"
             "set prompt (gdb) \n"
             "set print repeats unlimited\n")
     },
