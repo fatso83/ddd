@@ -659,6 +659,12 @@ LIBXM = @XM_LIBS@
 # Athena libraries.  (-lXaw)
 LIBXAW = @XAW_LIBS@
 
+# Freetype2 libraries
+LIBXFT = @XFT_LIBS@
+
+# Freetype2 headers
+XFTINCLUDE = @XFT_INCLUDE@
+
 # X Miscellaneous  Utilities needed for Athena and Motif >= 2.0 (lXmu)
 LIBXMU = @XMU_LIBS@
 
@@ -684,7 +690,7 @@ LIBX11 = @X_PRE_LIBS@ @X11_LIBS@ @X_EXTRA_LIBS@
 
 # All libraries shown above
 ALL_X_LIBS = $(X_LDFLAGS) $(LIBXM) $(LIBXAW) $(LIBXMU) $(LIBXT) $(LIBXPM) \
-             $(LIBXP) $(LIBXEXT) $(LIBX11) $(LIBGEN)
+             $(LIBXP) $(LIBXEXT) $(LIBX11) $(LIBXFT) $(LIBGEN)
 
 
 # -----------------------------------------------------------------------------
@@ -740,7 +746,7 @@ cxxtest_LDADD = $(LIBM)
 ddd_LDADD = $(RPATH) $(ALL_X_LIBS) $(ALL_LIBS)
 vsl_LDADD = $(RPATH) $(ALL_X_LIBS) $(ALL_LIBS)
 X_INCLUDE = @X_CFLAGS@
-AM_CPPFLAGS = -I$(srcdir)/.. -I.. $(X_INCLUDE)
+AM_CPPFLAGS = -I$(srcdir)/.. -I.. $(X_INCLUDE) $(XFTINCLUDE)
 
 # -----------------------------------------------------------------------------
 # DDD Application Defaults.

@@ -732,6 +732,56 @@ LDFLAGS="$ice_save_LDFLAGS"
 fi
 dnl
 dnl
+dnl Check for Freetype2
+dnl
+freetype_includes=no
+freetype_libraries=no
+AC_ARG_WITH(freetype-includes,
+  AS_HELP_STRING([--with-freetype-includes=DIR].
+		 [Freetype2 include files are in DIR]),
+  freetype_includes="$withval")
+AC_ARG_WITH(freetype-libraries,
+  AS_HELP_STRING([--with-freetype-libraries=DIR].
+		 [Freetype2 libraries are in DIR]),
+  freetype_libraries="$withval")
+AC_MSG_CHECKING([for ft2build.h])
+dnl
+dnl Search for Freetype include files
+dnl 
+XFT_INCLUDE=
+if test "$freetype_includes" = "no"; then
+  AC_COMPILE_IFELSE(
+    [AC_LANG_PROGRAM([[#include <ft2build.h>]],[[int a;]])],
+    [
+      # <ft2build.h> is in the standard include path
+      freetype_includes=
+    ],
+    [
+      # Check /usr/include/freetype2
+      if test -f "/usr/include/freetype2/ft2build.h"; then
+        freetype_includes="-I/usr/include/freetype2"
+      fi
+    ])
+fi
+XFT_INCLUDE=$freetype_includes
+if test $XFT_INCLUDE; then AC_MSG_RESULT([yes]); fi
+dnl
+dnl Search for Freetype library -lXft
+dnl
+XFT_LIBS=
+if test "$freetype_libraries" = "no"; then
+  AC_CHECK_LIB([Xft],[XftFontOpen],
+    [XFT_LIBS="-lXft ${XFT_LIBS}"; freetype_libraries=],
+    [],
+    [${XMU_LIBS} ${XT_LIBS} ${XPM_LIBS} ${XEXT_LIBS} ${X_PRE_LIBS} ${X11_LIBS} ${X_EXTRA_LIBS}])
+fi
+
+if test "$freetype_includes" != "no" && test "$freetype_libraries" != "no"; then
+  AC_DEFINE(HAVE_FREETYPE,[1],
+    [Define if Freetype2 library available])
+fi
+AC_SUBST(XFT_LIBS)
+AC_SUBST(XFT_INCLUDE)
 dnl
 dnl
 dnl Setup library loading flags
@@ -939,6 +989,7 @@ ICE_CHECK_DECL(unlockpt, stdlib.h)
 AH_TEMPLATE([HAVE_UNLOCKPT_DECL],[Define if unlockpt is declared in stdlib.h.])
 ICE_CHECK_DECL(waitpid, sys/wait.h)
 AH_TEMPLATE([HAVE_WAITPID_DECL],[Define if waitpid is declared in sys/wait.h.])
+AH_TEMPLATE([HAVE_FREETYPE],[Define if Freetype2 library available.])
 dnl
 dnl These checks may require -lstdc++ to link and tun properly
 ice_save_LIBS="$LIBS"
