@@ -1114,9 +1114,17 @@ void gdb_diedHP(Agent *gdb, void *, void *call_data)
 	if (!tty_running())
 	{
 	    // Forward diagnostics from debugger console to stderr
-	    String s = XmTextGetString(gdb_w);
-	    string message = s + messagePosition;
-	    XtFree(s);
+// 	    String s = XmTextGetString(gdb_w);
+// 	    string message = s + messagePosition;
+// 	    XtFree(s);
+            int num_chars =  XmTextGetLastPosition(gdb_w) - messagePosition;
+            int buffer_size = (num_chars* MB_CUR_MAX) + 1;
+            char *buffer = new char[buffer_size];
+            // this works for latin1 and utf-8
+            XmTextGetSubstring(gdb_w, messagePosition, num_chars, buffer_size, buffer);
+            string message(buffer);
+            delete [] buffer;
+
 	    std::cerr << message;
 	}
 

@@ -446,9 +446,13 @@ void set_status_from_gdb(const string& text)
 	return;
 
     // Fetch line before prompt in GDB window
-    String s = XmTextGetString(gdb_w);
-    string message = s + messagePosition;
-    XtFree(s);
+    int num_chars =  XmTextGetLastPosition(gdb_w) - messagePosition;
+    int buffer_size = (num_chars* MB_CUR_MAX) + 1;
+    char *buffer = new char[buffer_size];
+    // this works for latin1 and utf-8
+    XmTextGetSubstring(gdb_w, messagePosition, num_chars, buffer_size, buffer);
+    string message(buffer);
+    delete [] buffer;
 
     if (message.empty() && text.contains('\n'))
 	message = text;
