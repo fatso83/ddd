@@ -188,10 +188,16 @@ void gdb_selectHP(Agent *, void *, void *call_data)
 #endif
 
     // Fetch previous output lines, in case this is a multi-line message.
-    String s = XmTextGetString(gdb_w);
-    string prompt(s);
-    XtFree(s);
-    prompt = prompt.from(int(messagePosition)) + info->question;
+    int num_chars =  XmTextGetLastPosition(gdb_w) - messagePosition;
+    int buffer_size = (num_chars* MB_CUR_MAX) + 1;
+    char *buffer = new char[buffer_size];
+    // this works for latin1 and utf-8
+    XmTextGetSubstring(gdb_w, messagePosition, num_chars, buffer_size, buffer);
+    string prompt(buffer);
+    delete [] buffer;
+
+    prompt += info->question;
+
 
     // Issue prompt right now
     _gdb_out(info->question);
