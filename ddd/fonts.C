@@ -484,9 +484,11 @@ static void setup_xft_fonts(AppData& ad, XrmDatabase& db)
     XrmPutLineResource(&db, "Ddd*source_text_w*renderTable: rtfix");
     XrmPutLineResource(&db, "Ddd*gdb_w*renderTable: rtfix");
     XrmPutLineResource(&db, "Ddd*code_text_w*renderTable: rtfix");
-    XrmPutLineResource(&db, "Ddd*edit_breakpoints_dialog*renderTable: rtfix");
-    XrmPutLineResource(&db, "Ddd*register_dialog*renderTable: rtfix");
-    XrmPutLineResource(&db, "Ddd*edit_displays_dialog*renderTable: rtfix");
+    XrmPutLineResource(&db, "Ddd*edit_breakpoints_dialog*ItemsListSW*renderTable: rtfix");
+    XrmPutLineResource(&db, "Ddd*register_dialog*ItemsListSW*renderTable: rtfix");
+    XrmPutLineResource(&db, "Ddd*edit_displays_dialog*ItemsListSW*renderTable: rtfix");
+    XrmPutLineResource(&db, "Ddd*stack_dialog*ItemsListSW*renderTable: rtfix");
+    XrmPutLineResource(&db, "Ddd*thread_dialog*ItemsListSW*renderTable: rtfix");
 
     XrmPutLineResource(&db, "Ddd*rtfix*fontType: FONT_IS_XFT");
     XrmPutLineResource(&db, (string("Ddd*rtfix*fontName: ") + ad.fixed_width_font).chars());
@@ -496,6 +498,12 @@ static void setup_xft_fonts(AppData& ad, XrmDatabase& db)
         ad.variable_width_font_size = 11; // size seem to be in points -> set default
 
     XrmPutLineResource(&db, "Ddd*renderTable: rtvar");
+    XrmPutLineResource(&db, "Ddd*source_text_w*bp_popup*renderTable: rtvar");
+    XrmPutLineResource(&db, "Ddd*source_text_w*line_popup*renderTable: rtvar");
+    XrmPutLineResource(&db, "Ddd*source_text_w*text_popup*renderTable: rtvar");
+    XrmPutLineResource(&db, "Ddd*source_text_w*breakpoint_properties*renderTable: rtvar");
+    XrmPutLineResource(&db, "Ddd*gdb_w*gdb_popup*renderTable: rtvar");
+
     XrmPutLineResource(&db, "Ddd*rtvar*fontType: FONT_IS_XFT");
     XrmPutLineResource(&db, (string("Ddd*rtvar*fontName: ") + ad.variable_width_font).chars());
     XrmPutLineResource(&db, (string("Ddd*rtvar*fontSize: ") + itostring(ad.variable_width_font_size)).chars());
