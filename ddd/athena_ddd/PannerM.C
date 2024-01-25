@@ -40,13 +40,6 @@ in this Software without prior written authorization from The Open Group.
 #include "athena_ddd/PannerMP.h"
 #include <X11/Xaw/XawInit.h>
 
-#if defined(ISC) && __STDC__ && !defined(ISC30)
-extern double atof(char *);
-#else
-#include <stdlib.h>			/* for atof() */
-#endif
-
-
 #define XawMax(a, b) ((a) > (b) ? (a) : (b))
 #define XawMin(a, b) ((a) < (b) ? (a) : (b))
 #define XawAbs(a)    ((a) < 0 ? -(a) : (a))
@@ -647,35 +640,58 @@ get_event_xy(PannermWidget pw, XEvent *event, int *x, int *y)
 static int
 parse_page_string(char *s, int pagesize, int canvassize, Bool *relative)
 {
-    char *cp;
     double val = 1.0;
     Bool rel = False;
 
     /*
      * syntax:    spaces [+-] number spaces [pc\0] spaces
      */
-    for (; isascii(*s) && isspace(*s); s++)	/* skip white space */
-	;
+    double result = 0.0;
+    int sign = 1;
+    int decimal_found = 0;
+    double decimal_multiplier = 0.1;
 
-    if (*s == '+' || *s == '-')	{		/* deal with signs */
-	rel = True;
-	if (*s == '-')
-	    val = -1.0;
-	s++;
+    // Skip leading whitespaces
+    while (isascii(*s) && isspace(*s))
+        s++;
+
+    // Handle sign
+    if (*s == '-')
+    {
+        sign = -1;
+        rel = True;
+        s++;
     }
-    if (!*s) {				/* if null then return nothing */
-	*relative = True;
-	return (0);
+    else if (*s == '+')
+    {
+        s++;
+        rel = True;
     }
 
-					/* skip over numbers */
-    for (cp = s; isascii(*s) && (isdigit(*s) || *s == '.'); s++)
-	;
-    val *= atof(cp);
+    // Process digits
+    while (isdigit(*s) || (*s == '.' && !decimal_found))
+    {
+        if (*s == '.')
+        {
+            decimal_found = 1;
+            s++;
+            continue;
+        }
 
-					/* skip blanks */
-    for (; isascii(*s) && isspace(*s); s++)
-	;
+        if (decimal_found)
+        {
+            result = result + (*s - '0') * decimal_multiplier;
+            decimal_multiplier *= 0.1;
+        }
+        else
+        {
+            result = result * 10 + (*s - '0');
+        }
+
+        s++;
+    }
+
+    val =  sign * result;
 
     if (*s) {				/* if units */
 	switch (s[0]) {
@@ -972,18 +988,17 @@ ActionPage(Widget gw, XEvent *event, String *params, Cardinal *num_params)
     PannermWidget pw = (PannermWidget)gw;
     Cardinal zero = 0;
     Bool isin = pw->panner.tmp.doing;
-    int x, y;
-    Bool relx, rely;
     int pad = pw->panner.internal_border << 1;
 
     if (*num_params != 2) {
-      XBell(XtDisplay(gw), 0);
+        XBell(XtDisplay(gw), 0);
 	return;
     }
 
-    x = parse_page_string(params[0], pw->panner.knob_width,
+    Bool relx, rely;
+    int x = parse_page_string(params[0], pw->panner.knob_width,
 			  (int)XtWidth(pw) - pad, &relx);
-    y = parse_page_string(params[1], pw->panner.knob_height,
+    int y = parse_page_string(params[1], pw->panner.knob_height,
 			  (int)XtHeight(pw) - pad, &rely);
 
     if (relx)
