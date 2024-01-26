@@ -5978,7 +5978,8 @@ void _gdb_out(const string& txt)
             }
 
             XmTextInsert(gdb_w, promptPosition, XMST(block.chars()));
-            promptPosition += block.length();
+            //promptPosition += block.length();
+            promptPosition = XmTextGetInsertionPosition(gdb_w);
             // XmTextShowPosition(gdb_w, promptPosition);
         }
 
