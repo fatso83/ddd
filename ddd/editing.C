@@ -166,7 +166,7 @@ static void show_isearch()
     }
 
     if (isearch_state != ISEARCH_NONE)
-	prompt += "`" + cook(isearch_string) + "': ";
+	prompt += "'" + cook(isearch_string) + "': ";
     string input = current_line();
     string line  = prompt + input;
 
@@ -176,7 +176,7 @@ static void show_isearch()
     promptPosition = start + prompt.length();
 
     XmTextPosition pos = promptPosition;
-    int index = input.index(isearch_string); // FIXME: this should not work with utf-8
+    int index = input.index(isearch_string);
     if (isearch_state == ISEARCH_NONE || index < 0)
     {
 	XmTextSetHighlight(gdb_w, 0, XmTextGetLastPosition(gdb_w),

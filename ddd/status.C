@@ -445,19 +445,26 @@ void set_status_from_gdb(const string& text)
     if (!show_next_line_in_status && !text.contains(gdb->prompt(), -1))
 	return;
 
-    // Fetch line before prompt in GDB window
-    if (messagePosition > XmTextGetLastPosition(gdb_w))
+    // fetch all full lines from GDB window
+    XmTextPosition pos = messagePosition;
+    XmTextPosition messageEnd = messagePosition;
+    while (XmTextFindString(gdb_w, pos, XMST("\n"), XmTEXT_FORWARD, &pos))
     {
-        printf("warning messagePosition fixed  %ld -> %ld\n", messagePosition, XmTextGetLastPosition(gdb_w));
-        messagePosition = XmTextGetLastPosition(gdb_w);
+        pos++;
+        messageEnd = pos;
     }
-    int num_chars =  XmTextGetLastPosition(gdb_w) - messagePosition;
-    int buffer_size = (num_chars* MB_CUR_MAX) + 1;
-    char *buffer = new char[buffer_size];
-    // this works for latin1 and utf-8
-    XmTextGetSubstring(gdb_w, messagePosition, num_chars, buffer_size, buffer);
-    string message(buffer);
-    delete [] buffer;
+
+    string message;
+    if (messageEnd!=messagePosition)
+    {
+        int num_chars =  messageEnd - messagePosition;
+        int buffer_size = (num_chars* MB_CUR_MAX) + 1;
+        char *buffer = new char[buffer_size];
+        XmTextGetSubstring(gdb_w, messagePosition, num_chars, buffer_size, buffer);
+        message = buffer;
+        delete [] buffer;
+        messagePosition = messageEnd;
+    }
 
     if (message.empty() && text.contains('\n'))
 	message = text;
@@ -477,7 +484,6 @@ void set_status_from_gdb(const string& text)
 
     if (show_next_line_in_status)
     {
-	messagePosition = XmTextGetLastPosition(gdb_w) + text.length();  // TODO: fix for utf-8
 	show_next_line_in_status = false;
 	message.gsub('\n', ' ');
     }
