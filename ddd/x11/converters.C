@@ -702,7 +702,6 @@ static Boolean CvtStringToXmFontList(Display *display,
 {
     // Get string
     const string source = str(fromVal, false);
-    //printf("CvtStringToXmFontList  %s \n", source.chars());
     const int n_segments = source.freq(',') + 1;
     string *segments = new string[n_segments];
     
@@ -740,8 +739,6 @@ static Boolean CvtStringToXmFontList(Display *display,
 	if (!convert_fontspec(display, fontspec, "CvtStringToXmFontList"))
 	    continue;
 
-//  	XmRendition entry = XmFontListEntryLoad(display, XMST(fontspec.chars()),
-//  						    XmFONT_IS_XFT, (char*)charset.chars());
 	XmFontListEntry entry = XmFontListEntryLoad(display, XMST(fontspec.chars()),
 						    XmFONT_IS_FONT, (char*)charset.chars());
         //printf("fontspec %s  charset %s\n", fontspec.chars(), charset.chars());

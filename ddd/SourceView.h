@@ -314,8 +314,8 @@ class SourceView {
     static Map<int, BreakPoint> bp_map;
 
     // File attributes
-    static IntIntArrayAssoc bps_in_line;
-    static std::vector<string> bp_addresses;
+    static IntIntArrayAssoc bps_in_line;  // non-glyph breakpoints in current source
+    static std::vector<string> bp_addresses; // breakpoint addresses in current code
 
     // True iff breakpoint BP is in current file (at LINE, if given)
     static bool bp_matches(BreakPoint *bp, int line = 0);

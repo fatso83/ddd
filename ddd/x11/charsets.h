@@ -133,15 +133,15 @@ inline MString bf(const char *text)
     return MString(text, CHARSET_BF);
 }
 
-inline MString bs(const string& text) 
-{
-    return MString(text, CHARSET_BS);
-}
+// inline MString bs(const string& text)
+// {
+//     return MString(text, CHARSET_BS);
+// }
 
-inline MString bs(const char *text) 
-{
-    return MString(text, CHARSET_BS);
-}
+// inline MString bs(const char *text)
+// {
+//     return MString(text, CHARSET_BS);
+// }
 
 
 // Newline function
