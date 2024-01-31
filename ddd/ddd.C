@@ -2672,7 +2672,7 @@ ddd_exit_t pre_main_loop(int argc, char *argv[])
 
     // Status line
     if (!app_data.separate_source_window && !app_data.status_at_bottom)
-        create_status(paned_work_w);
+        create_status(left_paned_work_w);
 
     // Toolbar label type
     unsigned char label_type = XmSTRING;
