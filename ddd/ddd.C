@@ -4052,16 +4052,13 @@ void update_options()
 
     string button_color_key        = app_data.button_color_key;
     string active_button_color_key = app_data.active_button_color_key;
-#if XmVersion < 2000
-    set_toggle(set_color_buttons_w, button_color_key == 'c');
-#else
     if (button_color_key == 'c' && active_button_color_key == 'c')
         set_toggle(set_color_buttons_w, XmSET);
     else if (button_color_key == active_button_color_key)
         set_toggle(set_color_buttons_w, XmUNSET);
     else
         set_toggle(set_color_buttons_w, XmINDETERMINATE);
-#endif
+
     set_sensitive(set_color_buttons_w, app_data.button_images);
 
     Boolean separate = 
@@ -4181,13 +4178,10 @@ void update_options()
     set_label(arg_cmd_area[ArgItems::Find].widget, new_label, icon);
 
     // Font stuff
-    if (font_names[DefaultDDDFont] != 0)
-    {
-        set_string(font_names[DefaultDDDFont], app_data.default_font);
-        set_string(font_names[VariableWidthDDDFont], app_data.variable_width_font);
-        set_string(font_names[FixedWidthDDDFont], app_data.fixed_width_font);
-        set_string(font_names[DataDDDFont], app_data.data_font);
-    }
+    set_string(font_names[DefaultDDDFont], app_data.default_font);
+    set_string(font_names[VariableWidthDDDFont], app_data.variable_width_font);
+    set_string(font_names[FixedWidthDDDFont], app_data.fixed_width_font);
+    set_string(font_names[DataDDDFont], app_data.data_font);
 
     set_string_int(font_sizes[DefaultDDDFont], app_data.default_font_size);
     set_string_int(font_sizes[VariableWidthDDDFont], app_data.variable_width_font_size);
@@ -4307,6 +4301,23 @@ void save_option_state()
     static string uncompress_command;
     uncompress_command = initial_app_data.uncompress_command;
     initial_app_data.uncompress_command = uncompress_command.chars();
+
+    // duplication of the font strings
+    static string default_font;
+    default_font = initial_app_data.default_font;
+    initial_app_data.default_font = default_font.chars();
+
+    static string variable_width_font;
+    variable_width_font = initial_app_data.variable_width_font;
+    initial_app_data.variable_width_font = variable_width_font.chars();
+
+    static string fixed_width_font;
+    fixed_width_font = initial_app_data.fixed_width_font;
+    initial_app_data.fixed_width_font = fixed_width_font.chars();
+
+    static string data_font;
+    data_font = initial_app_data.data_font;
+    initial_app_data.data_font = data_font.chars();
 
     // Fetch data display resources
     XtVaGetValues(data_disp->graph_edit, 
