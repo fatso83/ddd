@@ -30,6 +30,7 @@ char wm_rcsid[] =
 
 #include "wm.h"
 #include "AppData.h"
+#include "darkmode.h"
 
 #include "Command.h"
 #include "ddd.h"
@@ -49,34 +50,6 @@ char wm_rcsid[] =
 // Window Manager Functions
 //-----------------------------------------------------------------------------
     
-void setColorMode(Widget w, bool darkmode)
-{
-    // Fetch children
-    WidgetList children;
-    Cardinal numChildren = 0;
-    XtVaGetValues(w, XmNchildren, &children, XmNnumChildren, &numChildren, XtPointer(0));
-
-    for (int i = 0; i < int(numChildren); i++)
-    {
-        Widget child = children[i];
-        Pixel color;
-        XtVaGetValues(child, XmNbackground, &color,  XtPointer(0));
-        int sumcolor = ((color & 0xff0000)>>16) + ((color & 0x00ff00)>>8) + (color & 0x0000ff);
-        if (darkmode && sumcolor>3*128)
-        {
-            color = color ^ 0xffffff;
-            XmChangeColor(child, color);
-        }
-        else if (!darkmode && sumcolor<=3*128)
-        {
-            color = color ^ 0xffffff;
-            XmChangeColor(child, color);
-        }
-
-        setColorMode (child, darkmode);
-    }
-}
-
 void wm_set_icon(Display *display, Window shell, Pixmap icon, Pixmap mask)
 {
     XWMHints *wm_hints = XAllocWMHints();

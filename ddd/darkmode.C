@@ -1,5 +1,5 @@
 // $Id$ -*- C++ -*-
-// DDD window manager functions
+// DDD window color functions
 
 // Copyright (C) 1996 Technische Universitaet Braunschweig, Germany.
 // Written by Andreas Zeller <zeller@gnu.org>.
@@ -25,25 +25,39 @@
 // `http://www.gnu.org/software/ddd/',
 // or send a mail to the DDD developers <ddd@gnu.org>.
 
-#ifndef _DDD_wm_h
-#define _DDD_wm_h
+char darkmode_rcsid[] =
+    "$Id$";
 
-#include <X11/Intrinsic.h>
-#include "base/strclass.h"
+#include "darkmode.h"
 
-// Window manager
-extern void wm_set_icon(Widget shell, Pixmap icon, Pixmap mask);
-extern void wm_set_icon(Display *display, Window shell,
-			Pixmap icon, Pixmap mask);
+#include <Xm/Xm.h>
 
-extern void wm_set_name(Widget shell, string title = "", string icon = "");
-extern void wm_set_name(Display *display, Window shell,
-			string title = "", string icon = "");
+    
+void setColorMode(Widget w, bool darkmode)
+{
+    // Fetch children
+    WidgetList children;
+    Cardinal numChildren = 0;
+    XtVaGetValues(w, XmNchildren, &children, XmNnumChildren, &numChildren, XtPointer(0));
 
-// Misc functions
-void wait_until_mapped(Widget w, Widget shell = 0);
-void raise_shell(Widget w);
-void manage_and_raise(Widget w);
+    for (int i = 0; i < int(numChildren); i++)
+    {
+        Widget child = children[i];
+        Pixel color;
+        XtVaGetValues(child, XmNbackground, &color,  XtPointer(0));
+        int sumcolor = ((color & 0xff0000)>>16) + ((color & 0x00ff00)>>8) + (color & 0x0000ff);
+        if (darkmode && sumcolor>3*128)
+        {
+            color = color ^ 0xffffff;
+            XmChangeColor(child, color);
+        }
+        else if (!darkmode && sumcolor<=3*128)
+        {
+            color = color ^ 0xffffff;
+            XmChangeColor(child, color);
+        }
 
-#endif // _DDD_wm_h
-// DON'T ADD ANYTHING BEHIND THIS #endif
+        setColorMode (child, darkmode);
+    }
+}
+

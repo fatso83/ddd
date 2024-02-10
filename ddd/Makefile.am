@@ -386,6 +386,8 @@ DDD_SRC = \
 	ctrl.h       \
 	data.C       \
 	data.h       \
+	darkmode.C \
+	darkmode.h \
 	dbx-lookup.C \
 	dbx-lookup.h \
 	ddd.vsl.h    \
@@ -728,6 +730,7 @@ vsl_SOURCES       = vsl.C \
 	DocSpaceP.h \
 	string-fun.C \
 	regexps.C \
+	darkmode.C \
 	$(BASE_SRC) \
 	$(TEMPLATE_SRC) \
 	$(AGENT_SRC) \

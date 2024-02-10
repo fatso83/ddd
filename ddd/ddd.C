@@ -272,6 +272,7 @@ char ddd_rcsid[] =
 #include "wm.h"
 #include "xconfig.h"
 #include "motif/ComboBox.h"
+#include "darkmode.h"
 
 // Standard stuff
 #include <stdlib.h>

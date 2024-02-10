@@ -1,5 +1,5 @@
 // $Id$ -*- C++ -*-
-// DDD window manager functions
+// DDD window color functions
 
 // Copyright (C) 1996 Technische Universitaet Braunschweig, Germany.
 // Written by Andreas Zeller <zeller@gnu.org>.
@@ -25,25 +25,14 @@
 // `http://www.gnu.org/software/ddd/',
 // or send a mail to the DDD developers <ddd@gnu.org>.
 
-#ifndef _DDD_wm_h
-#define _DDD_wm_h
+#ifndef _DDD_darkmode_h
+#define _DDD_darkmode_h
 
 #include <X11/Intrinsic.h>
-#include "base/strclass.h"
 
-// Window manager
-extern void wm_set_icon(Widget shell, Pixmap icon, Pixmap mask);
-extern void wm_set_icon(Display *display, Window shell,
-			Pixmap icon, Pixmap mask);
+// Window colors
+void setColorMode(Widget w, bool darkmode);
 
-extern void wm_set_name(Widget shell, string title = "", string icon = "");
-extern void wm_set_name(Display *display, Window shell,
-			string title = "", string icon = "");
 
-// Misc functions
-void wait_until_mapped(Widget w, Widget shell = 0);
-void raise_shell(Widget w);
-void manage_and_raise(Widget w);
-
-#endif // _DDD_wm_h
+#endif // _DDD_darkmode_h
 // DON'T ADD ANYTHING BEHIND THIS #endif

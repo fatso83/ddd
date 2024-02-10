@@ -67,6 +67,7 @@ char buttons_rcsid[] =
 #include "windows.h"
 #include "wm.h"
 #include "base/strclass.h"
+#include "darkmode.h"
 
 #include <Xm/Xm.h>
 #include <Xm/Label.h>
