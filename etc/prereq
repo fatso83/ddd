@@ -28,7 +28,7 @@
 
 MAINTAINER=0
 
-ARCH=$(uname -p)
+ARCH=$(uname -m)
 
 usage()
 {
@@ -103,13 +103,13 @@ else
 fi
 
 if [ "$DISTRO" = "UNKNOWN" ]; then
-  echo "Cannot check pre-req's for $DISTRO distro"
+  echo "Cannot check pre-req's for $DISTRO"
   usage
   exit 1
 fi
 
 if [ "$DISTRO" = "DEBIAN" ]; then
-  echo "Checking pre-req's for $DISTRO distro"
+  echo "Checking pre-req's for $DISTRO"
   echo ""
 
   if [ $MAINTAINER = 1 ]; then
@@ -130,7 +130,7 @@ if [ "$DISTRO" = "DEBIAN" ]; then
 fi
 
 if [ "$DISTRO" = "FEDORA" ]; then
-  echo "Checking pre-req's for $distro distro"
+  echo "Checking pre-req's for $DISTRO"
 
   if [ $MAINTAINER = 1 ]; then
     PKGS=( ${FEDORAPKGS[*]} ${FEDORADEVPKGS[*]} )
@@ -140,7 +140,7 @@ if [ "$DISTRO" = "FEDORA" ]; then
  
   for PKG in ${PKGS[@]}
   do 
-    if dnf list installed $PKG | grep -e "$ARCH\|noarch" &> /dev/null ; then
+    if dnf list installed $PKG 2> /dev/null | grep -e "$ARCH\|noarch" &> /dev/null ; then
       echo "$PKG installed"
     else
       echo "$PKG not installed"
@@ -150,7 +150,7 @@ if [ "$DISTRO" = "FEDORA" ]; then
 fi
 
 if [ "$DISTRO" = "SUSE" ]; then
-  echo "Checking pre-req's for $DISTRO distro"
+  echo "Checking pre-req's for $DISTRO"
   echo ""
 
   if [ $MAINTAINER = 1 ]; then
