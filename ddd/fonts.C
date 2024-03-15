@@ -482,6 +482,7 @@ static void setup_xft_fonts(AppData& ad, XrmDatabase& db)
 
     // according to hints from Joe Nelson
     XrmPutLineResource(&db, "Ddd*source_text_w.renderTable: tt");
+    XrmPutLineResource(&db, "Ddd*code_text_w.renderTable: tt");
     XrmPutLineResource(&db, "Ddd*gdb_w.renderTable: tt");
     XrmPutLineResource(&db, "Ddd*help_area*text.renderTable: tt");
 
