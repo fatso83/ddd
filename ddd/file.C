@@ -1140,7 +1140,7 @@ static void update_processes(Widget processes, bool keep_selection)
 
     pclose(fp);
     sortProcesses(all_process_list);
-    VarIntArray pids(all_process_list.size());
+    std::vector<int> pids(all_process_list.size());
 
     // If GDB cannot send a signal to the process, we cannot debug it.
     // Try a `kill -0' (via GDB, as it may be setuid) and filter out

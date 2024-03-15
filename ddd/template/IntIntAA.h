@@ -29,16 +29,14 @@
 #define _DDD_IntIntArrayAssoc_h
 
 #include "Assoc.h"
-#include "IntArray.h"
 #include "base/strclass.h"
 
-typedef Assoc<int, VarIntArray> IntIntArrayAssoc;
-typedef AssocIter<int, VarIntArray> IntIntArrayAssocIter;
+#include <vector>
 
-typedef Assoc<string, VarIntArray> StringIntArrayAssoc;
-typedef AssocIter<string, VarIntArray> StringIntArrayAssocIter;
+typedef Assoc<int, std::vector<int>> IntIntArrayAssoc;
+typedef AssocIter<int, std::vector<int>> IntIntArrayAssocIter;
 
-typedef std::vector<IntArray> IntArrayArray;
+typedef std::vector<std::vector<int>> IntArrayArray;
 
 typedef Assoc<string, IntArrayArray> StringIntArrayArrayAssoc;
 typedef AssocIter<string, IntArrayArray> StringIntArrayArrayAssocIter;
