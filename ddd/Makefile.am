@@ -581,19 +581,13 @@ ATHENA_SRC = \
 	athena_ddd/PannerM.h \
 	athena_ddd/PannerMP.h 
 
-# Automatically generated source files which should not be distributed.
-nodist_ddd_SOURCES = \
+# Make sure needed headers are built before they are used
+BUILT_SOURCES = \
 	build.h      \
 	host.h       \
 	root.h       \
 	version.h    \
 	Ddd.ad.h
-
-# Make sure needed headers are built before trying to compile these files
-# (Assume ddd.C is the first source file to be built.)
-ddd.o: version.h host.h root.h
-resources.o: Ddd.ad.h
-show.o: build.h
 
 # -----------------------------------------------------------------------------
 # Local Libraries.
@@ -1551,10 +1545,10 @@ $(srcdir)/config.h.in:
 # Note: we use `build.h' instead of `./build.h', because `./build.h'
 # breaks SGI make.
 version.h: vr.h
-	@$(CMP) vr.h $@ 2> /dev/null || \
+	$(CMP) vr.h $@ 2> /dev/null || \
 	    ( $(CAT) vr.h | $(DELETE_CR) > $@~ && $(MV) $@~ $@ )
 build.h: bld.h
-	@$(CMP) bld.h $@ 2> /dev/null || \
+	$(CMP) bld.h $@ 2> /dev/null || \
 	    ( $(CAT) bld.h | $(DELETE_CR) > $@~ && $(MV) $@~ $@ )
 host.h: $(srcdir)/host.h.in $(top_builddir)/config.status
 	$(CAT) $(srcdir)/host.h.in | \
