@@ -712,6 +712,7 @@ ddd_SOURCES = ddd.C \
 	$(ATHENA_SRC)
 
 stringify_SOURCES = stringify.C
+STRINGIFY = ./stringify$(EXEEXT)
 ctest_SOURCES     = ctest.c
 cxxtest_SOURCES   = cxxtest.C
 vsl_SOURCES       = vsl.C \
@@ -867,25 +868,22 @@ $(builddocdir)/ddd.info.txt: $(srcdir)/ddd.texi
 $(builddocdir)/ddd.info.txt.gz: $(builddocdir)/ddd.info.txt
 	$(COMPRESS) $? > $@~ && $(MV) $@~ $@
 
-$(builddocdir)/ddd.info.txt.gz.C: $(builddocdir)/ddd.info.txt.gz
-	$(MAKE) stringify$(EXEEXT)
-	-./stringify$(EXEEXT) < $? > $@~ && $(MV) $@~ $@
+$(builddocdir)/ddd.info.txt.gz.C: $(builddocdir)/ddd.info.txt.gz $(STRINGIFY)
+	-$(STRINGIFY) < $< > $@
 
 # License.
 $(top_builddir)/COPYING.gz: $(srcdir)/../COPYING
 	$(COMPRESS) $? > $@
 
-$(top_builddir)/COPYING.gz.C: $(top_builddir)/COPYING.gz
-	$(MAKE) stringify$(EXEEXT)
-	-./stringify$(EXEEXT) < $? > $@~ && $(MV) $@~ $@
+$(top_builddir)/COPYING.gz.C: $(top_builddir)/COPYING.gz $(STRINGIFY)
+	-$(STRINGIFY) < $< > $@
 
 # News.
 $(top_builddir)/NEWS.gz: $(srcdir)/../NEWS
 	$(COMPRESS) $? > $@~ && $(MV) $@~ $@
 
-$(top_builddir)/NEWS.gz.C: $(top_builddir)/NEWS.gz
-	$(MAKE) stringify$(EXEEXT)
-	-./stringify$(EXEEXT) < $? > $@~ && $(MV) $@~ $@
+$(top_builddir)/NEWS.gz.C: $(top_builddir)/NEWS.gz $(STRINGIFY)
+	-$(STRINGIFY) < $< > $@
 
 show.$(OBJEXT): $(top_builddir)/COPYING.gz.C $(top_builddir)/NEWS.gz.C $(builddocdir)/ddd.info.txt.gz.C
 
