@@ -1535,7 +1535,22 @@ bool SourceView::file_matches(const string& file1, const string& file2)
         return file1 == file2;
 
     if (gdb->type() == GDB || gdb->type() == MAKE || app_data.use_source_path)
-        return file1 == file2 || full_path(file1) == full_path(file2);
+    {
+        if (file1 == file2 || full_path(file1) == full_path(file2))
+            return true;
+    }
+
+    if (gdb->type() == GDB)
+    {
+        if (file1.length()==0 || file2.length()==0)
+            return false;
+
+        if (file1[0]=='/' && file2[0]!='/')
+            return (file1.from(int(file1.length())-int(file2.length())) == file2);
+
+        if (file1[0]!='/' && file2[0]=='/')
+            return (file2.from(int(file2.length())-int(file1.length())) == file1);
+    }
 
     return base_matches(file1, file2);
 }
