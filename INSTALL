@@ -132,6 +132,10 @@ Build DDD:
 
   $ make
 
+For a faster build, use parallel make:
+
+  $ make -j8         (select count of parallel processes).
+
 For a simple check before installation, type
   
   $ make check
