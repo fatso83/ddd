@@ -698,6 +698,7 @@ CXXSTUFF = @CXXSTUFF@ @X_PERMISSIVE@
 CXXFLAGS = $(CXXOPT) $(CXXDEBUG) $(CXXWARNINGS) $(CXXSTUFF)
 
 bin_PROGRAMS = ddd
+
 noinst_PROGRAMS = stringify ctest cxxtest vsl
 ddd_SOURCES = ddd.C \
 	$(BASE_SRC) \
@@ -1552,7 +1553,6 @@ root.h: $(srcdir)/root.h.in $(top_builddir)/config.status
 
 dddapp_DATA = x11/Ddd
 
-
 # -----------------------------------------------------------------------------
 # Distribution.
 # -----------------------------------------------------------------------------
@@ -1624,3 +1624,9 @@ progstuff: $(PROG_STUFF)
 desktopdir = $(datadir)/applications
 
 desktop_DATA = ddd.desktop
+
+docdir = $(datarootdir)/doc
+
+doc_DATA = $(srcdir)/../NEWS $(srcdir)/../COPYING
+
+
