@@ -1075,16 +1075,6 @@ XtResource ddd_resources[] = {
     },
 
     {
-        XTRESSTR(XtNuncompressCommand),
-        XTRESSTR(XtCUncompressCommand),
-        XtRString,
-        sizeof(String),
-        XtOffsetOf(AppData, uncompress_command),
-        XtRString,
-        XtPointer("gzip -d -c")
-    },
-
-    {
         XTRESSTR(XtNpsCommand),
         XTRESSTR(XtCPsCommand),
         XtRString,
@@ -2320,6 +2310,8 @@ const _XtString const ddd_fallback_resources[] = {
 // Return a database of default settings
 XrmDatabase app_defaults(Display *display)
 {
+    (void) display;
+
     XrmDatabase db = 0;
 
     // Add builtin fallback defaults.

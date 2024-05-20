@@ -528,7 +528,6 @@ struct AppData {
     const _XtString    list_source_command;
     const _XtString    list_core_command;
     const _XtString    list_dir_command;
-    const _XtString    uncompress_command;
     const _XtString    ps_command;
     Boolean   show_invocation;
     Boolean   show_version;

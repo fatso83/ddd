@@ -1690,7 +1690,6 @@ static Widget edit_command_w;
 static Widget get_core_command_w;
 static Widget ps_command_w;
 static Widget term_command_w;
-static Widget uncompress_command_w;
 static Widget plot_command_w;
 
 static MMDesc helpers_preferences_menu [] =
@@ -1703,8 +1702,6 @@ static MMDesc helpers_preferences_menu [] =
       0, &ps_command_w, 0, 0},
     { "term",       MMTextField, { dddSetTermCommandCB, 0 },
       0, &term_command_w, 0, 0},
-    { "uncompress", MMTextField, { dddSetUncompressCommandCB, 0 },
-      0, &uncompress_command_w, 0, 0},
     { "plot",       MMTextField, { dddSetPlotCommandCB, 0 }, 
       0, &plot_command_w, 0, 0},
     { "plot_window", MMRadioPanel, MMNoCB, plot_window_menu, 0, 0, 0 },
@@ -4175,7 +4172,6 @@ void update_options()
     set_string(get_core_command_w,   app_data.get_core_command);
     set_string(ps_command_w,         app_data.ps_command);
     set_string(term_command_w,       app_data.term_command);
-    set_string(uncompress_command_w, app_data.uncompress_command);
 
     // Set `find' label
     Widget find_label_ref = 0;
@@ -4319,10 +4315,6 @@ void save_option_state()
     static string term_command;
     term_command = initial_app_data.term_command;
     initial_app_data.term_command = term_command.chars();
-
-    static string uncompress_command;
-    uncompress_command = initial_app_data.uncompress_command;
-    initial_app_data.uncompress_command = uncompress_command.chars();
 
     // duplication of the font strings
     static string default_font;
@@ -4839,7 +4831,6 @@ static void ResetHelpersPreferencesCB(Widget, XtPointer, XtPointer)
     set_string(get_core_command_w,   initial_app_data.get_core_command);
     set_string(ps_command_w,         initial_app_data.ps_command);
     set_string(term_command_w,       initial_app_data.term_command);
-    set_string(uncompress_command_w, initial_app_data.uncompress_command);
     set_string(plot_command_w,       initial_app_data.plot_command);
 
     notify_set_toggle(builtin_plot_window_w, 
@@ -4862,10 +4853,6 @@ static bool helpers_preferences_changed()
         return true;
 
     if (string(app_data.term_command) != string(initial_app_data.term_command))
-        return true;
-
-    if (string(app_data.uncompress_command) != 
-        string(initial_app_data.uncompress_command))
         return true;
 
     if (string(app_data.plot_term_type) != 
