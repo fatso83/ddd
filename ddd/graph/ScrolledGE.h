@@ -46,5 +46,8 @@ Widget createScrolledGraphEdit(Widget parent, const _XtString name, ArgList argl
 // For a given graph editor W, return its scroller
 Widget scrollerOfGraphEdit(Widget w);
 
+void CallActionScrolled(Widget gw, XEvent *event, String *params, Cardinal *num_params);
+
+
 #endif // _DDD_ScrolledGraphEdit_h
 // DON'T ADD ANYTHING BEHIND THIS #endif

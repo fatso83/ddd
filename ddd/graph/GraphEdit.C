@@ -59,6 +59,7 @@ char GraphEdit_rcsid[] =
 #include "GraphNPA.h"
 #include "base/casts.h"
 #include "PannedGE.h"
+#include "ScrolledGE.h"
 
 #if HAVE_ATHENA
 #include "AppData.h"
@@ -336,10 +337,10 @@ static const char *defaultTranslations =
     "~Meta ~Ctrl<Key>N:        select-next()\n"
     "~Meta ~Ctrl<Key>A:        select-first()\n"
     "~Meta Ctrl<Key>A:         select-all()\n"
-    "~Shift ~Ctrl<Btn4Down>:   callpannerpage(+0,-.25p)\n"
-    "~Shift ~Ctrl<Btn5Down>:   callpannerpage(+0,+.25p)\n"
-    "~Shift Ctrl<Btn4Down>:   callpannerpage(-.25p,+0)\n"
-    "~Shift Ctrl<Btn5Down>:   callpannerpage(+.25p,+0)\n"
+    "~Shift ~Ctrl<Btn4Down>:   callpannerpage(0,-.25p)\n"
+    "~Shift ~Ctrl<Btn5Down>:   callpannerpage(0,+.25p)\n"
+    "~Shift Ctrl<Btn4Down>:   callpannerpage(-.25p,0)\n"
+    "~Shift Ctrl<Btn5Down>:   callpannerpage(+.25p,0)\n"
 
     ;
 
@@ -2979,15 +2980,20 @@ static void Normalize(Widget w, XEvent *event, String *params,
 static void CallPannerPage(Widget w, XEvent *event, String *params,
     Cardinal *num_params)
 {
-#if HAVE_ATHENA
     if (app_data.panned_graph_editor)
     {
+#if HAVE_ATHENA
         // redirect to panner
         Widget panner = pannerOfGraphEdit(w);
 
         CallActionPagem(panner, event, params, num_params);
-    }
 #endif
+    }
+    else
+    {
+        Widget scroller = scrollerOfGraphEdit(w);
+        CallActionScrolled(scroller, event, params, num_params);
+    }
 }
 
 // Show and hide edges

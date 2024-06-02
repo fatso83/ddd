@@ -45,6 +45,54 @@ static void ResizeEH(Widget, XtPointer client_data, XEvent *, Boolean *)
     graphEditSizeChanged(graphEdit);
 }
 
+void CallActionScrolled(Widget gw, XEvent *event, String *params, Cardinal *num_params)
+{
+    (void) event;
+    if (*num_params != 2)
+        return;
+
+    int dir = 2;   // 0: horizontal, 1: vertical, 2: unknown
+    for (int i=0; i<int(*num_params); i++)
+    {
+        if (params[i][0] != '0')
+        {
+            dir = i;
+            break;
+        }
+    }
+
+    if (dir == 2)
+        return;
+
+    Widget sbw = nullptr;
+    if (dir == 0)
+        XtVaGetValues (gw, XmNhorizontalScrollBar, &sbw, nullptr);
+    else
+        XtVaGetValues (gw, XmNverticalScrollBar, &sbw, nullptr);
+    int increment=0;
+    int maximum=0;
+    int minimum=0;
+    int page_incr=0;
+    int slider_size=0;
+    int value=0;
+    XtVaGetValues (sbw, XmNincrement, &increment,
+                        XmNmaximum, &maximum,
+                        XmNminimum, &minimum,
+                        XmNpageIncrement, &page_incr,
+                        XmNsliderSize, &slider_size,
+                        XmNvalue, &value,
+                        NULL);
+
+    if (params[dir][0] == '-')
+        value -= increment;
+    else
+        value += increment;
+
+    value = std::max(minimum, std::min(maximum-slider_size, value));
+
+    XmScrollBarSetValues(sbw, value, slider_size, increment, page_incr, true);
+}
+
 Widget createScrolledGraphEdit(Widget parent, const _XtString name,
 			       ArgList arglist, Cardinal argcount)
 {
