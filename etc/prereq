@@ -88,8 +88,7 @@ NEEDED=""
 
 if grep -E "Ubuntu|Raspbian" /etc/os-release > /dev/null; then
   DISTRO="DEBIAN"
-  INSTALLED=$(dpkg -l | cut -d ' ' -f 3 | cut -d ':' -f 1)
-  INSTALLED=" $INSTALLED "
+  dpkg -l | tail -n +6 | cut -d ' ' -f 3 | tr ' ' '\n' > /tmp/debian.dpkg.$$
 elif grep USE /etc/os-release > /dev/null; then
   DISTRO="SUSE"
   INSTALLED=$(zypper search -i | tr -s ' ' | cut -d ' ' -f 3)
@@ -120,13 +119,15 @@ if [ "$DISTRO" = "DEBIAN" ]; then
   
   for PKG in ${PKGS[@]}
   do 
-    if echo $INSTALLED | grep " $PKG " | grep $ARCH &> /dev/null ; then
+    if grep "$PKG" /tmp/debian.dpkg.$$ &> /dev/null ; then
       echo "$PKG installed"
     else
       echo "$PKG not installed"
       NEEDED="$NEEDED $PKG"
     fi
   done
+  
+  rm -f /tmp/debian.dpkg.$$
 fi
 
 if [ "$DISTRO" = "FEDORA" ]; then
