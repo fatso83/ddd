@@ -11,11 +11,11 @@ Essentially, this is whether font rendering is provided by an X server
 for all clients, or whether the font rendering is done by each individual 
 GUI client.  
 
-DDD uses server-side fonts.  Server-side fonts have long been deprecated;
+DDD supports client side-fonts.  If needed fonts are not available it may 
+fall back to using server-side fonts.  Server-side fonts have been deprecated;
 most modern applications use client-side fonts.  Server-side fonts can be 
 listed using the 'xlsfonts' utility.  Client-side fonts are listed using 
-the 'fc-list' utility.  DDD uses the 'xfontsel' utility (or its underlying 
-library) to select the fonts it uses.  
+the 'fc-list' utility.  
 
 Server-side fonts use the X Logical Font Description (XLFD) font naming 
 standard.  A font name is made up of various characteristics, separated
