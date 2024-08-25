@@ -50,6 +50,7 @@ char GraphEdit_rcsid[] =
 #include "GraphEdit.h"
 #include "HintGraphN.h"
 #include "LineGraphE.h"
+#include "AppData.h"
 #include "layout.h"
 #include "base/misc.h"
 #include "base/cook.h"
@@ -62,7 +63,6 @@ char GraphEdit_rcsid[] =
 #include "ScrolledGE.h"
 
 #if HAVE_ATHENA
-#include "AppData.h"
 #include "athena_ddd/PannerM.h"
 #endif
 
