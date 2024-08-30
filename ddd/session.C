@@ -1239,10 +1239,32 @@ static void ask(const string& text, const _XtString name,
 		XtCheckpointToken token, Widget w,
 		XtCallbackProc yes, XtCallbackProc no);
 
+
+Widget delayed_widget = nullptr;
+XtCheckpointTokenRec delayed_token;
+void DelayedSaveSmSession(XtPointer, XtIntervalId*)
+{
+    if (delayed_widget!=nullptr)
+        SaveSmSessionCB(delayed_widget, nullptr, &delayed_token);
+    delayed_widget = nullptr;
+}
+
 // 1. The user initiates a checkpoint.  Have DDD save its options.
 void SaveSmSessionCB(Widget w, XtPointer, XtPointer call_data)
 {
     XtCheckpointToken token = XtCheckpointToken(call_data);
+
+    if (app_data.session!=nullptr && strcmp(app_data.session, RESTART_SESSION.chars())==0)
+    {
+        // in thes case of restart the callback for XtNsaveCallback has to be delayed,
+        // since the value of app_data.session is delayed, too.
+        delayed_widget = w;
+        memcpy(&delayed_token, call_data, sizeof(XtCheckpointTokenRec));
+        XtAppContext app_context = XtWidgetToApplicationContext(w);
+        XtAppAddTimeOut(app_context, 500, DelayedSaveSmSession, call_data);
+        token->save_success = true;
+        return;
+    }
 
     // Save session
     const bool interact = (token->interact_style == SmInteractStyleAny);
