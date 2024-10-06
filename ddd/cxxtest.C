@@ -435,7 +435,7 @@ static void reference_test(Date& date, Date*& date_ptr)
 //--------------------------------------------------------------------------
 static void string_test()
 {
-    char data[]="one plus two = three";	// Display this
+    static char data[]="one plus two = three";	// Display this
     (void) data;		// Use it
     address = (void *)&data;
 }
