@@ -948,19 +948,19 @@ main_vxworks
 ! Fonts.
 
 ! The default font to use for labels, etc.
-@Ddd@*defaultFont:       liberation sans-medium
+@Ddd@*defaultFont:       Liberation Sans
 
 ! The font to use for help texts.
-@Ddd@*variableWidthFont: liberation sans-medium
+@Ddd@*variableWidthFont: Liberation Sans
 
 ! The font to use for fixed-width fields, such as the source code.
-@Ddd@*fixedWidthFont:    liberation mono-bold
+@Ddd@*fixedWidthFont:    Liberation Mono
 
 ! The font to use for data displays.
-@Ddd@*dataFont:          liberation mono-bold
+@Ddd@*dataFont:          Liberation Mono
 
 ! The base font size; overrides the point settings as set above.
-@Ddd@*FontSize:          120
+@Ddd@*FontSize:          12
 
 
 ! A little less highlighting.

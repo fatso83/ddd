@@ -209,6 +209,11 @@ static int mappings = sizeof (map) / sizeof (FONTMAP) ;
 
 static const FONTMAP *matchFont(const char *xfont) 
 {
+#if HAVE_FREETYPE
+    (void) xfont;
+    (void) mappings;
+    return &map[0];  // always use fixed with
+#else
     const FONTMAP *fmap = &map[0] ;
     int match = 1;
     int i = 0;
@@ -221,6 +226,7 @@ static const FONTMAP *matchFont(const char *xfont)
 	fmap = &map[--i] ;
     }
     return fmap;
+#endif
 }
 
 

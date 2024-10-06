@@ -344,7 +344,11 @@ XtResource ddd_resources[] = {
         sizeof(String),
         XtOffsetOf(AppData, default_font),
         XtRString, 
+#if HAVE_FREETYPE
+        XtPointer("Liberation Sans")
+#else
         XtPointer("-*-liberation sans-bold-r-*")
+#endif
     },
 
     { 
@@ -354,7 +358,11 @@ XtResource ddd_resources[] = {
         sizeof(String),
         XtOffsetOf(AppData, variable_width_font),
         XtRString,
+#if HAVE_FREETYPE
+        XtPointer("Liberation Sans")
+#else
         XtPointer("-*-liberation sans-medium-r-*")
+#endif
     },
 
     { 
@@ -364,7 +372,11 @@ XtResource ddd_resources[] = {
         sizeof(String),
         XtOffsetOf(AppData, fixed_width_font),
         XtRString,
+#if HAVE_FREETYPE
+        XtPointer("Liberation Mono")
+#else
         XtPointer("-*-liberation mono-medium-r-*")
+#endif
     },
 
     { 
@@ -374,7 +386,11 @@ XtResource ddd_resources[] = {
         sizeof(String),
         XtOffsetOf(AppData, data_font),
         XtRString,
+#if HAVE_FREETYPE
+        XtPointer("Liberation Mono")
+#else
         XtPointer("-*-liberation mono-medium-r-*")
+#endif
     },
 
     {
@@ -384,7 +400,11 @@ XtResource ddd_resources[] = {
         sizeof(Cardinal),
         XtOffsetOf(AppData, default_font_size),
         XmRImmediate,
+#if HAVE_FREETYPE
+        XtPointer(12)
+#else
         XtPointer(120)
+#endif
     },
 
     {
@@ -394,7 +414,11 @@ XtResource ddd_resources[] = {
         sizeof(Cardinal),
         XtOffsetOf(AppData, variable_width_font_size),
         XmRImmediate,
+#if HAVE_FREETYPE
+        XtPointer(12)
+#else
         XtPointer(120)
+#endif
     },
 
     {
@@ -404,7 +428,11 @@ XtResource ddd_resources[] = {
         sizeof(Cardinal),
         XtOffsetOf(AppData, fixed_width_font_size),
         XmRImmediate,
+#if HAVE_FREETYPE
+        XtPointer(12)
+#else
         XtPointer(120)
+#endif
     },
 
     {
@@ -414,7 +442,11 @@ XtResource ddd_resources[] = {
         sizeof(Cardinal),
         XtOffsetOf(AppData, data_font_size),
         XmRImmediate,
+#if HAVE_FREETYPE
+        XtPointer(12)
+#else
         XtPointer(120)
+#endif
     },
 
     { 

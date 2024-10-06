@@ -35,6 +35,9 @@ To build a complete DDD from sources, you need:
      -   libxft
      -   libfontconfig
 
+   * Liberation fonts
+     -   fonts-liberation
+
    * X Athena Widgets (optional)
      -   libXaw
 

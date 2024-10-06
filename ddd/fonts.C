@@ -135,6 +135,7 @@ static string userfont(const AppData& ad, DDDFont font)
     return "";			// Never reached
 }
 
+#ifndef HAVE_FREETYPE
 // Return a symbolic name for FONT
 static string font_type(DDDFont font)
 {
@@ -154,6 +155,7 @@ static string font_type(DDDFont font)
     ::abort();
     return "";			// Never reached
 }
+#endif
 
 // defaults to use if nothing is specified
 static string fallbackfont(DDDFont font)
@@ -216,7 +218,7 @@ static string component(const AppData& ad, DDDFont font, FontComponent n)
 //-----------------------------------------------------------------------------
 // Create an X font name
 //-----------------------------------------------------------------------------
-
+#ifndef HAVE_FREETYPE
 static string override(FontComponent new_n, 
 		       const string& new_value, const string& font = "")
 {
@@ -232,6 +234,7 @@ static string override(FontComponent new_n,
 
     return new_font;
 }
+#endif
 
 string make_font(const AppData& ad, DDDFont base, const string& override)
 {
@@ -254,7 +257,7 @@ string make_font(const AppData& ad, DDDFont base, const string& override)
 }
 
 
-
+#ifndef HAVE_FREETYPE
 //-----------------------------------------------------------------------------
 // Setup X fonts
 //-----------------------------------------------------------------------------
@@ -361,6 +364,7 @@ static void setup_font_db(const AppData& ad, XrmDatabase& db)
 		string(DDD_CLASS_NAME "*tool_buttons*") +
 		XmCFontList + ": " + tool_fontlist);
 }
+#endif
 
 static void title(const AppData& ad, const string& s)
 {
@@ -399,6 +403,7 @@ static void get_derived_sizes(Dimension size,
     }
 }
 
+#ifndef HAVE_FREETYPE
 void setup_x_fonts(const AppData& ad, XrmDatabase& db)
 {
     Dimension small_size, tiny_size, llogo_size;
@@ -470,6 +475,7 @@ void setup_x_fonts(const AppData& ad, XrmDatabase& db)
 
     setup_font_db(ad, db);
 }
+#endif
 
 //-----------------------------------------------------------------------------
 // Setup XFT fonts
@@ -682,6 +688,7 @@ void setup_fonts(AppData& ad, XrmDatabase db)
 //-----------------------------------------------------------------------------
 // Handle font resources
 //-----------------------------------------------------------------------------
+#ifndef HAVE_FREETYPE
 
 // Simplify font specs
 static string simplify_font(const AppData& ad, DDDFont font, 
@@ -719,6 +726,7 @@ static string simplify_font(const AppData& ad, DDDFont font,
 
     return s;
 }
+#endif
 
 // Set a new font resource
 void set_font(DDDFont font, const string& name)
@@ -899,6 +907,7 @@ std::vector<string> GetVariableWithFonts()
 
 #endif
 
+#ifndef HAVE_FREETYPE
 //-----------------------------------------------------------------------------
 // Font browser
 //-----------------------------------------------------------------------------
@@ -1080,3 +1089,4 @@ void BrowseFontCB(Widget w, XtPointer client_data, XtPointer call_data)
 				  FontSelectionErrorHP, (void *)info);
     font_select_agent->start();
 }
+#endif
