@@ -48,6 +48,10 @@ char vsl_rcsid[] =
 #define EXIT_FAILURE 1
 #endif
 
+#include "AppData.h"
+// this is a workaround to allow access to app_data in MakeMenu.C
+AppData app_data;
+
 #if !HAVE_ATHENA
 int main(void)
 {
@@ -71,10 +75,6 @@ int main(void)
 #include "box/Box.h"
 #include "box/StringBox.h"
 #include "box/ListBox.h"
-
-// this is a workaround to allow access to app_data in MakeMenu.C
-#include "AppData.h"
-AppData app_data;
 
 
 // Graphics functions
