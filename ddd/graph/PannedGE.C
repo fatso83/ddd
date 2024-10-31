@@ -450,6 +450,7 @@ Widget formOfGraphEdit(Widget w)
 
 Widget pannerOfGraphEdit(Widget w)
 {
+    (void) w;
     return nullptr;
 }
 

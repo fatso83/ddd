@@ -726,6 +726,7 @@ vsl_SOURCES       = vsl.C \
 	string-fun.C \
 	regexps.C \
 	darkmode.C \
+	resources.C \
 	$(BASE_SRC) \
 	$(TEMPLATE_SRC) \
 	$(AGENT_SRC) \
