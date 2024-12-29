@@ -60,12 +60,6 @@ struct SwallowerInfo {
 
 // WINDOW is the window gone or created; EVENT is the event causing
 // the callback.
-//
-// For `windowCreatedCallback' to function properly, this 
-// should be called whenever an X event is processed:
-
-extern void SwallowerCheckEvents();
-
 
 // Declare specific Swallower class and instance datatypes
 typedef struct _SwallowerClassRec *SwallowerWidgetClass;
@@ -76,7 +70,6 @@ extern WidgetClass swallowerWidgetClass;
 
 // Define any new resources
 #define XtNwindowGoneCallback    "windowGoneCallback"
-#define XtNwindowCreatedCallback "windowCreatedCallback"
 
 #endif // _DDD_Swallower_h
 // DON'T ADD ANYTHING BEHIND THIS #endif

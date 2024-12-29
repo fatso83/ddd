@@ -500,7 +500,6 @@ struct AppData {
     Boolean   debugger_console;
     Boolean   auto_close_data_window;
     const _XtString    plot_command;
-    const _XtString    plot_term_type;
     const _XtString    plot_window_class;
     Cardinal  plot_window_delay;
     const _XtString    plot_init_commands;

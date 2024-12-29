@@ -183,10 +183,10 @@ static void gdb_set_command(const string& set_command, string value)
 	    confirm_value = settings_values[confirm_w];
 
 	if (confirm_value == "on")
-	    gdb_command("set confirm off");
+	    gdb_command(string("set confirm off"));
 	gdb_command(set_command);
 	if (confirm_value == "on")
-	    gdb_command("set confirm on");
+	    gdb_command(string("set confirm on"));
     }
 
     if (set_command.contains("o ", 0))

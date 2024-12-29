@@ -1674,17 +1674,6 @@ static MMDesc font_preferences_menu [] =
 };
 
 
-static Widget extern_plot_window_w;
-static Widget builtin_plot_window_w;
-
-static MMDesc plot_window_menu [] =
-{
-    { "extern", MMToggle, { dddSetBuiltinPlotWindowCB, XtPointer(false) },
-      0, &extern_plot_window_w, 0, 0},
-    { "builtin", MMToggle, { dddSetBuiltinPlotWindowCB, XtPointer(true) },
-      0, &builtin_plot_window_w, 0, 0},
-    MMEnd
-};
 
 static Widget edit_command_w;
 static Widget get_core_command_w;
@@ -1704,7 +1693,6 @@ static MMDesc helpers_preferences_menu [] =
       0, &term_command_w, 0, 0},
     { "plot",       MMTextField, { dddSetPlotCommandCB, 0 }, 
       0, &plot_command_w, 0, 0},
-    { "plot_window", MMRadioPanel, MMNoCB, plot_window_menu, 0, 0, 0 },
     MMEnd
 };
 
@@ -3278,9 +3266,6 @@ void process_next_event()
     XEvent event;
     XtAppNextEvent(app_context, &event);
 
-    // Check for window creation.
-    SwallowerCheckEvents();
-
     // Check for grabs.
     switch (event.type)
     {
@@ -3958,11 +3943,6 @@ void update_options()
     set_toggle(check_grabs_w,            app_data.check_grabs);
     set_toggle(suppress_warnings_w,      app_data.suppress_warnings);
     set_toggle(warn_if_locked_w,         app_data.warn_if_locked);
-
-    set_toggle(builtin_plot_window_w,
-               string(app_data.plot_term_type) == "xlib");
-    set_toggle(extern_plot_window_w,
-               string(app_data.plot_term_type) == "x11");
 
     set_toggle(cache_source_files_w,     app_data.cache_source_files);
     set_toggle(cache_machine_code_w,     app_data.cache_machine_code);
@@ -4834,8 +4814,6 @@ static void ResetHelpersPreferencesCB(Widget, XtPointer, XtPointer)
     set_string(term_command_w,       initial_app_data.term_command);
     set_string(plot_command_w,       initial_app_data.plot_command);
 
-    notify_set_toggle(builtin_plot_window_w, 
-                      string(initial_app_data.plot_term_type) == "xlib");
 }
 
 static bool helpers_preferences_changed()
@@ -4854,10 +4832,6 @@ static bool helpers_preferences_changed()
         return true;
 
     if (string(app_data.term_command) != string(initial_app_data.term_command))
-        return true;
-
-    if (string(app_data.plot_term_type) != 
-        string(initial_app_data.plot_term_type))
         return true;
 
     return false;
@@ -7088,7 +7062,7 @@ static void setup_version_info()
     std::ostringstream os;
     show_configuration(os);
     string cinfo(os);
-#ifdef HAVE_FREETYPE
+#if HAVE_FREETYPE
     cinfo.gsub("(C)", "\302\251"); //0xC2 0xA9
 #else
     cinfo.gsub("(C)", "\251");

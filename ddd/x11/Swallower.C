@@ -46,8 +46,6 @@ static XtResource resources[] = {
         offset(window), XtRImmediate, XtPointer(None) },
     { XTRESSTR(XtNwindowGoneCallback), XtCCallback, XtRCallback, sizeof(XtPointer),
 	offset(windowGoneProc), XtRCallback, XtPointer(0) },
-    { XTRESSTR(XtNwindowCreatedCallback), XtCCallback, XtRCallback, sizeof(XtPointer),
-	offset(windowCreatedProc), XtRCallback, XtPointer(0) },
 #undef offset
 };
 
@@ -128,39 +126,6 @@ static void ClassInitialize() {}
 
 static SwallowerWidget all_swallowers = 0;
 
-void SwallowerCheckEvents()
-{
-    if (all_swallowers == 0)
-	return;
-
-    Widget w = Widget(all_swallowers);
-
-    Window root = RootWindowOfScreen(XtScreen(w));
-
-    XEvent event;
-    while (XCheckWindowEvent(XtDisplay(w), root, 
-			     SubstructureNotifyMask, &event))
-    {
-	if (event.type == CreateNotify)
-	{
-	    SwallowerInfo info;
-	    info.window = event.xcreatewindow.window;
-	    info.event  = &event;
-
-	    SwallowerWidget loop = all_swallowers;
-	    while (loop != 0)
-	    {
-		XtCallCallbacks(Widget(loop), XtNwindowCreatedCallback, 
-				XtPointer(&info));
-		loop = loop->swallower.next;
-	    }
-
-	    // We don't dispatch this event - root has no associated
-	    // widget.  Hence, XtWindowToWidget may return 0, which
-	    // some toolkits (especially LessTif) don't check for.
-	}
-    }
-}
 
 static void Initialize(Widget /* request */,
 		       Widget w, 

@@ -827,16 +827,6 @@ XtResource ddd_resources[] = {
     },
 
     {
-        XTRESSTR(XtNplotTermType),
-        XTRESSTR(XtCPlotTermType),
-        XtRString,
-        sizeof(String),
-        XtOffsetOf(AppData, plot_term_type),
-        XtRString,
-        XtPointer("x11")
-    },
-
-    {
         XTRESSTR(XtNplotWindowClass),
         XTRESSTR(XtCPlotWindowClass),
         XtRString,
@@ -853,7 +843,7 @@ XtResource ddd_resources[] = {
         sizeof(Cardinal),
         XtOffsetOf(AppData, plot_window_delay),
         XtRImmediate,
-        XtPointer(2000)
+        XtPointer(200)
     },
 
     {

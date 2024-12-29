@@ -370,7 +370,7 @@ Ddd*plotTermType: x11
 ! The time (in ms) to wait for notification that the swallowed plot window
 ! has been created.  After this time has passed, DDD searches the plot window
 ! among all windows, even without notification.
-Ddd*plotWindowDelay: 2000
+Ddd*plotWindowDelay: 200
 
 
 ! Tool Bar appearance.

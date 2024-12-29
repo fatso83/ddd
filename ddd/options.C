@@ -674,27 +674,9 @@ void dddToggleWarnIfLockedCB (Widget, XtPointer, XtPointer call_data)
 void dddSetBuiltinPlotWindowCB (Widget, XtPointer client_data, XtPointer)
 {
     (void)client_data;
-    // deactivate defunct builtin xlib display
-    //if ((int)(long)client_data)
-    //    app_data.plot_term_type = "xlib";
-    //else
-    app_data.plot_term_type = "x11";
 
-    string plot_term_type = downcase(app_data.plot_term_type);
-
-    if (plot_term_type.contains("xlib", 0))
-    {
-        set_status("Next plot will be done in builtin " DDD_NAME " window.");
-    }
-    else if (plot_term_type.contains("x11", 0))
-    {
-        set_status("Next plot will be done in external " + 
-                   cook(app_data.plot_window_class) + " window.");
-    }
-    else
-    {
-        set_status("Next plot will be done in an unknown place.");
-    }
+    set_status("Next plot will be done in external " +
+                cook(app_data.plot_window_class) + " window.");
 
     clear_plot_window_cache();
     update_options();
@@ -2673,8 +2655,6 @@ bool save_options(unsigned long flags)
     os << string_app_value(XtNtermCommand,    app_data.term_command, True)
        << '\n';
     os << string_app_value(XtNplotCommand,    app_data.plot_command, True)
-       << '\n';
-    os << string_app_value(XtNplotTermType,   app_data.plot_term_type)
        << '\n';
     os << string_app_value(XtNprintCommand,   app_data.print_command, True) 
        << '\n';

@@ -103,8 +103,6 @@ static void ToggleOptionCB(Widget, XtPointer, XtPointer);
 static void ToggleLogscaleCB(Widget, XtPointer, XtPointer);
 static void SetStyleCB(Widget, XtPointer, XtPointer);
 static void SetContourCB(Widget, XtPointer, XtPointer);
-static void SetViewCB(Widget, XtPointer, XtPointer);
-static void SwallowCB(Widget, XtPointer, XtPointer);
 
 struct PlotWindowInfo {
     DispValue *source;		// The source we depend upon
@@ -114,8 +112,6 @@ struct PlotWindowInfo {
     Widget shell;		// The shell we're in
     Widget working_dialog;	// The working dialog
     Widget swallower;		// The Gnuplot window
-    Widget vsb;			// Vertical scroll bar
-    Widget hsb;			// Horizontal scroll bar
     Widget command;		// Command widget
     Widget command_dialog;      // Command dialog
     Widget export_dialog;       // Export dialog
@@ -131,8 +127,8 @@ struct PlotWindowInfo {
     PlotWindowInfo()
 	: source(0), window_name(""),
 	  plotter(0), area(0), shell(0), working_dialog(0), swallower(0),
-	  vsb(0), hsb(0), command(0), command_dialog(0), 
-	  export_dialog(0), active(false), swallow_timer(0), 
+	  command(0), command_dialog(0),
+	  export_dialog(0), active(false), swallow_timer(0),
 	  settings(""), settings_timer(0), settings_file(""), settings_delay(0)
     {}
 
@@ -384,10 +380,6 @@ static void configure_plot(PlotWindowInfo *plot)
     XtSetSensitive(base,    ndim >= 3);
     XtSetSensitive(surface, ndim >= 3);
 
-    // Set scrollbars
-    manage_child(plot->hsb, ndim >= 3);
-    manage_child(plot->vsb, ndim >= 3);
-
     // Check if we can export something
     bool have_source = false;
     bool can_export  = false;
@@ -424,10 +416,6 @@ static void configure_plot(PlotWindowInfo *plot)
 	    plot->settings_timer = 
 		XtAppAddTimeOut(XtWidgetToApplicationContext(plot->shell), 250,
 				GetPlotSettingsCB, XtPointer(plot));
-
-	    // Set initial scrollbar defaults
-	    XtVaSetValues(plot->vsb, XmNvalue, 60, XtPointer(0));
-	    XtVaSetValues(plot->hsb, XmNvalue, 30, XtPointer(0));
 	}
 
 	return;
@@ -451,23 +439,6 @@ static void configure_plot(PlotWindowInfo *plot)
 	bool set = plot->settings.contains("\nset data style " + name + "\n");
 	XmToggleButtonSetState(w, set, False);
     }
-
-    // Get position
-    int rot_x = 60;
-    int rot_z = 30;
-
-    int view_index = plot->settings.index("set view ");
-    if (view_index >= 0)
-    {
-	// `set view <rot_x> {,{<rot_z>}{,{<scale>}{,<scale_z>}}}'
-	string view_setting = plot->settings.after("set view ");
-	rot_x = atoi(view_setting.chars());
-	view_setting = view_setting.after(", ");
-	rot_z = atoi(view_setting.chars());
-    }
-
-    XtVaSetValues(plot->vsb, XmNvalue, rot_x, XtPointer(0));
-    XtVaSetValues(plot->hsb, XmNvalue, rot_z, XtPointer(0));
 }
 
 
@@ -507,57 +478,6 @@ static void popup_plot_shell(PlotWindowInfo *plot)
     }
 }
 
-// Swallow WINDOW
-static void swallow(PlotWindowInfo *plot, Window window)
-{
-    assert(window != None);
-
-    // We have the window
-    XtRemoveCallback(plot->swallower, XtNwindowCreatedCallback, 
-		     SwallowCB, XtPointer(plot));
-
-    if (plot->swallow_timer != 0)
-    {
-	XtRemoveTimeOut(plot->swallow_timer);
-	plot->swallow_timer = 0;
-    }
-
-    XtVaSetValues(plot->swallower, XtNwindow, window, XtPointer(0));
-
-    popup_plot_shell(plot);
-}
-
-// Swallow new GNUPLOT window; search from window created on root.
-static void SwallowCB(Widget swallower, XtPointer client_data, 
-		      XtPointer call_data)
-{
-    PlotWindowInfo *plot = (PlotWindowInfo *)client_data;
-    assert(plot->swallower == swallower);
-
-    SwallowerInfo *info = (SwallowerInfo *)call_data;
-
-    Window root = info->window;
-    Window window = None;
-    Display *display = XtDisplay(swallower);
-
-    // Try the exact name as given
-    if (window == None)
-	window = findWindow(display, root, plot->window_name.chars());
-
-    // Try the capitalized name.  Gnuplot does this.
-    if (window == None) {
-        const string s1 = capitalize(plot->window_name);
-	window = findWindow(display, root, s1.chars());
-    }
-
-    // Try any `Gnuplot' window just created
-    if (window == None)
-	window = findWindow(display, root, app_data.plot_window_class);
-
-    if (window != None)
-	swallow(plot, window);
-}
-
 // Swallow new GNUPLOT window; search from root window (expensive).
 static void SwallowTimeOutCB(XtPointer client_data, XtIntervalId *id)
 {
@@ -571,15 +491,15 @@ static void SwallowTimeOutCB(XtPointer client_data, XtIntervalId *id)
     Window window = None;
     Display *display = XtDisplay(plot->swallower);
 
-    // Try the exact name as given
-    if (window == None)
-	window = findWindow(display, root, plot->window_name.chars());
-
     // Try the capitalized name.  Gnuplot does this.
     if (window == None) {
         const string s1 = capitalize(plot->window_name);
-	window = findWindow(display, root, s1.chars());
+        window = findWindow(display, root, s1.chars());
     }
+
+    // Try the exact name as given
+    if (window == None)
+        window = findWindow(display, root, plot->window_name.chars());
 
     if (window == None)
     {
@@ -588,10 +508,12 @@ static void SwallowTimeOutCB(XtPointer client_data, XtIntervalId *id)
 	    XtAppAddTimeOut(XtWidgetToApplicationContext(plot->swallower),
 			    app_data.plot_window_delay, 
 			    SwallowTimeOutCB, XtPointer(plot));
+        return;
     }
 
-    if (window != None)
-	swallow(plot, window);
+    XtVaSetValues(plot->swallower, XtNwindow, window, XtPointer(0));
+
+    popup_plot_shell(plot);
 }
 
 // Swallow again after window has gone.  This happens while printing.
@@ -599,9 +521,6 @@ static void SwallowAgainCB(Widget swallower, XtPointer client_data, XtPointer)
 {
     PlotWindowInfo *plot = (PlotWindowInfo *)client_data;
     assert(plot->swallower == swallower);
-
-    XtAddCallback(swallower, XtNwindowCreatedCallback, SwallowCB, 
-		  XtPointer(plot));
 
     if (plot->swallow_timer != 0)
 	XtRemoveTimeOut(plot->swallow_timer);
@@ -679,7 +598,6 @@ static void CancelPlotCB(Widget, XtPointer client_data, XtPointer)
     if (plot->swallower != 0)
     {
 	// Don't wait for window to swallow
-	XtRemoveAllCallbacks(plot->swallower, XtNwindowCreatedCallback);
 	XtRemoveAllCallbacks(plot->swallower, XtNwindowGoneCallback);
     }
 
@@ -783,7 +701,7 @@ static PlotWindowInfo *new_decoration(const string& name)
 	}
     }
 
-    if (plot == 0)
+    if (plot == nullptr)
     {
 	plot = new PlotWindowInfo;
 
@@ -824,67 +742,10 @@ static PlotWindowInfo *new_decoration(const string& name)
 	XtManageChild(scroll);
 
 	// Create work window
-        app_data.plot_term_type = "x11";  // always use x11 unless bug in xlib display is found
-	Widget work;
-	string plot_term_type = downcase(app_data.plot_term_type);
-	if (plot_term_type.contains("xlib", 0))
-	{
-	    // xlib type - create plot area to draw plot commands
-	    arg = 0;
-	    work = XmCreateDrawingArea(scroll, 
-				       XMST(PLOT_AREA_NAME), args, arg);
-	    XtManageChild(work);
-
-	    plot->area = 
-		new PlotArea(work, make_font(app_data, FixedWidthDDDFont));
-	    XtVaSetValues(work, XmNuserData, XtPointer(plot->area), 
-			  XtPointer(0));
-	}
-	else if (plot_term_type.contains("x11", 0))
-	{
-	    // x11 type - swallow Gnuplot window
-	    arg = 0;
-	    work = plot->swallower = 
-		XtCreateManagedWidget(SWALLOWER_NAME, swallowerWidgetClass, 
-				      scroll, args, arg);
-	}
-	else
-	{
-	    // Unknown terminal type
-	    post_error("Unknown plot terminal type " + 
-		       quote(app_data.plot_term_type),
-		       "unknown_plot_term_type_error");
-	    return 0;
-	}
-
-	// Create scroll bars
-	const int slider_size = 20;
-
+        // x11 type - swallow Gnuplot window
 	arg = 0;
-	XtSetArg(args[arg], XmNorientation, XmHORIZONTAL);      arg++;
-	XtSetArg(args[arg], XmNminimum,     0);                 arg++;
-	XtSetArg(args[arg], XmNmaximum,     360 + slider_size); arg++;
-	plot->hsb = XmCreateScrollBar(scroll, XMST("hsb"), args, arg);
-	XtManageChild(plot->hsb);
-
-	arg = 0;
-	XtSetArg(args[arg], XmNorientation, XmVERTICAL);        arg++;
-	XtSetArg(args[arg], XmNminimum,     0);                 arg++;
-	XtSetArg(args[arg], XmNmaximum,     180 + slider_size); arg++;
-	plot->vsb = XmCreateScrollBar(scroll, XMST("vsb"), args, arg);
-	XtManageChild(plot->vsb);
-
-	XtAddCallback(plot->hsb, XmNvalueChangedCallback,
-		      SetViewCB, XtPointer(plot));
-	XtAddCallback(plot->vsb, XmNvalueChangedCallback,
-		      SetViewCB, XtPointer(plot));
-
-#if 0
-	XtAddCallback(plot->hsb, XmNdragCallback, SetViewCB, XtPointer(plot));
-	XtAddCallback(plot->vsb, XmNdragCallback, SetViewCB, XtPointer(plot));
-#endif
-
-	XmScrolledWindowSetAreas(scroll, plot->hsb, plot->vsb, work);
+        plot->swallower =
+            XtCreateManagedWidget(SWALLOWER_NAME, swallowerWidgetClass, scroll, args, arg);
 
 	Delay::register_shell(plot->shell);
 	InstallButtonTips(plot->shell);
@@ -900,9 +761,6 @@ static PlotWindowInfo *new_decoration(const string& name)
 
     if (plot->swallower != 0)
     {
-	XtRemoveAllCallbacks(plot->swallower, XtNwindowCreatedCallback);
-	XtAddCallback(plot->swallower, XtNwindowCreatedCallback,
-		      SwallowCB, XtPointer(plot));
 
 	XtRemoveAllCallbacks(plot->swallower, XtNwindowGoneCallback);
 	XtAddCallback(plot->swallower, XtNwindowGoneCallback, 
@@ -972,33 +830,6 @@ PlotAgent *new_plotter(const string& name, DispValue *source)
     plot->window_name = window_name;
     XtVaSetValues(plot->shell, XmNuserData, XtPointer(True), XtPointer(0));
 
-    // Pop up a working dialog
-    static Widget dialog = 0;
-    if (dialog == 0)
-    {
-	Arg args[10];
-	Cardinal arg = 0;
-	dialog = verify(XmCreateWorkingDialog(find_shell(),
-					      XMST("launch_plot_dialog"), 
-					      args, arg));
-	XtUnmanageChild(XmMessageBoxGetChild(dialog,
-					     XmDIALOG_OK_BUTTON));
-	XtUnmanageChild(XmMessageBoxGetChild(dialog,
-					     XmDIALOG_HELP_BUTTON));
-    }
-
-    XtRemoveAllCallbacks(dialog, XmNcancelCallback);
-    XtAddCallback(dialog, XmNcancelCallback, CancelPlotCB, XtPointer(plot));
-    plot->working_dialog = dialog;
-
-    string base = cmd;
-    if (base.contains(' '))
-	base = cmd.before(' ');
-    MString msg = rm("Starting ") + tt(base) + rm("...");
-    XtVaSetValues(dialog, XmNmessageString, msg.xmstring(), XtPointer(0));
-    manage_and_raise(dialog);
-    wait_until_mapped(dialog);
-
     // Invoke plot process
     PlotAgent *plotter = 
 	new PlotAgent(XtWidgetToApplicationContext(plot->shell), cmd);
@@ -1014,11 +845,6 @@ PlotAgent *new_plotter(const string& name, DispValue *source)
 		      ResizePlotAreaCB, XtPointer(plot));
     }
 
-    string init = app_data.plot_init_commands;
-    init.prepend("set term " + string(app_data.plot_term_type) + "\n");
-    if (!init.empty() && !init.contains('\n', -1))
-	init += '\n';
-
     // Add trace handlers
     plotter->addHandler(Input,  TraceInputHP);     // Gnuplot => DDD
     plotter->addHandler(Output, TraceOutputHP);    // DDD => Gnuplot
@@ -1033,6 +859,12 @@ PlotAgent *new_plotter(const string& name, DispValue *source)
 
     if (plot->area != 0)
 	plotter->addHandler(Plot, GetPlotHP, (void *)plot);
+
+    string init = "set term x11\n";
+    init += app_data.plot_init_commands;
+
+    if (!init.empty() && !init.contains('\n', -1))
+	init += '\n';
 
     plotter->start_with(init);
     plot->plotter = plotter;
@@ -1402,22 +1234,6 @@ static void SetContourCB(Widget w, XtPointer client_data, XtPointer)
 	cmd = "set contour surface";
     else
 	cmd = "set nocontour";
-
-    send_and_replot(plot, cmd);
-}
-
-static void SetViewCB(Widget, XtPointer client_data, XtPointer)
-{
-    PlotWindowInfo *plot = (PlotWindowInfo *)client_data;
-
-    int rot_x = 60;
-    int rot_z = 30;
-
-    XtVaGetValues(plot->vsb, XmNvalue, &rot_x, XtPointer(0));
-    XtVaGetValues(plot->hsb, XmNvalue, &rot_z, XtPointer(0));
-
-    string cmd = 
-	"set view " + itostring(rot_x) + ", " + itostring(rot_z);
 
     send_and_replot(plot, cmd);
 }
