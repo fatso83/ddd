@@ -44,7 +44,7 @@ const unsigned PlotAgent_NTypes = Plot + 1;   // number of events
 
 struct PlotElement
 {
-    enum {DATA_1D, DATA_2D, DATA_3D, IMAGE, RGBIMAGE, RGBAIMAGE} plottype = DATA_2D;
+    enum PlotType {DATA_1D, DATA_2D, DATA_3D, IMAGE, RGBIMAGE, BGRIMAGE} plottype = DATA_2D;
     string file;		// allocated temporary file
     string title;		// Title currently plotted
     string value;		// Scalar
@@ -121,6 +121,11 @@ public:
         if (std::any_of(elements.begin(), elements.end(), [&](const PlotElement &elem) { return elem.plottype == PlotElement::DATA_3D; }))
             return 3;
         return 2;
+    }
+
+    bool is_any_of_elements(PlotElement::PlotType type)
+    {
+        return std::any_of(elements.begin(), elements.end(), [&](const PlotElement &elem) { return elem.plottype == type; });
     }
 
     // Print plot to FILENAME

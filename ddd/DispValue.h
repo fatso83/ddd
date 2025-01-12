@@ -98,6 +98,7 @@ class DispValue {
 				  const string& member_name);
 
     // Plotting stuff
+    bool getGnuplotType(string expr, string &gdbtype, string &gnuplottype, string &sizestr) const;
     void _plot(PlotAgent *plotter) const;
     void plot1d(PlotAgent *plotter) const;
     void plot2d(PlotAgent *plotter) const;
@@ -109,6 +110,8 @@ class DispValue {
     bool can_plot2d() const;
     bool can_plot3d() const;
     bool can_plotVector() const;
+    bool can_plotImage() const;
+    bool can_plotCVMat() const;
     static bool starts_number(char c);
 
     static void PlotterDiedHP(Agent *, void *, void *);

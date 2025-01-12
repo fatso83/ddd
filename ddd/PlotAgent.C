@@ -135,6 +135,14 @@ int PlotAgent::flush()
 
     // Issue plot command
     string cmd;
+    if (is_any_of_elements(PlotElement::IMAGE) || is_any_of_elements(PlotElement::RGBIMAGE) || is_any_of_elements(PlotElement::BGRIMAGE))
+    {
+        cmd += "set yrange reverse\n";
+        cmd += "set size ratio -1; set view equal xy\n";
+        if (is_any_of_elements(PlotElement::IMAGE))
+            cmd += "set palette rgbformulae 21,22,23\n";
+    }
+
     int ndim = dimensions();
     if (ndim==3)
     {
@@ -156,7 +164,8 @@ int PlotAgent::flush()
     {
         PlotElement &elem = elements[i];
 
-        if (elements[i].binary && getGnuplotType(elem.gdbtype)=="")
+        string gnuplottype = getGnuplotType(elem.gdbtype);
+        if (elements[i].binary && gnuplottype=="")
             continue;  // unknowm type
 
         if (i > 0)
@@ -185,7 +194,19 @@ int PlotAgent::flush()
             {
                 case PlotElement::DATA_2D:
                     if (ndim==3)
-                        cmd += "u 0:(0):1 "; // convert 2D dta to 3D
+                        cmd += "using 0:(0):1 "; // convert 2D data to 3D
+                    break;
+                case PlotElement::IMAGE:
+                    if (gnuplottype=="uchar")
+                        cmd += " using 1:1:1 with rgbimage ";
+                    else
+                        cmd += " with image";
+                    break;
+                case PlotElement::RGBIMAGE:
+                        cmd += " with rgbimage ";
+                    break;
+                case PlotElement::BGRIMAGE:
+                        cmd += "using 3:2:1 with rgbimage ";
                     break;
                 default:
                     break;
@@ -197,7 +218,7 @@ int PlotAgent::flush()
             {
                 case PlotElement::DATA_2D:
                     if (ndim==3)
-                        cmd += "u 1:(0):2 "; // convert 2D dta to 3D
+                        cmd += "u 1:(0):2 "; // convert 2D data to 3D
                     else
                         cmd += "u 1:2 ";
                     break;

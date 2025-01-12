@@ -1489,6 +1489,9 @@ bool DispValue::structurally_equal(const DispValue *source,
 
 bool DispValue::can_plot() const
 {
+    if (can_plotImage() || can_plotCVMat())
+        return true;
+
     if (can_plot3d())
         return true;
 
@@ -1614,6 +1617,26 @@ bool DispValue::can_plot3d() const
     return true;
 }
 
+bool DispValue::can_plotImage() const
+{
+    if (mytype!=Struct)
+        return false;
+
+    if (std::none_of(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "pixmap"; }))
+        return false;
+
+    if (std::none_of(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "cdim"; }))
+        return false;
+
+    if (std::none_of(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "xdim"; }))
+        return false;
+
+    if (std::none_of(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "ydim"; }))
+        return false;
+
+    return true;
+}
+
 bool DispValue::can_plotVector() const
 {
     if (mytype!=STLVector)
@@ -1638,6 +1661,35 @@ bool DispValue::can_plotVector() const
     }
 
     return canplot;
+}
+
+bool DispValue::can_plotCVMat() const
+{
+    if (mytype!=Struct)
+        return false;
+
+    if (std::none_of(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "flags"; }))
+        return false;
+
+    if (std::none_of(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "data"; }))
+        return false;
+
+    if (std::none_of(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "dims"; }))
+        return false;
+
+    if (std::none_of(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "cols"; }))
+        return false;
+
+    if (std::none_of(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "rows"; }))
+        return false;
+
+    if (std::none_of(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "datastart"; }))
+        return false;
+
+    if (std::none_of(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "dataend"; }))
+        return false;
+
+    return true;
 }
 
 int DispValue::nchildren_with_repeats() const
@@ -1697,6 +1749,18 @@ void DispValue::plot() const
 
 void DispValue::_plot(PlotAgent *plotter) const
 {
+    if (can_plotImage())
+    {
+        plotImage(plotter);
+        return;
+    }
+
+    if (can_plotCVMat())
+    {
+        plotCVMat(plotter);
+        return;
+    }
+
     if (can_plot3d())
     {
 	plot3d(plotter);
@@ -1871,7 +1935,6 @@ void DispValue::plot3d(PlotAgent *plotter) const
 
         // write memory block to file
         string question = "dump binary memory " + eldata.file + " " + address + " " + address + "+" + ydim + "*" + xdim + "*"  + sizestr;
-        printf("question %s\n", question.chars());
         answer = gdb_question(question);
 
         eldata.xdim = xdim;
@@ -1950,6 +2013,201 @@ void DispValue::plotVector(PlotAgent *plotter) const
     eldata.xdim = length;
     eldata.gdbtype = gdbtype;
     eldata.binary = true;
+}
+
+void DispValue::plotImage(PlotAgent *plotter) const
+{
+    auto child = std::find_if(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "cdim"; });
+    if (child == _children.end())
+        return;
+
+    string cdimstr = (*child)->value();
+    int cdim = atoi(cdimstr.chars());
+
+    if (cdim!=1 && cdim!=3)
+        return; // cannot handle more than one colorchannel
+
+    PlotElement &eldata = plotter->start_plot(make_title(full_name()));
+    eldata.plottype = PlotElement::IMAGE;
+
+    child = std::find_if(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "pixmap"; });
+    if (child == _children.end())
+        return;
+
+    string address  = (*child)->value();
+    int pos = address.index(rxwhite);
+    if (pos>0)
+        address = address.before(pos);
+
+    child = std::find_if(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "xdim"; });
+    if (child == _children.end())
+        return;
+
+    string xdimstr = (*child)->value().chars();
+
+    child = std::find_if(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "ydim"; });
+    if (child == _children.end())
+        return;
+
+    string ydimstr =(*child)->value().chars();
+
+    string answer = gdb_question("whatis " + myfull_name + "->pixmap");
+    string gdbtype = answer.after("=");
+    strip_space(gdbtype);
+
+    answer = gdb_question("print sizeof(" + gdbtype + ")");
+    string sizestr = answer.after("=");
+    strip_space(sizestr);
+
+    string question = "dump binary memory " + eldata.file + " " + address + " " + address + "+" + xdimstr + "*" + ydimstr + "*" + cdimstr + "*" + sizestr;
+    answer = gdb_question(question);
+
+    eldata.xdim = xdimstr;
+    eldata.ydim = ydimstr;
+    eldata.gdbtype = gdbtype;
+    eldata.binary = true;
+
+    if (cdim==3)
+    {
+        eldata.plottype = PlotElement::RGBIMAGE;
+        int size = atoi(sizestr.chars());
+        int xdim  = atoi(xdimstr.chars());
+        int ydim  = atoi(ydimstr.chars());
+        int cdim  = atoi(cdimstr.chars());
+        int num = xdim * ydim * cdim;
+
+        char *filebuffer = new char[size*num];
+        FILE *fp = fopen(eldata.file.chars(), "rb");
+        int read = fread(filebuffer, size, num, fp);
+        fclose(fp);
+
+        if (read!=num)
+        {
+            delete [] filebuffer;
+            return;
+        }
+
+        fp = fopen(eldata.file.chars(), "wb");
+        char *red = &filebuffer[0];
+        char *green = &filebuffer[xdim*ydim*size];
+        char *blue = &filebuffer[xdim*ydim*size*2];
+        for (int y=0; y<ydim; y++)
+        {
+            for (int x=0; x<xdim; x++)
+            {
+                fwrite(red, size, 1, fp);
+                red += size;
+                fwrite(green, size, 1, fp);
+                green += size;
+                fwrite(blue, size, 1, fp);
+                blue += size;
+            }
+        }
+        fclose(fp);
+        delete [] filebuffer;
+    }
+
+}
+
+void DispValue::plotCVMat(PlotAgent *plotter) const
+{
+    auto child = std::find_if(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "dims"; });
+    if (child == _children.end())
+        return;
+
+    string cdimstr = (*child)->value();
+    int cdim = atoi(cdimstr.chars());
+
+    if (cdim!=2)
+        return; // only 2 dimensional images
+
+    child = std::find_if(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "flags"; });
+    if (child == _children.end())
+        return;
+
+    int flags = atoi((*child)->value().chars());
+    if (flags>>16 != 0x42FF)
+        return;
+
+    int colorchannels =((flags &0xfff) >> 3) + 1;
+    if (colorchannels != 1 && colorchannels!=3)
+        return;
+
+    string gdbtype;
+    switch (flags & 0x0007)
+    {
+        case 0: // CV_8U
+            gdbtype = "unsigned char";
+            break;
+        case 1: // CV_8S
+            gdbtype = "char";
+            break;
+        case 2: // CV_16U
+            gdbtype = "unsigned short";
+            break;
+        case 3: // CV_16S
+            gdbtype = "short";
+            break;
+        case 4: // CV_32S
+            gdbtype = "int";
+            break;
+        case 5: // CV_32F
+            gdbtype = "float";
+            break;
+        case 6: // CV_64F
+            gdbtype = "double";
+            break;
+        default:
+            return;
+    }
+
+    PlotElement &eldata = plotter->start_plot(make_title(full_name()));
+    eldata.plottype = PlotElement::IMAGE;
+
+    child = std::find_if(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "data"; });
+    if (child == _children.end())
+        return;
+
+    string startaddress  = (*child)->value();
+    int pos = startaddress.index(rxwhite);
+    if (pos>0)
+        startaddress = startaddress.before(pos);
+
+    child = std::find_if(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "datalimit"; });
+    if (child == _children.end())
+        return;
+
+    string endaddress  = (*child)->value();
+    pos = endaddress.index(rxwhite);
+    if (pos>0)
+        endaddress = endaddress.before(pos);
+
+    child = std::find_if(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "cols"; });
+    if (child == _children.end())
+        return;
+
+    string colsstr = (*child)->value();
+
+    child = std::find_if(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "rows"; });
+    if (child == _children.end())
+        return;
+
+    string rowsstr = (*child)->value();
+
+
+    string question = "dump binary memory " + eldata.file + " " + startaddress + " " + endaddress;
+    string answer = gdb_question(question);
+
+    if (colorchannels==3)
+        eldata.plottype = PlotElement::BGRIMAGE;
+    else
+        eldata.plottype = PlotElement::IMAGE;
+
+    eldata.xdim = colsstr;
+    eldata.ydim = rowsstr;
+    eldata.gdbtype = gdbtype;
+    eldata.binary = true;
+
 }
 
 void DispValue::PlotterDiedHP(Agent *source, void *client_data, void *)
