@@ -138,6 +138,8 @@ struct PlotWindowInfo {
     string settings_file;	 // File to get settings from
     StatusDelay *settings_delay; // Delay while getting settings
 
+    int num_tries = 0;           // number of tries to swallow gnuplot widget
+
     // Constructor - just initialize
     PlotWindowInfo()
 	: source(0), window_name(""),
@@ -435,7 +437,7 @@ static void configure_plot(PlotWindowInfo *plot)
 	const string s1 = "*" + name;
 	Widget w = XtNameToWidget(plot->shell, s1.chars());
 
-	bool set = plot->settings.contains("\nset data style " + name + "\n");
+	bool set = plot->settings.contains("\nset style data " + name + "\n");
 	XmToggleButtonSetState(w, set, False);
     }
 }
@@ -480,9 +482,6 @@ static void popup_plot_shell(PlotWindowInfo *plot)
 // Swallow new GNUPLOT window; search from root window (expensive).
 static void SwallowTimeOutCB(XtPointer client_data, XtIntervalId *id)
 {
-    (void) id;
-    static int numtries = 0;
-
     PlotWindowInfo *plot = (PlotWindowInfo *)client_data;
     assert(*id == plot->swallow_timer);
     plot->swallow_timer = 0;
@@ -504,20 +503,17 @@ static void SwallowTimeOutCB(XtPointer client_data, XtIntervalId *id)
     if (window == None)
     {
 	// Try again later
-        numtries++;
+        plot->num_tries++;
 
-        if (numtries<8)
+        if (plot->num_tries<8)
             plot->swallow_timer =
                 XtAppAddTimeOut(XtWidgetToApplicationContext(plot->swallower),
                                 app_data.plot_window_delay,
                                 SwallowTimeOutCB, XtPointer(plot));
-        else
-            numtries = 0;
 
         return;
     }
 
-    numtries = 0;
     XtVaSetValues(plot->swallower, XtNwindow, window, XtPointer(0));
 
     popup_plot_shell(plot);

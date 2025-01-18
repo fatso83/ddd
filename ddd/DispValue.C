@@ -2051,7 +2051,7 @@ void DispValue::plotImage(PlotAgent *plotter) const
 
     string ydimstr =(*child)->value().chars();
 
-    string answer = gdb_question("whatis " + myfull_name + "->pixmap");
+    string answer = gdb_question("whatis (" + myfull_name + ").pixmap[0]");
     string gdbtype = answer.after("=");
     strip_space(gdbtype);
 

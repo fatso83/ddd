@@ -105,7 +105,10 @@ Window findWindow(Display *display, Window window,
 	    Window win = findWindow(display, children[i],
 				     title, res_name, res_class);
 	    if (win != None)
+            {
+                XFree(children);
 		return win;
+            }
 	}
 
 	XFree(children);
