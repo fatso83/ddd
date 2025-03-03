@@ -103,11 +103,6 @@ BASE_SRC = \
 	base/tabs.h       \
 	base/uniquify.C   \
 	base/uniquify.h   \
-	base/Logger.C     \
-	base/Logger.h     \
-	base/MemCheck.C   \
-	base/MemCheck.h   \
-	base/MemCheckD.h  \
 	base/PrintGC.C    \
 	base/PrintGC.h    \
 	base/SignalB.C    \
