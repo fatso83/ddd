@@ -2929,7 +2929,6 @@ SourceView::SourceView(Widget parent)
 
 SourceView::~SourceView()
 {
-printf("~SourceView()\n");
     for (int k = 0; k < 2; k++)
     {
         // Destroy old widgets...

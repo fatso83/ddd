@@ -36,6 +36,11 @@
 
 #include "base/bool.h"
 
+// main window
+extern Widget main_window;
+extern XtAppContext app_context;
+extern Widget toplevel;
+
 // GDB command widget
 extern Widget gdb_w;
 

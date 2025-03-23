@@ -1965,6 +1965,11 @@ static MMDesc arg_cmd_area[] =
 // Global variables
 //-----------------------------------------------------------------------------
 
+// main window
+Widget main_window;
+XtAppContext app_context;
+Widget toplevel;
+
 // All communication with GDB passes through this variable
 GDBAgent*     gdb = 0;
 
@@ -2222,7 +2227,7 @@ ddd_exit_t pre_main_loop(int argc, char *argv[])
     }
 
     // Note: the cast on ddd_fallback_resources is safe.
-    Widget toplevel =
+    toplevel =
         XtOpenApplication(&app_context, DDD_CLASS_NAME,
                           XrmOptionDescList(0), 0,
                           &argc, argv, (String *)ddd_fallback_resources,
@@ -2602,7 +2607,7 @@ ddd_exit_t pre_main_loop(int argc, char *argv[])
 
     // Create main window
     arg = 0;
-    Widget main_window = XmCreateMainWindow(command_shell, 
+    main_window = XmCreateMainWindow(command_shell,
                                             XMST("main_window"),
                                             args, arg);
     XtManageChild(main_window);

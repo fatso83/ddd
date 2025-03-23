@@ -101,6 +101,8 @@ char exit_rcsid[] =
 #include "windows.h"
 #include "wm.h"
 #include "hostname.h"
+#include "SourceView.h"
+#include "plotter.h"
 
 #include <signal.h>
 #include <iostream>
@@ -211,6 +213,9 @@ void ddd_cleanup()
 	    save_history(session_history_file(app_data.session));
     }
 
+    clear_plot_window_cache();
+    delete source_view;
+
     // Famous last words
     string last_words = "Thanks for using " DDD_NAME " " DDD_VERSION "!";
     if (ddd_has_crashed)
@@ -220,8 +225,11 @@ void ddd_cleanup()
     // Flush log file
     dddlog.flush();
 
+
     // Unlock `~/.ddd/'.
     unlock_session_dir(DEFAULT_SESSION);
+
+    XtDestroyWidget(toplevel);
 }
 
 

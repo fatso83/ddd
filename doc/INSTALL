@@ -9,7 +9,7 @@ Build Requirements
 
 To build a complete DDD from sources, you need:
 
-   * The GNU C++ compiler (3.1 or later), including a matching
+   * The GNU C++ compiler (7.1 or later), including a matching
      C++ I/O runtime library (libstdc++ or libg++).
 
    * A `make' program.  We recommend GNU make.
@@ -17,8 +17,7 @@ To build a complete DDD from sources, you need:
    * The Motif Widget library (2.3.4 or later)  
      -   motif
 
-   * The X window library (Xlib) and X toolkit library (Xt), X11R4 or
-     later.  Best results are obtained with X11R6.3 and later.
+   * The X window library (Xlib) and X toolkit library (Xt), X11R6.3 and later.
      -   libX11
      -   libXt
 
