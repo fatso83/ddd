@@ -52,6 +52,7 @@ class Configuration {
 void config_set_defaults();
 int config_set_app_data(const char *filename);
 int config_write_file(const char *filename);
+const char *config_get_string(const char *key);
 
 #define ERR_CONFIG_INCORRECT_VERSION -2
 

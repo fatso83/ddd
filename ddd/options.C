@@ -1730,6 +1730,7 @@ static void reload_options()
 {
     static string session;
     session = app_data.session;
+    printf ("reload_options()\n");
 
     string file = session_state_file(session);
 
@@ -2471,15 +2472,6 @@ static bool save_options_init(unsigned long flags)
 
         }
     }
-
-    os << string_app_value(XtNbashSettings, bash_settings.chars(), True) << '\n';
-    os << string_app_value(XtNdbgSettings,  dbg_settings.chars(), True)  << '\n';
-    os << string_app_value(XtNdbxSettings,  dbx_settings.chars(), True)  << '\n';
-    os << string_app_value(XtNgdbSettings,  gdb_settings.chars(), True)  << '\n';
-    os << string_app_value(XtNjdbSettings,  jdb_settings.chars(), True)  << '\n';
-    os << string_app_value(XtNperlSettings, perl_settings.chars(), True) << '\n';
-    os << string_app_value(XtNpydbSettings, pydb_settings.chars(), True) << '\n';
-    os << string_app_value(XtNxdbSettings,  xdb_settings.chars(), True)  << '\n';
 
     os << "\n! Source.\n";
     os << bool_app_value(XtNfindWordsOnly,

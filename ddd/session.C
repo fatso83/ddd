@@ -84,6 +84,7 @@ char session_rcsid[] =
 #include "version.h"
 #include "windows.h"
 #include "wm.h"
+#include "config_manager.h"
 
 #include <Xm/Xm.h>
 #include <Xm/List.h>
@@ -1044,39 +1045,39 @@ static void open_session(const string& session)
     switch (gdb->type())
     {
     case BASH:
-	settings = get_resource(db, XtNbashSettings, XtCSettings);
+    settings = string(config_get_string("bash.settings"));
 	break;
 
     case DBG:
-	settings = get_resource(db, XtNdbgSettings, XtCSettings);
+    settings = string(config_get_string("dbg.settings"));
 	break;
 
     case DBX:
-	settings = get_resource(db, XtNdbxSettings, XtCSettings);
+    settings = string(config_get_string("dbx.settings"));
 	break;
 
     case GDB:
-	settings = get_resource(db, XtNgdbSettings, XtCSettings);
+    settings = string(config_get_string("gdb.settings"));
 	break;
 
     case XDB:
-	settings = get_resource(db, XtNxdbSettings, XtCSettings);
+    settings = string(config_get_string("xdb.settings"));
 	break;
 
     case JDB:
-	settings = get_resource(db, XtNjdbSettings, XtCSettings);
+    settings = string(config_get_string("jdb.settings"));
 	break;
 
     case MAKE:
-	settings = get_resource(db, XtNmakeSettings, XtCSettings);
+    settings = string(config_get_string("make.settings"));
 	break;
 
     case PYDB:
-	settings = get_resource(db, XtNpydbSettings, XtCSettings);
+    settings = string(config_get_string("pydb.settings"));
 	break;
 
     case PERL:
-	settings = get_resource(db, XtNperlSettings, XtCSettings);
+    settings = string(config_get_string("perl.settings"));
 	break;
 
     }
