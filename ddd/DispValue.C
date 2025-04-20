@@ -70,7 +70,7 @@ char DispValue_rcsid[] =
 // Helpers
 //-----------------------------------------------------------------------------
 
-int DispValue::cached_box_tics = 0;
+int DispValue::m_cached_box_tics = 0;
 
 StringStringAssoc DispValue::type_cache;
 
@@ -144,38 +144,38 @@ DispValue::DispValue (DispValue* parent,
 		      const string& f_n, 
 		      const string& p_n,
 		      DispValueType given_type)
-    : mytype(UnknownType), myexpanded(true), myenabled(true),
-      myfull_name(f_n), print_name(p_n), myaddr(""), 
-      changed(false), myrepeats(1),
-      _value(""), _dereferenced(false), _member_names(true), _children(0),
-      _index_base(0), _have_index_base(false), _orientation(Horizontal),
-      _has_plot_orientation(false), _plotter(0), 
-      _cached_box(0), _cached_box_change(0),
-      _links(1)
+    : m_type(UnknownType), m_expanded(true), m_enabled(true),
+      m_full_name(f_n), m_print_name(p_n), m_addr(""), 
+      m_changed(false), m_repeats(1),
+      m_value(""), m_dereferenced(false), m_member_names(true), m_children(0),
+      m_index_base(0), m_have_index_base(false), m_orientation(Horizontal),
+      m_has_plot_orientation(false), m_plotter(0), 
+      m_cached_box(0), m_cached_box_change(0),
+      m_links(1)
 {
     init(parent, depth, value, given_type);
 
     // A new display is not changed, but initialized
-    changed = false;
+    m_changed = false;
 }
 
 // Duplicator
 DispValue::DispValue (const DispValue& dv)
-    : mytype(dv.mytype), myexpanded(dv.myexpanded), 
-      myenabled(dv.myenabled), myfull_name(dv.myfull_name),
-      print_name(dv.print_name), myaddr(dv.myaddr),
-      changed(false), myrepeats(dv.myrepeats),
-      _value(dv.value()), _dereferenced(false), 
-      _member_names(dv.member_names()), _children(dv.nchildren()), 
-       _index_base(dv._index_base), 
-      _have_index_base(dv._have_index_base), _orientation(dv._orientation),
-      _has_plot_orientation(false), _plotter(0),
-      _cached_box(0), _cached_box_change(0),
-      _links(1)
+    : m_type(dv.m_type), m_expanded(dv.m_expanded), 
+      m_enabled(dv.m_enabled), m_full_name(dv.m_full_name),
+      m_print_name(dv.m_print_name), m_addr(dv.m_addr),
+      m_changed(false), m_repeats(dv.m_repeats),
+      m_value(dv.value()), m_dereferenced(false), 
+      m_member_names(dv.member_names()), m_children(dv.nchildren()), 
+       m_index_base(dv.m_index_base), 
+      m_have_index_base(dv.m_have_index_base), m_orientation(dv.m_orientation),
+      m_has_plot_orientation(false), m_plotter(0),
+      m_cached_box(0), m_cached_box_change(0),
+      m_links(1)
 {
     for (int i = 0; i < dv.nchildren(); i++)
     {
-	_children.push_back(dv.child(i)->dup());
+        m_children.push_back(dv.child(i)->dup());
     }
 
     if (dv.cached_box() != 0)
@@ -305,41 +305,41 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 
     const char *initial_value = value.chars();
 
-    _children.clear();
+    m_children.clear();
 
     if (background(value.length()))
     {
 	clear();
 
-	mytype = Simple;
-	_value = "(Aborted)";
+        m_type = Simple;
+        m_value = "(Aborted)";
 	value  = "Aborted\n";
 	return;
     }
 
-    mytype = given_type;
-    if (mytype == UnknownType)
+    m_type = given_type;
+    if (m_type == UnknownType)
     {
-        if ((parent == 0 || parent->type() == List || parent->type() == UserCommand) && print_name.empty())
-            mytype = Text;
-        else if (print_name.contains("info locals") || print_name.contains("info args"))
-            mytype = List;
-        else if (parent == 0 && is_user_command(print_name))
-            mytype = UserCommand;
-        else if (checkSTL(value, mytype)==false)
-            mytype = determine_type(value);
+        if ((parent == 0 || parent->type() == List || parent->type() == UserCommand) && m_print_name.empty())
+            m_type = Text;
+        else if (m_print_name.contains("info locals") || m_print_name.contains("info args"))
+            m_type = List;
+        else if (parent == 0 && is_user_command(m_print_name))
+            m_type = UserCommand;
+        else if (checkSTL(value, m_type)==false)
+            m_type = determine_type(value);
     }
 
     bool ignore_repeats = (parent != 0 && parent->type() == Array);
 
     char perl_type = '\0';
 
-    switch (mytype)
+    switch (m_type)
     {
 
     case Simple:
     {
-	_value = read_simple_value(value, depth, ignore_repeats);
+	       m_value = read_simple_value(value, depth, ignore_repeats);
 #if LOG_CREATE_VALUES
 	std::clog << mytype << ": " << quote(_value) << "\n";
 #endif
@@ -351,9 +351,9 @@ void DispValue::init(DispValue *parent, int depth, string& value,
     {
 	// Read in a line of text
 	if (value.contains('\n'))
-	    _value = value.through('\n');
+            m_value = value.through('\n');
 	else
-	    _value = value;
+            m_value = value;
 	value = value.after('\n');
 #if LOG_CREATE_VALUES
 	std::clog << mytype << ": " << quote(_value) << "\n";
@@ -366,9 +366,9 @@ void DispValue::init(DispValue *parent, int depth, string& value,
     {
 	while (!value.empty())
 	{
-            DispValue *dv = parse_child(depth, value, myfull_name, "");
+            DispValue *dv = parse_child(depth, value, m_full_name, "");
 
-            _children.push_back(dv);
+            m_children.push_back(dv);
             
 	    if (background(value.length()))
 	    {
@@ -382,15 +382,15 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 
     case Pointer:
     {
-	_value = read_pointer_value(value, ignore_repeats);
-	_dereferenced = false;
+        m_value = read_pointer_value(value, ignore_repeats);
+        m_dereferenced = false;
 
 #if LOG_CREATE_VALUES
 	std::clog << mytype << ": " << quote(_value) << "\n";
 #endif
 	// Hide vtable pointers.
-	if (_value.contains("virtual table") || _value.contains("vtable"))
-	    myexpanded = false;
+	if (m_value.contains("virtual table") || m_value.contains("vtable"))
+            m_expanded = false;
 	perl_type = '$';
 
 	// In Perl, pointers may be followed by indented `pointed to'
@@ -408,32 +408,32 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 
     case Array:
     {
-	string base = normalize_base(myfull_name);
+	string base = normalize_base(m_full_name);
 
-	_orientation = app_data.array_orientation;
+        m_orientation = app_data.array_orientation;
 
 #if LOG_CREATE_VALUES
 	std::clog << mytype << ": " << "\n";
 #endif
 
-	read_array_begin(value, myaddr);
+	read_array_begin(value, m_addr);
 
 	// Check for `vtable entries' prefix.
 	string vtable_entries = read_vtable_entries(value);
 	if (!vtable_entries.empty())
 	{
-	    _children.push_back(parse_child(depth, vtable_entries, myfull_name));
+            m_children.push_back(parse_child(depth, vtable_entries, m_full_name));
 	}
 
 	// Read the array elements.  Assume that the type is the
 	// same across all elements.
 	DispValueType member_type = UnknownType;
-	if (!_have_index_base)
+	if (!m_have_index_base)
 	{
-	    _index_base = index_base(base, depth);
-	    _have_index_base = true;
+            m_index_base = index_base(base, depth);
+            m_have_index_base = true;
 	}
-	int array_index = _index_base;
+	int array_index = m_index_base;
 
 	// The array has at least one element.  Otherwise, GDB
 	// would treat it as a pointer.
@@ -445,7 +445,7 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 					add_member_name(base, member_name), 
 					member_name, member_type);
 	    member_type = dv->type();
-	    _children.push_back(dv);
+            m_children.push_back(dv);
 
 	    int repeats = read_repeats(value);
 
@@ -461,7 +461,7 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 			parse_child(depth, val, 
 				    add_member_name(base, member_name),
 				    member_name, member_type);
-		    _children.push_back(repeated_dv);
+                   m_children.push_back(repeated_dv);
 		}
 	    }
 	    else
@@ -494,7 +494,7 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 	read_array_end(value);
 
 	// Expand only if at top-level.
-	myexpanded = (depth == 0 || nchildren() <= 1 || (depth == 1 && parent->type() == STLVector));
+        m_expanded = (depth == 0 || nchildren() <= 1 || (depth == 1 && parent->type() == STLVector));
 
 #if LOG_CREATE_VALUES
 	std::clog << mytype << " has " << nchildren() << " members\n";
@@ -512,8 +512,8 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 	// FALL THROUGH
     case Struct:
     {
-	_orientation  = app_data.struct_orientation;
-	_member_names = app_data.show_member_names;
+        m_orientation  = app_data.struct_orientation;
+        m_member_names = app_data.show_member_names;
 
 	bool found_struct_begin   = false;
 	bool read_multiple_values = false;
@@ -521,9 +521,9 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 #if LOG_CREATE_VALUES
 	std::clog << mytype << " " << quote(myfull_name) << "\n";
 #endif
-	string member_prefix = myfull_name;
+	string member_prefix = m_full_name;
 	string member_suffix = "";
-	if (mytype == List)
+	if (m_type == List)
 	{
 	    member_prefix = "";
 	    read_multiple_values = true;
@@ -585,7 +585,7 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 	    }
 
 	    // In case we do not find a struct beginning, read only one value
-	    found_struct_begin = read_struct_begin(value, myaddr);
+	    found_struct_begin = read_struct_begin(value, m_addr);
 	    read_multiple_values = found_struct_begin;
 	}
 
@@ -600,13 +600,13 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 	{
 	    // In a List, we may have `member' names like `(a + b)'.
 	    // Don't be picky about this.
-	    bool picky = (mytype == Struct);
+	    bool picky = (m_type == Struct);
 	    string member_name = read_member_name(value, picky);
 
 	    if (member_name.empty())
 	    {
 		// Some struct stuff that is not a member
-		DispValue *dv = parse_child(depth, value, myfull_name, "");
+		DispValue *dv = parse_child(depth, value, m_full_name, "");
 
 		if (dv->type() == Struct)
 		{
@@ -617,13 +617,13 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 		    for (int i = 0; i < dv->nchildren(); i++)
 		    {
 			DispValue *dv2 = dv->child(i)->link();
-			_children.push_back(dv2);
+                        m_children.push_back(dv2);
 		    }
 		    dv->unlink();
 		}
 		else
 		{
-		    _children.push_back(dv);
+                    m_children.push_back(dv);
 		}
 
 		more_values = read_multiple_values && read_struct_next(value);
@@ -668,8 +668,8 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 		    }
 		}
 
-		DispValue *dv = parse_child(depth, value, myfull_name, member_name);
-		_children.push_back(dv);
+		DispValue *dv = parse_child(depth, value, m_full_name, member_name);
+                m_children.push_back(dv);
 
 		baseclass_prefix = saved_baseclass_prefix;
 
@@ -683,7 +683,7 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 		// continue reading after having found a base
 		// class.  After all, the own class members are
 		// still missing.
-		if (mytype == Struct && !found_struct_begin)
+		if (m_type == Struct && !found_struct_begin)
 		    more_values = true;
 	    }
 	    else
@@ -694,7 +694,7 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 		if (member_name == " ")
 		{
 		    // Anonymous union
-		    full_name = myfull_name;
+		    full_name = m_full_name;
 		}
 		
 		if (member_name.contains('.'))
@@ -728,16 +728,16 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 		{
 		    // Found a text as child - child value must be empty
 		    string empty = "";
-		    _children.push_back(parse_child(depth, empty, full_name, member_name));
+                    m_children.push_back(parse_child(depth, empty, full_name, member_name));
 
 		    string v = child->value();
 		    strip_space(v);
 		    if (!v.empty())
-			_children.push_back(child);
+                        m_children.push_back(child);
 		}
 		else
 		{
-		    _children.push_back(child);
+                    m_children.push_back(child);
 		}
 
 		more_values = read_multiple_values && read_struct_next(value);
@@ -754,10 +754,10 @@ void DispValue::init(DispValue *parent, int depth, string& value,
         {
             read_struct_end(value);
         }
-	else if (mytype == List && !value.empty())
+	else if (m_type == List && !value.empty())
 	{
 	    // Add remaining value as text
-	    _children.push_back(parse_child(depth, value, ""));
+            m_children.push_back(parse_child(depth, value, ""));
 	}
 
 	if (found_struct_begin)
@@ -767,7 +767,7 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 	}
 
 	// Expand only if at top-level.
-	myexpanded = (depth == 0 || nchildren() <= 1  || (depth == 1 && parent->type() == STLList));
+        m_expanded = (depth == 0 || nchildren() <= 1  || (depth == 1 && parent->type() == STLList));
 
 #if LOG_CREATE_VALUES
 	std::clog << mytype << " "
@@ -781,7 +781,7 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 
     case Reference:
     {
-	myexpanded = true;
+        m_expanded = true;
 
 	int sep = value.index('@');
 	sep = value.index(':', sep);
@@ -789,10 +789,10 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 	string ref = value.before(sep);
 	value = value.after(sep);
 
-	string addr = gdb->address_expr(myfull_name);
+	string addr = gdb->address_expr(m_full_name);
 
-	_children.push_back(parse_child(depth, ref, addr, myfull_name, Pointer));
-	_children.push_back(parse_child(depth, value, myfull_name));
+        m_children.push_back(parse_child(depth, ref, addr, m_full_name, Pointer));
+        m_children.push_back(parse_child(depth, value, m_full_name));
 
 	if (background(value.length()))
 	{
@@ -806,7 +806,7 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 
     case STLVector:
     {
-	myexpanded = true;
+        m_expanded = true;
 
 	int sep = value.index('=');
         if (sep>0)
@@ -819,21 +819,21 @@ void DispValue::init(DispValue *parent, int depth, string& value,
                 para = value.before(sep);
                 value = value.after(sep);
                 string emptyvalue = " ";
-                _children.push_back(parse_child(depth, para, myfull_name, Text));
-                _children.push_back(parse_child(depth, emptyvalue, myfull_name, Text));
+                m_children.push_back(parse_child(depth, para, m_full_name, Text));
+                m_children.push_back(parse_child(depth, emptyvalue, m_full_name, Text));
             }
             else
             {
                 value = value.after(sep);
-                _children.push_back(parse_child(depth, para, myfull_name, Text));
-                _children.push_back(parse_child(depth, value, myfull_name, Array));
+                m_children.push_back(parse_child(depth, para, m_full_name, Text));
+                m_children.push_back(parse_child(depth, value, m_full_name, Array));
             }
         }
         else
         {
             string emptyvalue = " ";
-            _children.push_back(parse_child(depth, value, myfull_name, Text));
-            _children.push_back(parse_child(depth, emptyvalue, myfull_name, Text));
+            m_children.push_back(parse_child(depth, value, m_full_name, Text));
+            m_children.push_back(parse_child(depth, emptyvalue, m_full_name, Text));
             
         }
 
@@ -849,7 +849,7 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 
     case STLList:
     {
-	myexpanded = true;
+        m_expanded = true;
 
 	int sep = value.index('=');
 
@@ -860,8 +860,8 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 	sep = value.index('{');
 	value = value.after(sep);
 
-	_children.push_back(parse_child(depth, para, myfull_name, Text));
-	_children.push_back(parse_child(depth, value, myfull_name, List));
+        m_children.push_back(parse_child(depth, para, m_full_name, Text));
+        m_children.push_back(parse_child(depth, value, m_full_name, List));
 
 	if (background(value.length()))
 	{
@@ -894,7 +894,7 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 		clear();
 		value = initial_value;
 
-		mytype = Sequence;
+                m_type = Sequence;
 
 #if LOG_CREATE_VALUES
 		std::clog << mytype << " " << quote(myfull_name) << "\n";
@@ -905,7 +905,7 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 	    
 	    const char *old_value = value.chars();
 
-	    DispValue *dv = parse_child(depth, value, myfull_name);
+	    DispValue *dv = parse_child(depth, value, m_full_name);
 
 	    if (value == old_value)
 	    {
@@ -920,7 +920,7 @@ void DispValue::init(DispValue *parent, int depth, string& value,
 	    }
 	    else
 	    {
-		_children.push_back(dv);
+                m_children.push_back(dv);
 	    }
 	}
 
@@ -937,12 +937,12 @@ void DispValue::init(DispValue *parent, int depth, string& value,
     if (gdb->program_language() == LANGUAGE_PERL && is_perl_prefix(perl_type))
     {
 	// Set new type
-	if (!myfull_name.empty() && is_perl_prefix(myfull_name[0]))
-	    myfull_name[0] = perl_type;
+	if (!m_full_name.empty() && is_perl_prefix(m_full_name[0]))
+            m_full_name[0] = perl_type;
     }
 
     background(value.length());
-    changed = true;
+    m_changed = true;
 }
 
 // Destructor helper
@@ -951,12 +951,12 @@ void DispValue::clear()
     for (int i = 0; i < nchildren(); i++)
 	child(i)->unlink();
 
-    _children.clear();
+    m_children.clear();
 
     if (plotter() != 0)
     {
 	plotter()->terminate();
-	_plotter = 0;
+        m_plotter = 0;
     }
 
     clear_cached_box();
@@ -975,7 +975,7 @@ void DispValue::validate_box_cache()
     for (i = 0; i < nchildren(); i++)
     {
 	if (child(i)->cached_box() == 0 ||
-	    child(i)->_cached_box_change > _cached_box_change)
+	    child(i)->m_cached_box_change > m_cached_box_change)
 	{
 	    clear_cached_box();
 	    break;
@@ -999,7 +999,7 @@ void DispValue::clear_box_cache()
 // Return dereferenced name.  Only if type() == Pointer.
 string DispValue::dereferenced_name() const
 {
-    switch (mytype)
+    switch (m_type)
     {
     case Pointer:
     {
@@ -1120,10 +1120,10 @@ int DispValue::heightExpanded() const
 
 void DispValue::set_orientation(DispValueOrientation orientation)
 {
-    if (_orientation == orientation)
+    if (m_orientation == orientation)
 	return;
 
-    _orientation = orientation;
+    m_orientation = orientation;
     clear_cached_box();
 
     if (type() == Simple && plotter() != 0)
@@ -1148,10 +1148,10 @@ void DispValue::set_orientation(DispValueOrientation orientation)
 
 void DispValue::set_member_names(bool value)
 {
-    if (_member_names == value)
+    if (m_member_names == value)
 	return;
 
-    _member_names = value;
+    m_member_names = value;
     clear_cached_box();
 
     // Save setting for next time
@@ -1178,13 +1178,13 @@ DispValue *DispValue::update(string& value,
     {
 	// Aborted while parsing - use SOURCE instead of original
 	DispValue *ret = source->link();
-	ret->changed = was_changed = was_initialized = true;
+	ret->m_changed = was_changed = was_initialized = true;
 
 	// Have the new DispValue take over the plotter
 	if (ret->plotter() == 0)
 	{
-	    ret->_plotter = plotter();
-	    _plotter = 0;
+	    ret->m_plotter = plotter();
+            m_plotter = 0;
 	}
 
 	unlink();
@@ -1236,16 +1236,16 @@ DispValue *DispValue::_update(DispValue *source,
 	return this;
     }
 
-    if (changed)
+    if (m_changed)
     {
 	// Clear `changed' flag
-	changed = false;
+        m_changed = false;
 	was_changed = true;
     }
 
     if (source->enabled() != enabled())
     {
-	myenabled = source->enabled();
+        m_enabled = source->enabled();
 	was_changed = true;
 
 	// We don't set CHANGED to true since enabled/disabled changes
@@ -1261,17 +1261,17 @@ DispValue *DispValue::_update(DispValue *source,
 	case Pointer:
         case UserCommand:
 	    // Atomic values
-	    if (_value != source->value())
+	    if (m_value != source->value())
 	    {
-		_value = source->value();
-		changed = was_changed = true;
+                m_value = source->value();
+                m_changed = was_changed = true;
 	    }
 	    return this;
 
 	case Array:
 	    // Array.  Check for 1st element, too.
-	    if (_have_index_base != source->_have_index_base &&
-		(_have_index_base && _index_base != source->_index_base))
+	    if (m_have_index_base != source->m_have_index_base &&
+		(m_have_index_base && m_index_base != source->m_index_base))
 		break;
 
 	    // FALL THROUGH
@@ -1286,7 +1286,7 @@ DispValue *DispValue::_update(DispValue *source,
 		for (int i = 0; i < nchildren(); i++)
 		{
 		    // Update each child
-		    _children[i] = child(i)->update(source->child(i),
+                    m_children[i] = child(i)->update(source->child(i),
 						    was_changed,
 						    was_initialized);
 		}
@@ -1311,7 +1311,7 @@ DispValue *DispValue::_update(DispValue *source,
 		// Update each child
 		for (int i = 0; i < nchildren(); i++)
 		{
-		    _children[i] = child(i)->update(source->child(i),
+                    m_children[i] = child(i)->update(source->child(i),
 						    was_changed,
 						    was_initialized);
 		}
@@ -1356,7 +1356,7 @@ DispValue *DispValue::_update(DispValue *source,
 
 		new_children.push_back(c);
 	    }
-	    _children = new_children;
+            m_children = new_children;
 	    was_changed = was_initialized = true;
 	    return this;
 	}
@@ -1369,10 +1369,10 @@ DispValue *DispValue::_update(DispValue *source,
 
     // Type, name or structure have changed -- use SOURCE instead of original
     DispValue *ret = source->link();
-    ret->changed = was_changed = was_initialized = true;
+    ret->m_changed = was_changed = was_initialized = true;
 
     // Copy the basic settings
-    ret->myexpanded = expanded();
+    ret->m_expanded = expanded();
     ret->dereference(dereferenced());
     ret->set_orientation(orientation());
     ret->set_member_names(member_names());
@@ -1380,8 +1380,8 @@ DispValue *DispValue::_update(DispValue *source,
     // Have new DispValue take over the plotter
     if (ret->plotter() == 0)
     {
-	ret->_plotter = plotter();
-	_plotter = 0;
+	ret->m_plotter = plotter();
+        m_plotter = 0;
     }
 
     unlink();
@@ -1391,7 +1391,7 @@ DispValue *DispValue::_update(DispValue *source,
 // Return true iff this or some descendant changed
 bool DispValue::descendant_changed() const
 {
-    if (changed)
+    if (m_changed)
 	return true;
 
     for (int i = 0; i < nchildren(); i++)
@@ -1431,15 +1431,15 @@ bool DispValue::structurally_equal(const DispValue *source,
 	    if (nchildren() != source->nchildren())
 		return false;	// Differing size
 
-	    if (_have_index_base != source->_have_index_base)
+	    if (m_have_index_base != source->m_have_index_base)
 		return false;	// Differing base
 
-	    if (_have_index_base && _index_base != source->_index_base)
+	    if (m_have_index_base && m_index_base != source->m_index_base)
 		return false;	// Differing base
 
 	    for (int i = 0; i < nchildren(); i++)
 	    {
-		DispValue *child = _children[i];
+		DispValue *child = m_children[i];
 		DispValue *source_child = source->child(i);
 		bool eq = child->structurally_equal(source_child, 
 						    source_descendant,
@@ -1463,7 +1463,7 @@ bool DispValue::structurally_equal(const DispValue *source,
 
 	    for (int i = 0; i < nchildren(); i++)
 	    {
-		DispValue *child = _children[i];
+		DispValue *child = m_children[i];
 		DispValue *source_child = source->child(i);
 		bool eq = child->structurally_equal(source_child, 
 						    source_descendant,
@@ -1620,19 +1620,19 @@ bool DispValue::can_plot3d() const
 
 bool DispValue::can_plotImage() const
 {
-    if (mytype!=Struct)
+    if (m_type!=Struct)
         return false;
 
-    if (std::none_of(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "pixmap"; }))
+    if (std::none_of(m_children.begin(), m_children.end(), [&](const DispValue *child) { return child->m_print_name == "pixmap"; }))
         return false;
 
-    if (std::none_of(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "cdim"; }))
+    if (std::none_of(m_children.begin(), m_children.end(), [&](const DispValue *child) { return child->m_print_name == "cdim"; }))
         return false;
 
-    if (std::none_of(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "xdim"; }))
+    if (std::none_of(m_children.begin(), m_children.end(), [&](const DispValue *child) { return child->m_print_name == "xdim"; }))
         return false;
 
-    if (std::none_of(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "ydim"; }))
+    if (std::none_of(m_children.begin(), m_children.end(), [&](const DispValue *child) { return child->m_print_name == "ydim"; }))
         return false;
 
     return true;
@@ -1640,7 +1640,7 @@ bool DispValue::can_plotImage() const
 
 bool DispValue::can_plotVector() const
 {
-    if (mytype!=STLVector)
+    if (m_type!=STLVector)
         return false;
 
     // find one child with plotable data
@@ -1648,10 +1648,10 @@ bool DispValue::can_plotVector() const
     for (int i = 0; i < nchildren(); i++)
     {
         canplot = true;
-        DispValue *child = _children[i];
+        DispValue *child = m_children[i];
         for (int j=0; j < child->nchildren(); j++)
         {
-            if (child->_children[j]->can_plot1d())
+            if (child->m_children[j]->can_plot1d())
             {
                 canplot = false;
                 break;
@@ -1666,28 +1666,28 @@ bool DispValue::can_plotVector() const
 
 bool DispValue::can_plotCVMat() const
 {
-    if (mytype!=Struct)
+    if (m_type!=Struct)
         return false;
 
-    if (std::none_of(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "flags"; }))
+    if (std::none_of(m_children.begin(), m_children.end(), [&](const DispValue *child) { return child->m_print_name == "flags"; }))
         return false;
 
-    if (std::none_of(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "data"; }))
+    if (std::none_of(m_children.begin(), m_children.end(), [&](const DispValue *child) { return child->m_print_name == "data"; }))
         return false;
 
-    if (std::none_of(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "dims"; }))
+    if (std::none_of(m_children.begin(), m_children.end(), [&](const DispValue *child) { return child->m_print_name == "dims"; }))
         return false;
 
-    if (std::none_of(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "cols"; }))
+    if (std::none_of(m_children.begin(), m_children.end(), [&](const DispValue *child) { return child->m_print_name == "cols"; }))
         return false;
 
-    if (std::none_of(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "rows"; }))
+    if (std::none_of(m_children.begin(), m_children.end(), [&](const DispValue *child) { return child->m_print_name == "rows"; }))
         return false;
 
-    if (std::none_of(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "datastart"; }))
+    if (std::none_of(m_children.begin(), m_children.end(), [&](const DispValue *child) { return child->m_print_name == "datastart"; }))
         return false;
 
-    if (std::none_of(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "dataend"; }))
+    if (std::none_of(m_children.begin(), m_children.end(), [&](const DispValue *child) { return child->m_print_name == "dataend"; }))
         return false;
 
     return true;
@@ -1733,7 +1733,7 @@ void DispValue::plot() const
     if (plotter() == 0)
     {
 	string title = make_title(full_name());
-	MUTABLE_THIS(DispValue *)->_plotter = new_plotter(title, CONST_CAST(DispValue *,this));
+	MUTABLE_THIS(DispValue *)->m_plotter = new_plotter(title, CONST_CAST(DispValue *,this));
 	if (plotter() == 0)
 	    return;
 
@@ -1748,7 +1748,7 @@ void DispValue::plot() const
     if (res==false)
     {
         delete_plotter(plotter());
-        MUTABLE_THIS(DispValue *)->_plotter = nullptr;
+        MUTABLE_THIS(DispValue *)->m_plotter = nullptr;
         return;
     }
 
@@ -1829,7 +1829,7 @@ bool DispValue::plot2d(PlotAgent *plotter) const
 
             // get variable type and dimensions of array
             string gdbtype;
-            string answer = gdb_question("whatis " + myfull_name);
+            string answer = gdb_question("whatis " + m_full_name);
             gdbtype = answer.after("=");
             strip_space(gdbtype);
             string length = (gdbtype.after('['));
@@ -1838,7 +1838,7 @@ bool DispValue::plot2d(PlotAgent *plotter) const
             strip_space(gdbtype);
 
             // get starting address
-            answer = gdb_question("print /x  &" + myfull_name + "[0] ");
+            answer = gdb_question("print /x  &" + m_full_name + "[0] ");
             string address = answer.after("=");
             strip_space(address);
 
@@ -1867,8 +1867,8 @@ bool DispValue::plot2d(PlotAgent *plotter) const
             plotter->open_stream(eldata);
 
             int index;
-            if (_have_index_base)
-                index = _index_base;
+            if (m_have_index_base)
+                index = m_index_base;
             else
                 index = gdb->default_index_base();
 
@@ -1914,7 +1914,7 @@ bool DispValue::plot3d(PlotAgent *plotter) const
     {
         // get variable type and dimensions of array
         string gdbtype;
-        string answer = gdb_question("whatis " + myfull_name);
+        string answer = gdb_question("whatis " + m_full_name);
         gdbtype = answer.after("=");
         strip_space(gdbtype);
         string ydim = gdbtype.after('[');
@@ -1925,7 +1925,7 @@ bool DispValue::plot3d(PlotAgent *plotter) const
         strip_space(gdbtype);
 
         // get starting address
-        answer = gdb_question("print /x  &" + myfull_name + "[0] ");
+        answer = gdb_question("print /x  &" + m_full_name + "[0] ");
         string address = answer.after("=");
         strip_space(address);
 
@@ -1953,8 +1953,8 @@ bool DispValue::plot3d(PlotAgent *plotter) const
         plotter->open_stream(eldata);
 
         int index;
-        if (_have_index_base)
-            index = _index_base;
+        if (m_have_index_base)
+            index = m_index_base;
         else
             index = gdb->default_index_base();
 
@@ -1962,8 +1962,8 @@ bool DispValue::plot3d(PlotAgent *plotter) const
         {
             DispValue *c = child(i);
             int c_index;
-            if (c->_have_index_base)
-                c_index = c->_index_base;
+            if (c->m_have_index_base)
+                c_index = c->m_index_base;
             else
                 c_index = gdb->default_index_base();
 
@@ -1995,7 +1995,7 @@ bool DispValue::plotVector(PlotAgent *plotter) const
 
     // get variable type
     string gdbtype;
-    string answer = gdb_question("whatis " + myfull_name + "[0]");
+    string answer = gdb_question("whatis " + m_full_name + "[0]");
     gdbtype = answer.after("=");
     strip_space(gdbtype);
 
@@ -2005,12 +2005,12 @@ bool DispValue::plotVector(PlotAgent *plotter) const
     strip_space(sizestr);
 
     // get starting address
-    answer = gdb_question("print /x  &" + myfull_name + "[0] ");
+    answer = gdb_question("print /x  &" + m_full_name + "[0] ");
     string address = answer.after("=");
     strip_space(address);
 
     // get length of vector
-    answer = gdb_question("print " + myfull_name + ".size()");
+    answer = gdb_question("print " + m_full_name + ".size()");
     string length = answer.after("=");
     strip_space(length);
 
@@ -2032,8 +2032,8 @@ bool DispValue::plotVector(PlotAgent *plotter) const
 
 bool DispValue::plotImage(PlotAgent *plotter) const
 {
-    auto child = std::find_if(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "cdim"; });
-    if (child == _children.end())
+    auto child = std::find_if(m_children.begin(), m_children.end(), [&](const DispValue *child) { return child->m_print_name == "cdim"; });
+    if (child == m_children.end())
         return false;
 
     string cdimstr = (*child)->value();
@@ -2045,8 +2045,8 @@ bool DispValue::plotImage(PlotAgent *plotter) const
     PlotElement &eldata = plotter->start_plot(make_title(full_name()));
     eldata.plottype = PlotElement::IMAGE;
 
-    child = std::find_if(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "pixmap"; });
-    if (child == _children.end())
+    child = std::find_if(m_children.begin(), m_children.end(), [&](const DispValue *child) { return child->m_print_name == "pixmap"; });
+    if (child == m_children.end())
         return false;
 
     string address  = (*child)->value();
@@ -2054,19 +2054,19 @@ bool DispValue::plotImage(PlotAgent *plotter) const
     if (pos>0)
         address = address.before(pos);
 
-    child = std::find_if(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "xdim"; });
-    if (child == _children.end())
+    child = std::find_if(m_children.begin(), m_children.end(), [&](const DispValue *child) { return child->m_print_name == "xdim"; });
+    if (child == m_children.end())
         return false;
 
     string xdimstr = (*child)->value().chars();
 
-    child = std::find_if(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "ydim"; });
-    if (child == _children.end())
+    child = std::find_if(m_children.begin(), m_children.end(), [&](const DispValue *child) { return child->m_print_name == "ydim"; });
+    if (child == m_children.end())
         return false;
 
     string ydimstr =(*child)->value().chars();
 
-    string answer = gdb_question("whatis (" + myfull_name + ").pixmap[0]");
+    string answer = gdb_question("whatis (" + m_full_name + ").pixmap[0]");
     string gdbtype = answer.after("=");
     strip_space(gdbtype);
 
@@ -2132,8 +2132,8 @@ bool DispValue::plotImage(PlotAgent *plotter) const
 
 bool DispValue::plotCVMat(PlotAgent *plotter) const
 {
-    auto child = std::find_if(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "dims"; });
-    if (child == _children.end())
+    auto child = std::find_if(m_children.begin(), m_children.end(), [&](const DispValue *child) { return child->m_print_name == "dims"; });
+    if (child == m_children.end())
         return false;
 
     string cdimstr = (*child)->value();
@@ -2142,8 +2142,8 @@ bool DispValue::plotCVMat(PlotAgent *plotter) const
     if (cdim!=2)
         return false; // only 2 dimensional images
 
-    child = std::find_if(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "flags"; });
-    if (child == _children.end())
+    child = std::find_if(m_children.begin(), m_children.end(), [&](const DispValue *child) { return child->m_print_name == "flags"; });
+    if (child == m_children.end())
         return false;
 
     int flags = atoi((*child)->value().chars());
@@ -2185,8 +2185,8 @@ bool DispValue::plotCVMat(PlotAgent *plotter) const
     PlotElement &eldata = plotter->start_plot(make_title(full_name()));
     eldata.plottype = PlotElement::IMAGE;
 
-    child = std::find_if(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "data"; });
-    if (child == _children.end())
+    child = std::find_if(m_children.begin(), m_children.end(), [&](const DispValue *child) { return child->m_print_name == "data"; });
+    if (child == m_children.end())
         return false;
 
     string startaddress  = (*child)->value();
@@ -2194,8 +2194,8 @@ bool DispValue::plotCVMat(PlotAgent *plotter) const
     if (pos>0)
         startaddress = startaddress.before(pos);
 
-    child = std::find_if(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "datalimit"; });
-    if (child == _children.end())
+    child = std::find_if(m_children.begin(), m_children.end(), [&](const DispValue *child) { return child->m_print_name == "datalimit"; });
+    if (child == m_children.end())
         return false;
 
     string endaddress  = (*child)->value();
@@ -2203,14 +2203,14 @@ bool DispValue::plotCVMat(PlotAgent *plotter) const
     if (pos>0)
         endaddress = endaddress.before(pos);
 
-    child = std::find_if(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "cols"; });
-    if (child == _children.end())
+    child = std::find_if(m_children.begin(), m_children.end(), [&](const DispValue *child) { return child->m_print_name == "cols"; });
+    if (child == m_children.end())
         return false;
 
     string colsstr = (*child)->value();
 
-    child = std::find_if(_children.begin(), _children.end(), [&](const DispValue *child) { return child->print_name == "rows"; });
-    if (child == _children.end())
+    child = std::find_if(m_children.begin(), m_children.end(), [&](const DispValue *child) { return child->m_print_name == "rows"; });
+    if (child == m_children.end())
         return false;
 
     string rowsstr = (*child)->value();
@@ -2243,10 +2243,12 @@ void DispValue::PlotterDiedHP(Agent *source, void *client_data, void *)
 
     DispValue *dv = (DispValue *)client_data;
 
-    assert(source == dv->plotter());
+    PlotAgent *agent = dv->m_plotter;
+//    assert(source == dv->plotter());
 
-    dv->plotter()->removeHandler(Died, PlotterDiedHP, (void *)dv);
-    dv->_plotter = 0;
+//     dv->plotter()->removeHandler(Died, PlotterDiedHP, (void *)dv);
+    agent->removeHandler(Died, PlotterDiedHP, (void *)dv);
+    dv->m_plotter = 0;
 }
 
 // Print plots to FILENAME
@@ -2292,8 +2294,8 @@ bool (*DispValue::background)(int processed) = nop;
 
 bool DispValue::OK() const
 {
-    assert (_links > 0);
-    assert (_cached_box == 0 || _cached_box->OK());
+    assert (m_links > 0);
+    assert (m_cached_box == 0 || m_cached_box->OK());
 
     for (int i = 0; i < nchildren(); i++)
 	assert(child(i)->OK());

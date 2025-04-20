@@ -53,32 +53,32 @@ const unsigned char Horizontal = XmHORIZONTAL;
 
 class DispValue {
     // General members
-    DispValueType mytype;
-    bool myexpanded;
-    bool myenabled;
-    string myfull_name;		// Full name
-    string print_name;		// Name relative to parent
-    string myaddr;		// Address as found
-    bool changed;
-    int myrepeats;		// Number of repetitions
+    DispValueType m_type;
+    bool m_expanded;
+    bool m_enabled;
+    string m_full_name;		// Full name
+    string m_print_name;	// Name relative to parent
+    string m_addr;		// Address as found
+    bool m_changed;
+    int m_repeats;		// Number of repetitions
 
     // Type-dependent members
-    string _value;		// Value of basic types
-    bool _dereferenced;		// True iff pointer is dereferenced
-    bool _member_names;	// True iff struct shows member names
-    std::vector<DispValue *> _children;	// Array or Struct members
-    int _index_base;		// First index
-    bool _have_index_base;	// True if INDEX_BASE is valid
-    mutable DispValueOrientation _orientation; // Array orientation
-    mutable bool _has_plot_orientation;   // True if plotter set the orientation
+    string m_value;		// Value of basic types
+    bool m_dereferenced;	// True iff pointer is dereferenced
+    bool m_member_names;	// True iff struct shows member names
+    std::vector<DispValue *> m_children;	// Array or Struct members
+    int m_index_base;		// First index
+    bool m_have_index_base;	// True if INDEX_BASE is valid
+    mutable DispValueOrientation m_orientation; // Array orientation
+    mutable bool m_has_plot_orientation;   // True if plotter set the orientation
 
     // Plotting stuff
-    mutable PlotAgent *_plotter;	// Plotting agent
+    mutable PlotAgent *m_plotter;	// Plotting agent
 
     // Caching stuff
-    Box *_cached_box;		// Last box
-    int _cached_box_change;	// Last cached box change
-    static int cached_box_tics;	// Counter
+    Box *m_cached_box;		    // Last box
+    int m_cached_box_change;        // Last cached box change
+    static int m_cached_box_tics;   // Counter
 
     // Initialize from VALUE.  If TYPE is given, use TYPE as type
     // instead of inferring it.
@@ -123,12 +123,12 @@ class DispValue {
     // Clear cached box
     void clear_cached_box()
     {
-	if (_cached_box != 0)
+	if (m_cached_box != 0)
 	{
-	    _cached_box->unlink();
-	    _cached_box = 0;
+            m_cached_box->unlink();
+            m_cached_box = 0;
 	}
-	_cached_box_change = 0;
+        m_cached_box_change = 0;
     }
 
 private:
@@ -142,24 +142,24 @@ private:
     string index(const string& prefix, const string& suffix) const;
 
 protected:
-    int _links;			// #references (>= 1)
+    int m_links;			// #references (>= 1)
 
     // Array, Struct
     // Expand/collapse single value
     void _expand()
     {
-	if (myexpanded)
+	if (m_expanded)
 	    return;
 
-	myexpanded = true;
+        m_expanded = true;
 	clear_cached_box();
     }
     void _collapse()
     {
-	if (!myexpanded)
+	if (!m_expanded)
 	    return;
 
-	myexpanded = false;
+        m_expanded = false;
 	clear_cached_box();
     }
 
@@ -229,43 +229,43 @@ public:
     // Destructor
     virtual ~DispValue()
     {
-	assert (_links == 0);
+	assert (m_links == 0);
 	clear();
     }
 
     // Create new reference
     DispValue *link()
     {
-	assert(_links > 0);
-	_links++;
+	assert(m_links > 0);
+        m_links++;
 	return this;
     }
 
     // Kill reference
     void unlink()
     {
-	assert(_links > 0);
-	if (--_links == 0)
+	assert(m_links > 0);
+	if (--m_links == 0)
 	    delete this;
     }
 
     // General resources
-    DispValueType type()       const { return mytype; }
-    bool enabled()             const { return myenabled; }
-    const string& full_name()  const { return myfull_name; }
-    const string& name()       const { return print_name; }
-    const string& addr()       const { return myaddr; }
-    int repeats()              const { return myrepeats; }
-    bool has_plot_orientation()  const { return _has_plot_orientation; }
+    DispValueType type()       const { return m_type; }
+    bool enabled()             const { return m_enabled; }
+    const string& full_name()  const { return m_full_name; }
+    const string& name()       const { return m_print_name; }
+    const string& addr()       const { return m_addr; }
+    int repeats()              const { return m_repeats; }
+    bool has_plot_orientation()  const { return m_has_plot_orientation; }
 
-    int& repeats()       { clear_cached_box(); return myrepeats; }
-    string& full_name()  { clear_cached_box(); return myfull_name; }
-    string& name()       { clear_cached_box(); return print_name; }
-    bool& enabled()      { clear_cached_box(); return myenabled; }
+    int& repeats()       { clear_cached_box(); return m_repeats; }
+    string& full_name()  { clear_cached_box(); return m_full_name; }
+    string& name()       { clear_cached_box(); return m_print_name; }
+    bool& enabled()      { clear_cached_box(); return m_enabled; }
 
-    bool is_changed() const { return changed; }
+    bool is_changed() const { return m_changed; }
     bool descendant_changed() const;
-    bool expanded()   const { return myexpanded; }
+    bool expanded()   const { return m_expanded; }
     bool collapsed()  const { return !expanded(); }
 
     // Return height of entire tree
@@ -278,19 +278,19 @@ public:
     // Type-specific resources
 
     // Simple or Pointer
-    const string& value() const { return _value; }
+    const string& value() const { return m_value; }
 
     // Pointer
-    bool dereferenced() const { return _dereferenced; }
+    bool dereferenced() const { return m_dereferenced; }
     string dereferenced_name() const;
 
     // Struct
-    bool member_names() const { return _member_names; }
+    bool member_names() const { return m_member_names; }
     void set_member_names(bool value);
 
     // Array, Struct, List, Sequence ...
-    int nchildren() const { return _children.size(); }
-    DispValue *child(int i) const { return _children[i]; }
+    int nchildren() const { return m_children.size(); }
+    DispValue *child(int i) const { return m_children[i]; }
     int nchildren_with_repeats() const;
 
     // General modifiers
@@ -312,15 +312,15 @@ public:
 
     // Array
     void set_orientation(DispValueOrientation orientation);
-    DispValueOrientation orientation() const { return _orientation; }
+    DispValueOrientation orientation() const { return m_orientation; }
 
     // Pointer
     void dereference(bool set = true)
     {
-	if (_dereferenced == set)
+	if (m_dereferenced == set)
 	    return;
 
-	_dereferenced = set;
+        m_dereferenced = set;
 	clear_cached_box();
     }
 
@@ -368,7 +368,7 @@ public:
     void replot() const;
 
     // Current plot agent
-    PlotAgent *plotter() const { return _plotter; }
+    PlotAgent *plotter() const { return m_plotter; }
 
     // Show plot state
     void set_plot_state(const string& state = "") const;
@@ -386,7 +386,7 @@ public:
     // Box cache
     Box *cached_box() const
     {
-	return _cached_box;
+	return m_cached_box;
     }
 
     // Verify if cached box is recent respective to children's caches
@@ -395,8 +395,8 @@ public:
     void set_cached_box(Box *value)
     {
 	clear_cached_box();
-	_cached_box = value->link();
-	_cached_box_change = cached_box_tics++;
+        m_cached_box = value->link();
+        m_cached_box_change = m_cached_box_tics++;
     }
 
     // Clear box caches for this and all children

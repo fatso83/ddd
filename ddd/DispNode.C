@@ -51,7 +51,7 @@ DEFINE_TYPE_INFO_1(DispNode, BoxGraphNode)
 // Data
 HandlerList DispNode::handlers(DispNode_NTypes);
 
-int DispNode::tics = 0;
+int DispNode::m_tics = 0;
 
 // Constructor
 DispNode::DispNode (int disp_nr,
@@ -60,29 +60,29 @@ DispNode::DispNode (int disp_nr,
 		    const string& val,
 		    bool pl)
     : BoxGraphNode(),
-      mydisp_nr(disp_nr),
-      myname(name),
-      myaddr(""),
-      myscope(scope),
-      mydepends_on(""),
-      myactive(true),
-      saved_node_hidden(false),
-      mydeferred(false),
-      myclustered(false),
-      myplotted(pl),
-      myconstant(false),
-      disp_value(0),
-      myselected_value(0),
-      disp_box(0),
-      mylast_change(++tics),
-      mylast_refresh(++tics),
+      m_disp_nr(disp_nr),
+      m_name(name),
+      m_addr(""),
+      m_scope(scope),
+      m_depends_on(""),
+      m_active(true),
+      m_saved_node_hidden(false),
+      m_deferred(false),
+      m_clustered(false),
+      m_plotted(pl),
+      m_constant(false),
+      m_disp_value(0),
+      m_selected_value(0),
+      m_disp_box(0),
+      m_last_change(++m_tics),
+      m_last_refresh(++m_tics),
       alias_of(0)
 {
     if (!val.empty())
     {
 	string v = val;
-	disp_value = DispValue::parse(v, myname);
-	set_addr(disp_value->addr());
+        m_disp_value = DispValue::parse(v, m_name);
+	set_addr(m_disp_value->addr());
     }
 
     if (plotted() && value() != 0)
@@ -92,22 +92,22 @@ DispNode::DispNode (int disp_nr,
     }
 
     // Create new box from DISP_VALUE
-    disp_box = new DispBox (mydisp_nr, myname, disp_value);
+    m_disp_box = new DispBox (m_disp_nr, m_name, m_disp_value);
 
     // Set the box
-    setBox(disp_box->box());
+    setBox(m_disp_box->box());
 }
 
 // Destructor
 DispNode::~DispNode()
 {
-    if (disp_value != 0)
+    if (m_disp_value != 0)
     {
-	disp_value->unlink();
-	disp_value = 0;
+	       m_disp_value->unlink();
+	       m_disp_value = 0;
     }
 
-    delete disp_box;
+    delete m_disp_box;
 }
 
 // User-defined displays (status displays)
@@ -151,20 +151,20 @@ bool DispNode::update(string& value)
 	changed = true;
     }
 
-    if (disp_value == 0)
+    if (m_disp_value == 0)
     { 
 	// We have not read a value yet
-	disp_value = DispValue::parse(value, myname);
-	set_addr(disp_value->addr());
+        m_disp_value = DispValue::parse(value, m_name);
+	set_addr(m_disp_value->addr());
 	changed = true;
     }
     else
     {
 	// Update existing value
-	disp_value = disp_value->update(value, changed, inited);
-	if (!disp_value->addr().empty() && addr() != disp_value->addr())
+        m_disp_value = m_disp_value->update(value, changed, inited);
+	if (!m_disp_value->addr().empty() && addr() != m_disp_value->addr())
 	{
-	    set_addr(disp_value->addr());
+	    set_addr(m_disp_value->addr());
 	    changed = true;
 	}
     }
@@ -177,16 +177,16 @@ bool DispNode::update(string& value)
 	
     if (changed)
     {
-	disp_box->set_value(disp_value);
+        m_disp_box->set_value(m_disp_value);
 
 	// Set new box
-	setBox(disp_box->box());
+	setBox(m_disp_box->box());
     }
 
     if (changed || inited)
     {
-	// mylast_change = ++tics;
-	mylast_refresh = ++tics;
+	// m_last_change = ++tics;
+        m_last_refresh = ++m_tics;
 #if 0
 	std::clog << "Display " << disp_nr() << " changed"
 		  << " (" << mylast_change << ")\n";
@@ -200,36 +200,36 @@ bool DispNode::update(string& value)
 // Re-create box value from current disp_value
 void DispNode::refresh()
 {
-    disp_box->set_value(disp_value);
-    setBox(disp_box->box());
+    m_disp_box->set_value(m_disp_value);
+    setBox(m_disp_box->box());
     select(selected_value());
     refresh_plot_state();
 
-    mylast_refresh = ++tics;
+    m_last_refresh = ++m_tics;
 }
 
 // Re-create entire box from current disp_value
 void DispNode::reset()
 {
-    bool have_title = disp_box->have_title();
+    bool have_title = m_disp_box->have_title();
 
-    if (disp_value)
-	disp_value->clear_box_cache();
-    delete disp_box;
+    if (m_disp_value)
+        m_disp_value->clear_box_cache();
+    delete m_disp_box;
 
     // Create new box from DISP_VALUE
-    disp_box = new DispBox (mydisp_nr, myname, disp_value);
+    m_disp_box = new DispBox (m_disp_nr, m_name, m_disp_value);
 
     // Set the title
     set_title(have_title);
 
     // Set the box
-    setBox(disp_box->box());
+    setBox(m_disp_box->box());
 
     // Reset selection
     select(0);
 
-    mylast_refresh = ++tics;
+    m_last_refresh = ++m_tics;
 }
 
 // In BOX, find outermost TagBox for given DispValue DV
@@ -266,7 +266,7 @@ void DispNode::select(DispValue *dv)
 	tb = findTagBox(box(), dv);
 
     setHighlight(tb);
-    myselected_value = dv;
+    m_selected_value = dv;
 }
 
 // Copy selection state from SRC
@@ -330,12 +330,12 @@ void DispNode::make_inactive()
     {
 	if (!clustered())
 	{
-	    saved_node_hidden = hidden();
+            m_saved_node_hidden = hidden();
 	    hidden() = true;
 	}
-	myactive = false;
+        m_active = false;
 
-	mylast_refresh = ++tics;
+        m_last_refresh = ++m_tics;
 
 	refresh_plot_state();
     }
@@ -349,11 +349,11 @@ void DispNode::make_active()
 {
     if (!active())
     {
-	myactive = true;
+        m_active = true;
 	if (!clustered())
-	    hidden() = saved_node_hidden;
+	    hidden() = m_saved_node_hidden;
 
-	mylast_refresh = ++tics;
+        m_last_refresh = ++m_tics;
 
 	refresh_plot_state();
     }
@@ -365,7 +365,7 @@ void DispNode::cluster(int target)
     if (target != 0)
     {
 	if (clustered() == 0)
-	    saved_node_hidden = hidden();
+            m_saved_node_hidden = hidden();
 
 #if KEEP_CLUSTERED_DISPLAYS
 	// Don't hide clustered displays
@@ -376,25 +376,25 @@ void DispNode::cluster(int target)
     else // target == 0
     {
 	if (clustered() != 0)
-	    hidden() = saved_node_hidden;
+	    hidden() = m_saved_node_hidden;
     }
 
     // Set new target
-    myclustered = target;
+    m_clustered = target;
 
     // Unselect it
     selected() = false;
 
     // Mark as changed
-    mylast_refresh = ++tics;
+    m_last_refresh = ++m_tics;
 }
 
 // Update address with NEW_ADDR
 void DispNode::set_addr(const string& new_addr)
 {
-    if (myaddr != new_addr)
+    if (m_addr != new_addr)
     {
-	myaddr = new_addr;
+        m_addr = new_addr;
 	// mylast_change = ++tics;
 #if 0
 	std::clog << "Display " << disp_nr() << " changed"
@@ -417,26 +417,26 @@ bool DispNode::alias_ok() const
 bool DispNode::set_title(bool set)
 {
     bool changed = false;
-    if (set && !disp_box->have_title())
+    if (set && !m_disp_box->have_title())
     {
 	// Add title
-	disp_box->set_title(value(), mydisp_nr, myname);
+        m_disp_box->set_title(value(), m_disp_nr, m_name);
 	changed = true;
     }
-    else if (!set && disp_box->have_title())
+    else if (!set && m_disp_box->have_title())
     {
 	// Remove title
-	disp_box->set_title(value(), mydisp_nr, "");
+        m_disp_box->set_title(value(), m_disp_nr, "");
 	changed = true;
     }
 
     if (changed)
     {
 	// Set value again
-	disp_box->set_value(disp_value);
+        m_disp_box->set_value(m_disp_value);
 
 	// Show new box
-	setBox(disp_box->box());
+	setBox(m_disp_box->box());
     }
 
     return changed;
@@ -445,25 +445,25 @@ bool DispNode::set_title(bool set)
 // Duplication
 DispNode::DispNode(const DispNode& node)
     : BoxGraphNode(node),
-      mydisp_nr(node.disp_nr()),
-      myname(node.name()),
-      myaddr(node.addr()),
-      myscope(node.scope()),
-      mydepends_on(node.mydepends_on),
-      myactive(node.active()),
-      saved_node_hidden(node.saved_node_hidden),
-      mydeferred(node.deferred()),
-      myclustered(node.clustered()),
-      myplotted(node.plotted()),
-      myconstant(node.constant()),
-      disp_value(node.value() ? node.value()->dup() : 0),
-      myselected_value(0),
-      disp_box(node.disp_box ? node.disp_box->dup() : 0),
-      mylast_change(node.last_change()),
-      mylast_refresh(node.last_refresh()),
+      m_disp_nr(node.disp_nr()),
+      m_name(node.name()),
+      m_addr(node.addr()),
+      m_scope(node.scope()),
+      m_depends_on(node.m_depends_on),
+      m_active(node.active()),
+      m_saved_node_hidden(node.m_saved_node_hidden),
+      m_deferred(node.deferred()),
+      m_clustered(node.clustered()),
+      m_plotted(node.plotted()),
+      m_constant(node.constant()),
+      m_disp_value(node.value() ? node.value()->dup() : 0),
+      m_selected_value(0),
+      m_disp_box(node.m_disp_box ? node.m_disp_box->dup() : 0),
+      m_last_change(node.last_change()),
+      m_last_refresh(node.last_refresh()),
       alias_of(node.alias_of)
 {
-    setBox(disp_box->box());
+    setBox(m_disp_box->box());
     copy_selection_state(node);
 }
 

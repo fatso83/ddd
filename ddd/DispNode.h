@@ -70,24 +70,24 @@ public:
     DECLARE_TYPE_INFO
 
 private:
-    int           mydisp_nr;	      // Display number
-    string        myname;	      // Display expression
-    string        myaddr;	      // Location of expression
-    string        myscope;	      // Program location where created
-    string        mydepends_on;	      // Display we depend upon (when deferred)
-    bool          myactive;	      // Flag: is display active (in scope)?
-    bool          saved_node_hidden;  // Saved `hidden' flag of node
-    bool          mydeferred;	      // Flag: is display deferred?
-    int           myclustered;	      // Flag: is display clustered?
-    bool          myplotted;	      // Flag: is display plotted?
-    bool          myconstant;	      // Flag: is display constant?
-    DispValue*    disp_value;	      // Associated value
-    DispValue*    myselected_value;   // Selected value within DISP_VALUE
-    DispBox*      disp_box;	      // Associated box within DISP_VALUE
-    int           mylast_change;      // Last value or address change
-    int           mylast_refresh;     // Last refresh
+    int           m_disp_nr;	      // Display number
+    string        m_name;	      // Display expression
+    string        m_addr;	      // Location of expression
+    string        m_scope;	      // Program location where created
+    string        m_depends_on;	      // Display we depend upon (when deferred)
+    bool          m_active;	      // Flag: is display active (in scope)?
+    bool          m_saved_node_hidden;  // Saved `hidden' flag of node
+    bool          m_deferred;	      // Flag: is display deferred?
+    int           m_clustered;	      // Flag: is display clustered?
+    bool          m_plotted;	      // Flag: is display plotted?
+    bool          m_constant;	      // Flag: is display constant?
+    DispValue*    m_disp_value;	      // Associated value
+    DispValue*    m_selected_value;   // Selected value within DISP_VALUE
+    DispBox*      m_disp_box;	      // Associated box within DISP_VALUE
+    int           m_last_change;      // Last value or address change
+    int           m_last_refresh;     // Last refresh
 
-    static int tics;		      // Shared change and refresh counter
+    static int m_tics;		      // Shared change and refresh counter
 
 public:
     int           alias_of;	      // Alias of another display
@@ -96,7 +96,7 @@ protected:
     static HandlerList handlers;
     static class TagBox *findTagBox(const Box *box, DispValue *dv);
     
-    virtual string str() const { return myname; }
+    virtual string str() const { return m_name; }
 
     DispNode(const DispNode& node);
 
@@ -125,38 +125,38 @@ public:
     }
 
     // Resources
-    int disp_nr()  const             { return mydisp_nr; }
-    const string& name() const       { return myname; }
-    const string& addr() const       { return myaddr; }
-    const string& scope() const      { return myscope; }
+    int disp_nr()  const             { return m_disp_nr; }
+    const string& name() const       { return m_name; }
+    const string& addr() const       { return m_addr; }
+    const string& scope() const      { return m_scope; }
     const string& depends_on() const 
     {
 	assert(deferred()); 
-	return mydepends_on;
+	return m_depends_on;
     }
     string& depends_on()
     { 
 	assert(deferred()); 
-	return mydepends_on;
+	return m_depends_on;
     }
 
     bool enabled()  const { return value() != 0 && value()->enabled(); }
     bool disabled() const { return !enabled(); }
-    bool active() const   { return myactive; }
-    bool deferred() const { return mydeferred; }
-    bool& deferred()      { return mydeferred; }
-    int clustered() const { return myclustered; }
-    bool plotted() const  { return myplotted; }
-    bool& plotted()       { return myplotted; }
-    bool constant() const { return myconstant; }
-    bool& constant()      { return myconstant; }
+    bool active() const   { return m_active; }
+    bool deferred() const { return m_deferred; }
+    bool& deferred()      { return m_deferred; }
+    int clustered() const { return m_clustered; }
+    bool plotted() const  { return m_plotted; }
+    bool& plotted()       { return m_plotted; }
+    bool constant() const { return m_constant; }
+    bool& constant()      { return m_constant; }
 
-    int last_change() const  { return mylast_change; }
-    int last_refresh() const { return mylast_refresh; }
+    int last_change() const  { return m_last_change; }
+    int last_refresh() const { return m_last_refresh; }
 
     // These can be used to force updates
-    void set_last_change(int value = 0)  { mylast_change  = value; }
-    void set_last_refresh(int value = 0) { mylast_refresh = value; }
+    void set_last_change(int value = 0)  { m_last_change  = value; }
+    void set_last_refresh(int value = 0) { m_last_refresh = value; }
 
     bool is_user_command() const { return ::is_user_command(name()); }
     string user_command() const  { return ::user_command(name()); }
@@ -164,8 +164,8 @@ public:
     // Return `true' if this expression can be aliased
     bool alias_ok() const;
 
-    DispValue* value()          const { return disp_value; }
-    DispValue* selected_value() const { return myselected_value; }
+    DispValue* value()          const { return m_disp_value; }
+    DispValue* selected_value() const { return m_selected_value; }
 
     // Handlers
     static void addHandler (unsigned    type,
