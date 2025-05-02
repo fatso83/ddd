@@ -2,8 +2,8 @@
 // DDD session management
 
 // Copyright (C) 1997 Technische Universitaet Braunschweig, Germany.
-// Copyright (C) 2001, 2003 Free Software Foundation, Inc.
 // Copyright (C) 2001 Universitaet des Saarlandes, Germany.
+// Copyright (C) 2001-2025 Free Software Foundation, Inc.
 // Written by Andreas Zeller <zeller@gnu.org>.
 // 
 // This file is part of DDD.
@@ -85,6 +85,7 @@ char session_rcsid[] =
 #include "windows.h"
 #include "wm.h"
 #include "config_manager.h"
+#include "config_data.h"
 
 #include <Xm/Xm.h>
 #include <Xm/List.h>
@@ -1111,39 +1112,39 @@ void RestartDebuggerCB(Widget, XtPointer, XtPointer)
     switch (gdb->type())
     {
     case BASH:
-	app_data.perl_settings = settings.chars();
+	GDBAgent_PERL_settings = (char *) settings.chars();
 	break;
 
     case DBG:
-	app_data.dbg_settings = settings.chars();
+	GDBAgent_DBG_settings = (char *) settings.chars();
 	break;
 
     case DBX:
-	app_data.dbx_settings = settings.chars();
+	GDBAgent_DBX_settings = (char *) settings.chars();
 	break;
 
     case GDB:
-	app_data.gdb_settings = settings.chars();
+	GDBAgent_GDB_settings = (char *) settings.chars();
 	break;
 
     case JDB:
-	app_data.jdb_settings = settings.chars();
+	GDBAgent_JDB_settings = (char *) settings.chars();
 	break;
 
     case MAKE:
-	app_data.make_settings = settings.chars();
+	GDBAgent_MAKE_settings = (char *) settings.chars();
 	break;
 
     case PERL:
-	app_data.perl_settings = settings.chars();
+	GDBAgent_PERL_settings = (char *) settings.chars();
 	break;
 
     case PYDB:
-	app_data.pydb_settings = settings.chars();
+	GDBAgent_PYDB_settings = (char *) settings.chars();
 	break;
 
     case XDB:
-	app_data.xdb_settings = settings.chars();
+	GDBAgent_XDB_settings = (char *) settings.chars();
 	break;
     }
 

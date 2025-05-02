@@ -51,6 +51,7 @@ extern bool need_settings();
 extern void update_settings();
 
 // Get settings string
+// FIXME:  Move to GDBAgent
 extern string get_settings(DebuggerType type, 
 			   unsigned long flags = SAVE_DEFAULT);
 

@@ -3,7 +3,7 @@
 
 // Copyright (C) 1996-1998 Technische Universitaet Braunschweig, Germany.
 // Copyright (C) 2001 Universitaet Passau, Germany.
-// Copyright (C) 2001, 2003, 2004, 2005 Free Software Foundation, Inc.
+// Copyright (C) 2001-2025 Free Software Foundation, Inc.
 // Written by Andreas Zeller <zeller@gnu.org>.
 // 
 // This file is part of DDD.
@@ -33,6 +33,7 @@ char options_rcsid[] =
 #include "options.h"
 
 #include "config.h"
+#include "config_data.h"
 
 #if HAVE_PTRACE
 extern "C" {
@@ -1778,46 +1779,7 @@ static void reload_options()
 
     // Load GDB settings.  Don't care about init or restart commands here.
     string restart = "";
-    string settings;
-    switch (gdb->type())
-    {
-    case BASH:
-        settings = str(app_data.bash_settings);
-        break;
-
-    case DBG:
-        settings = str(app_data.dbg_settings);
-        break;
-
-    case DBX:
-        settings = str(app_data.dbx_settings);
-        break;
-
-    case GDB:
-        settings = str(app_data.gdb_settings);
-        break;
-
-    case MAKE:
-        settings = str(app_data.make_settings);
-        break;
-
-    case JDB:
-        settings = str(app_data.jdb_settings);
-        break;
-
-    case PERL:
-        settings = str(app_data.perl_settings);
-        break;
-
-    case PYDB:
-        settings = str(app_data.pydb_settings);
-        break;
-
-    case XDB:
-        settings = str(app_data.xdb_settings);
-        break;
-
-    }
+    string settings = gdb->settings();
 
     init_session(restart, settings, app_data.source_init_commands);
 
@@ -2413,15 +2375,15 @@ static bool save_options_init(unsigned long flags)
     os << string_app_value(XtNdebugger, app_data.debugger) << '\n';
     os << bool_app_value(XtNuseSourcePath, app_data.use_source_path) << '\n';
 
-    string bash_settings = app_data.bash_settings;
-    string dbg_settings  = app_data.dbg_settings;
-    string dbx_settings  = app_data.dbx_settings;
-    string gdb_settings  = app_data.gdb_settings;
-    string xdb_settings  = app_data.xdb_settings;
-    string jdb_settings  = app_data.jdb_settings;
-    string make_settings = app_data.make_settings;
-    string perl_settings = app_data.perl_settings;
-    string pydb_settings = app_data.pydb_settings;
+    string bash_settings = GDBAgent_BASH_settings;
+    string dbg_settings  = GDBAgent_DBG_settings;
+    string dbx_settings  = GDBAgent_DBX_settings;
+    string gdb_settings  = GDBAgent_GDB_settings;
+    string xdb_settings  = GDBAgent_XDB_settings;
+    string jdb_settings  = GDBAgent_JDB_settings;
+    string make_settings = GDBAgent_MAKE_settings;
+    string perl_settings = GDBAgent_PERL_settings;
+    string pydb_settings = GDBAgent_PYDB_settings;
 
     if (need_settings() || need_save_defines())
     {

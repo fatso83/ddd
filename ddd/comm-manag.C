@@ -3,7 +3,7 @@
 
 // Copyright (C) 1995-1999 Technische Universitaet Braunschweig, Germany.
 // Copyright (C) 2000-2001 Universitaet Passau, Germany.
-// Copyright (C) 2001, 2003, 2004, 2005, 2008 Free Software Foundation, Inc.
+// Copyright (C) 2001-2025 Free Software Foundation, Inc.
 // Written by Dorothea Luetkehaus <luetke@ips.cs.tu-bs.de>
 // and Andreas Zeller <zeller@gnu.org>.
 // 
@@ -83,6 +83,9 @@ char comm_manager_rcsid[] =
 #include <ctype.h>
 #include <fstream>
 #include <unistd.h>
+
+extern char *GDBAgent_BASH_settings;
+extern char *GDBAgent_PERL_settings;
 
 //-----------------------------------------------------------------------------
 // Data
@@ -1112,7 +1115,7 @@ void send_gdb_command(string cmd, Widget origin,
 		unsigned long flags = DONT_RELOAD_FILE;
 		get_restart_commands(cmd_data->init_perl, flags);
 		cmd_data->init_perl += get_settings(gdb->type());
-		cmd_data->init_perl.prepend(app_data.perl_init_commands);
+		cmd_data->init_perl.prepend(gdb->init_commands());
 
 		cmd_data->new_exec_pos = true;
 	    }
@@ -1126,7 +1129,7 @@ void send_gdb_command(string cmd, Widget origin,
 		unsigned long flags = DONT_RELOAD_FILE;
 		get_restart_commands(cmd_data->init_bash, flags);
 		cmd_data->init_bash += get_settings(gdb->type());
-		cmd_data->init_bash.prepend(app_data.bash_init_commands);
+		cmd_data->init_bash.prepend(gdb->init_commands());
 
 		cmd_data->new_exec_pos = true;
 	    }
@@ -1141,7 +1144,7 @@ void send_gdb_command(string cmd, Widget origin,
 		unsigned long flags = DONT_RELOAD_FILE;
 		get_restart_commands(cmd_data->init_make, flags);
 		cmd_data->init_make += get_settings(gdb->type());
-		cmd_data->init_make.prepend(app_data.bash_init_commands);
+		cmd_data->init_make.prepend(gdb->init_commands());
 
 		cmd_data->new_exec_pos = true;
 	    }
@@ -2056,14 +2059,14 @@ static void command_completed(void *data)
 
     if (!cmd_data->init_perl.empty())
     {
-	init_session(cmd_data->init_perl, app_data.perl_settings, 
+	init_session(cmd_data->init_perl, GDBAgent_PERL_settings, 
 		     app_data.source_init_commands);
 	start_done();
     }
 
     if (!cmd_data->init_bash.empty())
     {
-	init_session(cmd_data->init_bash, app_data.bash_settings, 
+	init_session(cmd_data->init_bash, GDBAgent_BASH_settings, 
 		     app_data.source_init_commands);
 	start_done();
     }

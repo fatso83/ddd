@@ -37,6 +37,39 @@
 #include <tinyxml2.h>
 #include <vector>
 
+// Describe map between external name (e.g., gdb.init.command)
+// and location in internal app_data.
+// NB:  Only handle string data
+struct AppDataFormat 
+{
+    const char *XMLname;    // Name in XML settings file
+    char **AppData;         // Target in app_data
+};
+
+#define APP_DATA(xml,target) { xml, &target }
+
+static AppDataFormat ADFormat[] = {
+  APP_DATA("gdb.init.commands", GDBAgent_GDB_init_commands),
+  APP_DATA("gdb.settings", GDBAgent_GDB_settings),
+  APP_DATA("dbx.init.commands", GDBAgent_DBX_init_commands),
+  APP_DATA("dbx.settings", GDBAgent_DBX_settings),
+  APP_DATA("xdb.init.commands", GDBAgent_XDB_init_commands),
+  APP_DATA("xdb.settings", GDBAgent_XDB_settings),
+  APP_DATA("bash.init.commands", GDBAgent_BASH_init_commands),
+  APP_DATA("bash.settings", GDBAgent_BASH_settings),
+  APP_DATA("dbg.init.commands", GDBAgent_DBG_init_commands),
+  APP_DATA("dbg.settings", GDBAgent_DBG_settings),
+  APP_DATA("jdb.init.commands", GDBAgent_JDB_init_commands),
+  APP_DATA("jdb.settings", GDBAgent_JDB_settings),
+  APP_DATA("make.init.commands", GDBAgent_MAKE_init_commands),
+  APP_DATA("make.settings", GDBAgent_MAKE_settings),
+  APP_DATA("perl.init.commands", GDBAgent_PERL_init_commands),
+  APP_DATA("perl.settings", GDBAgent_PERL_settings),
+  APP_DATA("pydb.init.commands", GDBAgent_PYDB_init_commands),
+  APP_DATA("pydb.settings", GDBAgent_PYDB_settings),
+  { 0, 0 }
+};
+
 // Configuration information in XML format
 static Configuration cfg;
 
@@ -267,7 +300,7 @@ void config_set_defaults()
         for (adf = ADFormat; adf->XMLname; adf++)
         {
             assert(*adf->AppData == NULL);
-            *adf->AppData = cfg.get(adf->XMLname);
+            *adf->AppData = (char *)cfg.get(adf->XMLname);
         }
         return;
     }
@@ -298,7 +331,7 @@ int config_set_app_data(const char *filename)
         {
             if (*adf->AppData != NULL)
                 free ((void *)*adf->AppData);
-            *adf->AppData = cfg.get(adf->XMLname);
+            *adf->AppData = (char *)cfg.get(adf->XMLname);
         }
 
         return 1;

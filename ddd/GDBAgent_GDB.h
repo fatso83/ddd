@@ -1,5 +1,7 @@
 // GDBAgent derived class to support GDB debugger
 //
+// Copyright (c) 2023-2025  Free Software Foundation, Inc.
+// Written by Michael J. Eager <eager@gnu.org>
 // Copyright (c) 2023 Michael J. Eager
 //
 // This file is part of DDD.
@@ -22,6 +24,9 @@
 // For details, see the DDD World-Wide-Web page, 
 // `http://www.gnu.org/software/ddd/',
 // or send a mail to the DDD developers <ddd@gnu.org>.
+
+extern char *GDBAgent_GDB_init_commands;
+extern char *GDBAgent_GDB_settings;
 
 class GDBAgent_GDB: public GDBAgent {
 public:
@@ -54,8 +59,8 @@ public:
 	{ /*UNUSED*/ (void (pid)); return "detach"; }
     string assign_command(const string& var, const string& expr) const override;
     string init_commands() const override 
-        { return app_data.gdb_init_commands; }
+        { return GDBAgent_GDB_init_commands; }
     string settings() const override 
-        { return app_data.gdb_settings; }
+        { return GDBAgent_GDB_settings; }
 };
 

@@ -1,6 +1,7 @@
 // GDBAgent derived class to support XDB debugger
 //
-// Copyright (c) 2023 Michael J. Eager
+// Copyright (c) 2023-2025  Free Software Foundation, Inc.
+// Written by Michael J. Eager <eager@gnu.org>
 //
 // This file is part of DDD.
 // 
@@ -28,6 +29,9 @@
 #include "base/home.h"
 #include "string-fun.h"
 #include "base/cook.h"
+
+char *GDBAgent_XDB_init_commands;
+char *GDBAgent_XDB_settings;
 
 GDBAgent_XDB::GDBAgent_XDB (XtAppContext app_context,
 	      const string& gdb_call):

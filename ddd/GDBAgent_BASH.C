@@ -1,6 +1,7 @@
 // GDBAgent derived class to support BASH debugger
 //
-// Copyright (c) 2023 Michael J. Eager
+// Copyright (c) 2023-2025  Free Software Foundation, Inc.
+// Written by Michael J. Eager <eager@gnu.org>
 //
 // This file is part of DDD.
 // 
@@ -27,6 +28,9 @@
 #include "GDBAgent_BASH.h"
 #include "regexps.h"
 #include "base/cook.h"
+
+char *GDBAgent_BASH_init_commands;
+char *GDBAgent_BASH_settings;
 
 GDBAgent_BASH::GDBAgent_BASH (XtAppContext app_context,
 	      const string& gdb_call):

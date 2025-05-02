@@ -1,6 +1,7 @@
 // GDBAgent derived class to support DBX debugger
 //
-// Copyright (c) 2023 Michael J. Eager
+// Copyright (c) 2023-2025  Free Software Foundation, Inc.
+// Written by Michael J. Eager <eager@gnu.org>
 //
 // This file is part of DDD.
 // 
@@ -29,6 +30,9 @@
 #include "base/cook.h"
 #include "string-fun.h"
 #include "index.h"
+
+char *GDBAgent_DBX_init_commands;
+char *GDBAgent_DBX_settings;
 
 static bool ends_in(const string& answer, const char *prompt)
 {

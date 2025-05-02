@@ -2246,7 +2246,7 @@ static void add_button(Widget form, int& row, Dimension& max_width,
     else if (e_type != DisplayToggleButtonEntry)
     {
 	// Make entry insensitive if part of initialization commands.
-	string init = app_data.gdb_init_commands;
+	string init = gdb->init_commands();
 	int idx = init.index(set_command);
 	bool insensitive = (idx == 0 || (idx > 0 && init[idx - 1] == '\n'));
 
@@ -3162,6 +3162,7 @@ void reset_signals()
 	need_reload_signals = true;
 }
 
+// FIXME:  Move to GDBAgent
 static void get_setting(std::ostream& os, DebuggerType type,
 			const string& base, string value,
 			unsigned long flags)

@@ -1,6 +1,6 @@
 // DDD configuration data
 
-// Copyright (C) 2055 Free Software Foundation, Inc.
+// Copyright (C) 2025 Free Software Foundation, Inc.
 // Written by Michael Eager <eager@gnu.org>
 // 
 // This file is part of DDD.
@@ -24,39 +24,22 @@
 // `http://www.gnu.org/software/ddd/',
 // or send a mail to the DDD developers <ddd@gnu.org>.
 
-#include "AppData.h"
+extern char *GDBAgent_BASH_init_commands;
+extern char *GDBAgent_BASH_settings;
+extern char *GDBAgent_DBG_init_commands;
+extern char *GDBAgent_DBG_settings;
+extern char *GDBAgent_DBX_init_commands;
+extern char *GDBAgent_DBX_settings;
+extern char *GDBAgent_GDB_init_commands;
+extern char *GDBAgent_GDB_settings;
+extern char *GDBAgent_JDB_init_commands;
+extern char *GDBAgent_JDB_settings;
+extern char *GDBAgent_MAKE_init_commands;
+extern char *GDBAgent_MAKE_settings;
+extern char *GDBAgent_PERL_init_commands;
+extern char *GDBAgent_PERL_settings;
+extern char *GDBAgent_PYDB_init_commands;
+extern char *GDBAgent_PYDB_settings;
+extern char *GDBAgent_XDB_init_commands;
+extern char *GDBAgent_XDB_settings;
 
-// Describe map between external name (e.g., gdb.init.command)
-// and location in internal app_data.
-// NB:  Only handle string data
-struct AppDataFormat 
-{
-    const char *XMLname;    // Name in XML settings file
-    const char **AppData;    // Target in app_data
-};
-
-#define APP_DATA(xml,target) { xml, &app_data.target }
-
-static AppDataFormat ADFormat[] = {
-  APP_DATA("gdb.init.commands", gdb_init_commands),
-  APP_DATA("gdb.settings", gdb_settings),
-  APP_DATA("dbx.init.commands", dbx_init_commands),
-  APP_DATA("dbx.settings", dbx_settings),
-  APP_DATA("xdb.init.commands", xdb_init_commands),
-  APP_DATA("xdb.settings", xdb_settings),
-  APP_DATA("bash.init.commands", bash_init_commands),
-  APP_DATA("bash.settings", bash_settings),
-  APP_DATA("dbg.init.commands", dbg_init_commands),
-  APP_DATA("dbg.settings", dbg_settings),
-  APP_DATA("jdb.init.commands", jdb_init_commands),
-  APP_DATA("jdb.settings", jdb_settings),
-  APP_DATA("make.init.commands", make_init_commands),
-  APP_DATA("make.settings", make_settings),
-  APP_DATA("perl.init.commands", perl_init_commands),
-  APP_DATA("perl.settings", perl_settings),
-  APP_DATA("pydb.init.commands", pydb_init_commands),
-  APP_DATA("pydb.settings", pydb_settings),
-  { 0, 0 }
-};
-
-    

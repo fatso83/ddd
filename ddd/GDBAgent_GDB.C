@@ -1,6 +1,7 @@
 // GDBAgent derived class to support GDB debugger
 //
-// Copyright (c) 2023 Michael J. Eager
+// Copyright (c) 2023-2025  Free Software Foundation, Inc.
+// Written by Michael J. Eager <eager@gnu.org>
 //
 // This file is part of DDD.
 // 
@@ -27,6 +28,16 @@
 #include "GDBAgent_GDB.h"
 #include "regexps.h"
 #include "string-fun.h"
+
+// Note:  These target debugger configuration variables are defined 
+// here rather than in the class because they are accessed even when
+// they are not in the current target debugger instance, for example, 
+// to set or save init_commands or settings for BASH or DBX during 
+// startup/shutdown.  There can be only a single GDBAgent instance
+// at any time.  
+
+char *GDBAgent_GDB_init_commands;
+char *GDBAgent_GDB_settings;
 
 static bool ends_in(const string& answer, const char *prompt)
 {

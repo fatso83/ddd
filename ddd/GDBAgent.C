@@ -3,7 +3,7 @@
 
 // Copyright (C) 1995-1999 Technische Universitaet Braunschweig, Germany.
 // Copyright (C) 1999-2001 Universitaet Passau, Germany.
-// Copyright (C) 2001, 2003, 2004, 2005, 2006, 2008 Free Software Foundation, Inc.
+// Copyright (C) 2001-2025 Free Software Foundation, Inc.
 // Written by Dorothea Luetkehaus <luetke@ips.cs.tu-bs.de>
 // and Andreas Zeller <zeller@gnu.org>.
 // 
@@ -144,6 +144,7 @@ char GDBAgent_rcsid[] =
 // GDBAgent implementation
 //-----------------------------------------------------------------------------
 
+#include "config_data.h"
 #include "GDBAgent.h"
 #include "GDBAgent_BASH.h"
 #include "GDBAgent_DBG.h"

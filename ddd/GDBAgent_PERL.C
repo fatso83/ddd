@@ -1,6 +1,7 @@
 // GDBAgent derived class to support PERL debugger
 //
-// Copyright (c) 2023 Michael J. Eager
+// Copyright (c) 2023-2025  Free Software Foundation, Inc.
+// Written by Michael J. Eager <eager@gnu.org>
 //
 // This file is part of DDD.
 // 
@@ -29,6 +30,9 @@
 #include "base/cook.h"
 #include "string-fun.h"
 #include "base/isid.h"
+
+char *GDBAgent_PERL_init_commands;
+char *GDBAgent_PERL_settings;
 
 GDBAgent_PERL::GDBAgent_PERL (XtAppContext app_context,
 	      const string& gdb_call):

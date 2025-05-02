@@ -1,6 +1,7 @@
 // GDBAgent derived class to support DBX debugger
 //
-// Copyright (c) 2023 Michael J. Eager
+// Copyright (c) 2023-2025  Free Software Foundation, Inc.
+// Written by Michael J. Eager <eager@gnu.org>
 //
 // This file is part of DDD.
 // 
@@ -22,6 +23,9 @@
 // For details, see the DDD World-Wide-Web page, 
 // `http://www.gnu.org/software/ddd/',
 // or send a mail to the DDD developers <ddd@gnu.org>.
+
+extern char *GDBAgent_DBX_init_commands;
+extern char *GDBAgent_DBX_settings;
 
 class GDBAgent_DBX: public GDBAgent {
 public:
@@ -61,7 +65,7 @@ public:
     string detach_command(int pid) const override;
     string assign_command(const string& var, const string& expr) const override;
     string init_commands() const override 
-        { return app_data.dbx_init_commands; }
+        { return GDBAgent_DBX_init_commands; }
     string settings() const override 
-        { return app_data.dbx_settings; }
+        { return GDBAgent_DBX_settings; }
 };

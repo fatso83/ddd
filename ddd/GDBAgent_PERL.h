@@ -1,6 +1,7 @@
 // GDBAgent derived class to support PERL debugger
 //
-// Copyright (c) 2023 Michael J. Eager
+// Copyright (c) 2023-2025  Free Software Foundation, Inc.
+// Written by Michael J. Eager <eager@gnu.org>
 //
 // This file is part of DDD.
 // 
@@ -22,6 +23,9 @@
 // For details, see the DDD World-Wide-Web page, 
 // `http://www.gnu.org/software/ddd/',
 // or send a mail to the DDD developers <ddd@gnu.org>.
+
+extern char *GDBAgent_PERL_init_commands;
+extern char *GDBAgent_PERL_settings;
 
 class GDBAgent_PERL: public GDBAgent {
 public:
@@ -48,7 +52,7 @@ public:
     string rerun_command() const override { return "R"; }
     string assign_command(const string& var, const string& expr) const override;
     string init_commands() const override 
-        { return app_data.perl_init_commands; }
+        { return GDBAgent_PERL_init_commands; }
     string settings() const override 
-        { return app_data.perl_settings; }
+        { return GDBAgent_PERL_settings; }
 };

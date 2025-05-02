@@ -1,6 +1,7 @@
 // GDBAgent derived class to support PYDB debugger
 //
-// Copyright (c) 2023 Michael J. Eager
+// Copyright (c) 2023-2025  Free Software Foundation, Inc.
+// Written by Michael J. Eager <eager@gnu.org>
 //
 // This file is part of DDD.
 // 
@@ -28,6 +29,9 @@
 #include "base/cook.h"
 #include "regexps.h"
 #include "string-fun.h"
+
+char *GDBAgent_PYDB_init_commands;
+char *GDBAgent_PYDB_settings;
 
 GDBAgent_PYDB::GDBAgent_PYDB (XtAppContext app_context,
 	      const string& gdb_call):

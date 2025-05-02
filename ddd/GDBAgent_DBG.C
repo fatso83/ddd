@@ -1,6 +1,7 @@
 // GDBAgent derived class to support DBG debugger
 //
-// Copyright (c) 2023 Michael J. Eager
+// Copyright (c) 2023-2025  Free Software Foundation, Inc.
+// Written by Michael J. Eager <eager@gnu.org>
 //
 // This file is part of DDD.
 // 
@@ -25,6 +26,9 @@
 
 #include "GDBAgent.h"
 #include "GDBAgent_DBG.h"
+
+char *GDBAgent_DBG_init_commands;
+char *GDBAgent_DBG_settings;
 
 #define DBG_PROMPT "dbg>"
 
