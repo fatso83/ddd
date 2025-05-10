@@ -539,14 +539,14 @@ static void popdown_plot_shell(PlotWindowInfo *plot)
     entered = true;
 
     // Manage dialogs
-    if (plot->working_dialog != 0)
+    if (plot->working_dialog != nullptr)
 	XtUnmanageChild(plot->working_dialog);
-    if (plot->command_dialog != 0)
+    if (plot->command_dialog != nullptr)
 	XtUnmanageChild(plot->command_dialog);
-    if (plot->export_dialog != 0)
+    if (plot->export_dialog != nullptr)
 	XtUnmanageChild(plot->export_dialog);
 
-    if (plot->shell != 0)
+    if (plot->shell != nullptr && XtWindow(plot->shell)!=0)
     {
 	XWithdrawWindow(XtDisplay(plot->shell), XtWindow(plot->shell),
 			XScreenNumberOfScreen(XtScreen(plot->shell)));

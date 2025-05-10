@@ -659,7 +659,7 @@ XtResource ddd_resources[] = {
         sizeof(String),
         XtOffsetOf(AppData, plot_command),
         XtRString,
-        XtPointer("gnuplot -name @NAME@")
+        XtPointer("gnuplot -e \"set terminal x11 title '@NAME@'\" -")
     },
 
     {

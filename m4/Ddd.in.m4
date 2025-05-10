@@ -336,8 +336,7 @@ Ddd*uncompressCommand: @UNCOMPRESS@
 ! The string `@FONT@' is replaced by the current DDD default font.
 ! The string '@NAME@' is replaced by a window name assigned by DDD.
 Ddd*plotCommand: \
-gnuplot -bg 'TEXT_BACKGROUND_COLOR' -font '@FONT@' -name '@NAME@' \
--geometry +5000+5000
+gnuplot -e \"set terminal x11 title '@NAME@' font '@FONT@'\" -
 
 ! The Gnuplot window class.
 Ddd*plotWindow: Gnuplot
