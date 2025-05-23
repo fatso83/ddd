@@ -95,7 +95,6 @@ Boolean InstallBitmapAsXImage(Widget w, unsigned char *bits, int width, int heig
         const char *str = (const char *)xrmvalue.addr;
         int len   = xrmvalue.size - 1; // includes the final `\0'
         fg = string(str, len);
-        printf("%s.foreground: %s\n", name, fg.chars());
     }
 
     ok = XrmGetResource(db, "ddd*XmText.background", "Ddd*XmText.background", &type, &xrmvalue);
@@ -105,7 +104,6 @@ Boolean InstallBitmapAsXImage(Widget w, unsigned char *bits, int width, int heig
         const char *str = (const char *)xrmvalue.addr;
         int len   = xrmvalue.size - 1; // includes the final `\0'
         bg = string(str, len);
-        printf("XmText.background: %s\n", bg.chars());
     }
 
     Colormap colormap = DefaultColormap(display, DefaultScreen(display));
