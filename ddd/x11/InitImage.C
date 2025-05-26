@@ -91,20 +91,12 @@ Boolean InstallBitmapAsXImage(Widget w, unsigned char *bits, int width, int heig
     Bool ok = XrmGetResource(db, str_name.chars(), str_class.chars(), &type, &xrmvalue);
     string fg;
     if (ok)
-    {
-        const char *str = (const char *)xrmvalue.addr;
-        int len   = xrmvalue.size - 1; // includes the final `\0'
-        fg = string(str, len);
-    }
+        fg = string(xrmvalue.addr, xrmvalue.size - 1);
 
     ok = XrmGetResource(db, "ddd*XmText.background", "Ddd*XmText.background", &type, &xrmvalue);
     string bg;
     if (ok)
-    {
-        const char *str = (const char *)xrmvalue.addr;
-        int len   = xrmvalue.size - 1; // includes the final `\0'
-        bg = string(str, len);
-    }
+        bg = string(xrmvalue.addr, xrmvalue.size - 1);
 
     Colormap colormap = DefaultColormap(display, DefaultScreen(display));
 
@@ -132,20 +124,41 @@ Boolean InstallBitmapAsXImage(Widget w, unsigned char *bits, int width, int heig
                                     scaledwidth, scaledheight, 32, 0);
     image->data = (char *)malloc(image->height * image->bytes_per_line);
 
+    XImage *mask = XCreateImage(XtDisplay(w), visual, 1, XYBitmap, 0, nullptr,
+                                    scaledwidth, scaledheight, 8, 0);
+    mask->data = (char *)malloc(mask->height * mask->bytes_per_line);
+    memset(mask->data, 0, mask->height * mask->bytes_per_line);
+
     int bytes_per_line = (width + 7) / 8;
     for (int y = 0; y < image->height; y++)
     {
+        // determine the first and last foreground pixel and use it as mask
+        int firstpixel = image->width;
+        int lastpixel = -1;
         for (int x = 0; x < image->width; x++)
         {
             int xi = x / scalefactor;
             int yi = y / scalefactor;
             int pixel = (bits[yi*bytes_per_line + xi/8]>>(xi&0x7)) & 0x01;
             if (pixel)
+            {
                 XPutPixel(image, x, y, colorfgx.pixel);
+                firstpixel = min(firstpixel, x);
+                lastpixel = max(lastpixel, x);
+            }
             else
+            {
                 XPutPixel(image, x, y, colorbgx.pixel);
+            }
+
+            if (lastpixel>0)
+            {
+                for (int x = firstpixel; x <=lastpixel; x++)
+                    XPutPixel(mask, x, y, 1);
+            }
         }
     }
 
+    XmInstallImage(mask, XMST((string(name)+"-mask").chars()));
     return XmInstallImage(image, XMST(name));
 }

@@ -140,6 +140,8 @@ char SourceView_rcsid[] =
 #include <Xm/ToggleB.h>
 #include <X11/StringDefs.h>
 #include <X11/cursorfont.h>
+#include <X11/extensions/shapeconst.h>
+#include <X11/extensions/shape.h>
 
 #if XmVersion >= 2000
 #include <Xm/SpinB.h>
@@ -7270,15 +7272,9 @@ Widget SourceView::create_glyph(Widget form_w, const _XtString name)
 
     XtManageChild(w);
 
-    // arg = 0;
-    // if (!cache_glyph_images)
-    // {
-    //     Pixmap pix = pixmap(w, bits, width, height);
-    //     XtSetArg(args[arg], XmNlabelPixmap, pix); arg++;
-    // }
-    // XtSetArg(args[arg], XmNwidth,  width);  arg++;
-    // XtSetArg(args[arg], XmNheight, height); arg++;
-    // XtSetValues(w, args, arg);
+    Pixmap mask = XmGetPixmapByDepth(XtScreen(w), XMST((string(name)+"-mask").chars()), 1L, 0L, 1);
+    if (mask!=XmUNSPECIFIED_PIXMAP)
+        XShapeCombineMask(XtDisplay(w), XtWindow(w), ShapeBounding, 0, 0, mask, ShapeSet);
 
     XtAddCallback(w, XmNactivateCallback, ActivateGlyphCB, 0);
 
@@ -7575,51 +7571,11 @@ WidgetArray SourceView::grey_temps[2];
 // Create glyphs in the background
 Boolean SourceView::CreateGlyphsWorkProc(XtPointer)
 {
-    int k;
-    for (k = 0; k < 2; k++)
-    {
-        // On the Form widget, later children are displayed on top of
-        // earlier children.  A stop sign hiding an arrow gives more
-        // pleasing results than vice-versa, so place arrow glyph
-        // below sign glyphs.
-
-        Widget form_w = k ? code_form_w : source_form_w;
-
-        if (form_w == 0)
-            continue;
-
-        if (past_arrows[k] == 0)
-        {
-            past_arrows[k] = create_glyph(form_w, "past_arrow");
-            return False;
-        }
-
-        if (plain_arrows[k] == 0)
-        {
-            plain_arrows[k] = create_glyph(form_w, "plain_arrow");
-            return False;
-        }
-
-        if (grey_arrows[k] == 0)
-        {
-            grey_arrows[k] = create_glyph(form_w, "grey_arrow");
-            return False;
-        }
-
-        if (signal_arrows[k] == 0)
-        {
-            signal_arrows[k] = create_glyph(form_w, "signal_arrow");
-            return False;
-        }
-
-        if (drag_arrows[k] == 0)
-        {
-            drag_arrows[k] = create_glyph(form_w, "drag_arrow");
-            return False;
-        }
-    }
-   
-    for (k = 0; k < 2; k++)
+    // In a Form widget, later children are drawn on top of earlier ones.
+    // Sign glyphs are added before arrow glyphs, so they appear underneath.
+    // With the newly developed transparent background, this layering produces 
+    // more pleasing visual results. 
+    for (int k = 0; k < 2; k++)
     {
         Widget form_w = k ? code_form_w : source_form_w;
 
@@ -7720,6 +7676,44 @@ Boolean SourceView::CreateGlyphsWorkProc(XtPointer)
         if (drag_conds[k] == 0)
         {
             drag_conds[k] = create_glyph(form_w, "drag_cond");
+            return False;
+        }
+    }
+
+    for (int k = 0; k < 2; k++)
+    {
+        Widget form_w = k ? code_form_w : source_form_w;
+
+        if (form_w == 0)
+            continue;
+
+        if (past_arrows[k] == 0)
+        {
+            past_arrows[k] = create_glyph(form_w, "past_arrow");
+            return False;
+        }
+
+        if (plain_arrows[k] == 0)
+        {
+            plain_arrows[k] = create_glyph(form_w, "plain_arrow");
+            return False;
+        }
+
+        if (grey_arrows[k] == 0)
+        {
+            grey_arrows[k] = create_glyph(form_w, "grey_arrow");
+            return False;
+        }
+
+        if (signal_arrows[k] == 0)
+        {
+            signal_arrows[k] = create_glyph(form_w, "signal_arrow");
+            return False;
+        }
+
+        if (drag_arrows[k] == 0)
+        {
+            drag_arrows[k] = create_glyph(form_w, "drag_arrow");
             return False;
         }
     }
